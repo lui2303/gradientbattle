@@ -1,4 +1,4 @@
-export type objectiveFunction = {name?: string, objective: (point: Point) => number, gradient?: (point: Point) => Point}
+export type objectiveFunction = {readonly name?: string, objective: (point: Point) => number, gradient: (point: Point) => Point}
 
 export type Point = {
     x: number,
@@ -6,7 +6,6 @@ export type Point = {
 }
 
 export type Optimizer = {
-    readonly name: string,
     lr?: number,
     momentum?: number,
     step(point: Point): Point

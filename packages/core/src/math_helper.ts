@@ -19,3 +19,10 @@ export function vectorAddition(point1: Point, point2: Point): Point {
 export function dotProduct(point1: Point, point2: Point): number {
     return point1.x*point2.x + point1.y*point2.y
 }
+
+export function scalarMultiplication(point: Point, scalar: number): Point {
+    return {
+        x: point.x*scalar,
+        y: point.y*scalar
+    }
+}
