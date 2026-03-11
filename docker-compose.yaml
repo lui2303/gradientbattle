@@ -1,0 +1,15 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    working_dir: /workspace
+    command: bash -lc "corepack enable && pnpm install && pnpm dev"
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/workspace
+      - gradientbattle-pnpm-store:/pnpm-store
+
+volumes:
+  gradientbattle-pnpm-store:
