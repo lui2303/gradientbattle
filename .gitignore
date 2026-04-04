@@ -4,4 +4,4 @@ dist
 coverage
 .env
 .env.local
-.pnpm-store
+.pnpm-store/

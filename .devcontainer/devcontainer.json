@@ -22,5 +22,6 @@
       }
     }
   },
-  "postCreateCommand": "corepack enable && pnpm install && pnpm dev"
+  "postCreateCommand": "corepack enable && pnpm install",
+  "postStartCommand": "pnpm dev"
 }
