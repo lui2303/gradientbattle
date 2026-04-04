@@ -28,17 +28,19 @@ export default function ContourPlot() {
   ];
 
   const layout: Partial<Layout> = {
-    title: { text: 'Contour Plot', font: {color: "white" }},
+    title: { text: '$f(x, y) = x^2 + y^2$', font: {color: "white" }},
     xaxis: { title: { text: 'x' }, color: 'white' },
     yaxis: { title: { text: 'y' }, color: 'white'},
     paper_bgcolor: 'rgba(0,0,0,0)',
+    autosize: true
 
   };
 
   const config = {
     displayModeBar: false, 
-    staticPlot: true,      
+    staticPlot: true,
+    typesetMath: true,     
   };
 
-  return <Plot data={data} layout={layout} config={config}/>;
+  return <Plot data={data} layout={layout} config={config} useResizeHandler style={{ width: '100%', height: '100%' }}/>;
 }
