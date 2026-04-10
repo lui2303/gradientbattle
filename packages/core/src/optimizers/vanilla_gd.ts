@@ -3,6 +3,7 @@ import { scalarMultiplication, vectorAddition } from "../math_helper";
 
 
 class VanillaGD implements Optimizer {
+    name= "Vanilla Gradient Descent"
     lr: number
     objective: objectiveFunction;
 

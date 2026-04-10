@@ -10,6 +10,7 @@ export type Optimizer = {
     momentum?: number,
     step(point: Point): Point
     objective: objectiveFunction
+    name: string
 }
 
 export type Mat2 = [[number, number],
