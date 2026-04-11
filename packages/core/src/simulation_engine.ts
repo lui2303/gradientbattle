@@ -23,6 +23,11 @@ class SimulationEngine implements Iterable<Point[]>{
         this.optimizers.filter(opti => opti.name !== optimizer.name)
     }
 
+    clear() {
+        this.optimizers = []
+        this.iterates = []
+    }
+
     *[Symbol.iterator](): Iterator<Point[]> {
         let last_iterate: Point[] = Array.from({ length: this.optimizers.length }, () => ({ x: this.startingPoint.x, y: this.startingPoint.y }));;
         
@@ -33,6 +38,4 @@ class SimulationEngine implements Iterable<Point[]>{
             yield last_iterate;
         }
     }
-
-
 }

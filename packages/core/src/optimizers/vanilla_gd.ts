@@ -2,7 +2,7 @@ import type { objectiveFunction, Optimizer, Point } from "../types";
 import { scalarMultiplication, vectorAddition } from "../math_helper";
 
 
-class VanillaGD implements Optimizer {
+export class VanillaGD implements Optimizer {
     name= "Vanilla Gradient Descent"
     lr: number
     objective: objectiveFunction;

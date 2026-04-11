@@ -1,3 +1,4 @@
+import AlgorithmSelectContainer from "./components/AlgorithmSelectContainer";
 import ContourPlotter from "./components/ContourPlot";
 
 export default function Page() {
@@ -5,8 +6,10 @@ export default function Page() {
     <main className="min-h-screen p-8">
       <div className="mx-auto h-[500px] max-w-4xl">
         <ContourPlotter>
-          
         </ContourPlotter>
+        <AlgorithmSelectContainer>
+        </AlgorithmSelectContainer>
+        
       </div>
     </main>
   );
