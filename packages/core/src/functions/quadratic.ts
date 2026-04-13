@@ -1,5 +1,5 @@
 import type { Mat2, objectiveFunction, Point } from "../types";
-import { matMult, vectorAddition, dotProduct } from "../math_helper";
+import { matMult, vectorAddition, dotProduct, scalarMultiplication } from "../math_helper";
 
 class quadraticFunction implements objectiveFunction {
     readonly name = "Quadratic Function"
@@ -18,6 +18,6 @@ class quadraticFunction implements objectiveFunction {
     }
 
     gradient(point: Point): Point {
-        return vectorAddition(matMult(this.A, point), this.b)
+        return vectorAddition(matMult(this.A, scalarMultiplication(point, 2)), this.b)
     }
 }
