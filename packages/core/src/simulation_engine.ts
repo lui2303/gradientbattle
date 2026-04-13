@@ -20,7 +20,7 @@ class SimulationEngine implements Iterable<Point[]>{
     }
 
     removeOptimizer(optimizer: Optimizer) {
-        this.optimizers.filter(opti => opti.name !== optimizer.name)
+        this.optimizers = this.optimizers.filter(opti => opti.name !== optimizer.name)
     }
 
     clear() {
@@ -35,7 +35,7 @@ class SimulationEngine implements Iterable<Point[]>{
             for (const [index, optimizer] of this.optimizers.entries()) {
                 last_iterate[index] = optimizer.step(last_iterate[index])
             }
-            yield last_iterate;
+            yield [...last_iterate];
         }
     }
 }
