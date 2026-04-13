@@ -1,27 +1,29 @@
 'use client';
 
 import {optimizationAlgorithmsList, optimizationAlgorithms} from "@gradientbattle/core/src/optimizers/optimizer_registry"
-import { useState } from "react";
+import { AlgorithmSelectCardProps, Optimizer } from "../types";
 
-type AlgorithmSelectCardProps = {
-  id: number;
-  onAlgorithmChange: (id: number, algoName: string) => void;
-  onValueChange: (id: number, field: string, value: number) => void;
-};
-
-export default function AlgorithmSelectCard({id, onAlgorithmChange, onValueChange}: AlgorithmSelectCardProps) {
-    const [algo, setAlgo] = useState(optimizationAlgorithmsList[0]);
-
+export default function AlgorithmSelectCard({id, optimizers, setOptimizers}: AlgorithmSelectCardProps) {
     return (
         <div>
-            <select value={algo} onChange={(option) => {
-                                        onAlgorithmChange(id, option.target.value);
-                                        setAlgo(option.target.value)
+            <select value={optimizers[id]["name"]} onChange={(option) => {
+                                        const optimizer: Optimizer = {name: option.target.value, params: {...optimizationAlgorithms[option.target.value]["params"]}};
+                                        setOptimizers(prev => ({...prev, [id]: optimizer}))
                                         }}>
                 {optimizationAlgorithmsList.map((algo) => <option key={algo} value={algo}>{algo}</option>)}
             </select>
             <div className="parameters">
-                {optimizationAlgorithms[algo]["params"].map((param: string) => <label key={param}>{param}<input min = {0} type="number" step="0.01" onChange={(option) => {onValueChange(id, param, parseFloat(option.target.value))}}/></label>)}
+                {Object.keys(optimizers[id]["params"]).map((param: string) => <label key={param}>{param}<input min = {0} value={optimizers[id]["params"][param]} type="number" step="0.01" onChange={(option) => {
+                                                                                                                                                                        const newValue = parseFloat(option.target.value)
+                                                                                                                                                                        if (isNaN(newValue)) return
+                                                                                                                                                                        
+                                                                                                                                                                        setOptimizers(prev => ({...prev, [id]: {
+                                                                                                                                                                                ...prev[id],
+                                                                                                                                                                                params: { ...prev[id]["params"], [param]: newValue}
+                                                                                                                                                                            }
+                                                                                                                                                                        }))
+
+                                                                                                                                                                    }}/></label>)}
             </div>
         </div>
     )

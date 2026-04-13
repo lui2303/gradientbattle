@@ -1,7 +1,24 @@
 'use client';
 
+import { useState } from "react";
 import AlgorithmSelectCard from "./AlgorithmSelectCard";
+import { optimizationAlgorithms, optimizationAlgorithmsList } from "@gradientbattle/core/src/optimizers/optimizer_registry";
+import { Optimizer } from "../types";
 
 export default function AlgorithmSelectContainer() {
-    return <AlgorithmSelectCard id={1} onAlgorithmChange={(id:number, newAlgo: string) => console.log(newAlgo)} onValueChange={(id:number, field: string, value:number) => console.log(value)}></AlgorithmSelectCard>
-}
+    const defaultOptimizer = {
+            "name": optimizationAlgorithmsList[0],
+            "params": optimizationAlgorithms[optimizationAlgorithmsList[0]]["params"]
+        }
+    
+    const [optimizers, setOptimizers] = useState<Record<string, Optimizer>>({[crypto.randomUUID()]: defaultOptimizer})
+    console.log(optimizers)
+    return (
+        <div>
+            <div>
+                {Object.keys(optimizers).map((id) => <AlgorithmSelectCard key={id} id={id} optimizers={optimizers} setOptimizers={setOptimizers}></AlgorithmSelectCard>)}
+            </div>
+            
+            <button className="bg-red-500" onClick={() => setOptimizers(prev => ({ ...prev, [crypto.randomUUID()]: {...defaultOptimizer} }))}>Add new Optimizer</button>
+        </div>
+    )}
