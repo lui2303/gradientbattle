@@ -12,13 +12,12 @@ export default function AlgorithmSelectContainer() {
         }
     
     const [optimizers, setOptimizers] = useState<Record<string, Optimizer>>({[crypto.randomUUID()]: defaultOptimizer})
-    console.log(optimizers)
     return (
         <div>
             <div>
                 {Object.keys(optimizers).map((id) => <AlgorithmSelectCard key={id} id={id} optimizers={optimizers} setOptimizers={setOptimizers}></AlgorithmSelectCard>)}
             </div>
             
-            <button className="bg-red-500" onClick={() => setOptimizers(prev => ({ ...prev, [crypto.randomUUID()]: {...defaultOptimizer} }))}>Add new Optimizer</button>
+            <button className="bg-blue-500" onClick={() => setOptimizers(prev => ({ ...prev, [crypto.randomUUID()]: {...defaultOptimizer} }))}>Add new Optimizer</button>
         </div>
     )}

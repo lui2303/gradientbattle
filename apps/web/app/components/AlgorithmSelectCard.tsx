@@ -23,9 +23,14 @@ export default function AlgorithmSelectCard({id, optimizers, setOptimizers}: Alg
                                                                                                                                                                             }
                                                                                                                                                                         }))
 
-                                                                                                                                                                    }}/></label>)}
+                                                                                                                                                        }}/></label>)}
+            <button className="bg-blue-700" onClick={() => setOptimizers(prev => {
+                const copy = { ...prev } as Record<string, Optimizer>;
+                delete copy[id];
+                return copy})}>Remove</button>
             </div>
         </div>
+
     )
 }
 
