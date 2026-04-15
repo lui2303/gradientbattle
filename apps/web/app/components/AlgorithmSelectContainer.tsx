@@ -12,4 +12,5 @@ export default function AlgorithmSelectContainer({optimizers, setOptimizers, def
             
             <button className="bg-blue-500" onClick={() => setOptimizers(prev => ({ ...prev, [crypto.randomUUID()]: {...defaultOptimizer} }))}>Add new Optimizer</button>
         </div>
-    )}
+    )
+}

@@ -10,6 +10,12 @@
     "typecheck": "pnpm --filter web exec tsc --noEmit"
   },
   "dependencies": {
-    "@gradientbattle/core": "workspace:*"
+    "@gradientbattle/core": "workspace:*",
+    "plotly.js-cartesian-dist-min": "^3.5.0",
+    "plotly.js-dist-min": "^3.5.0",
+    "react-plotly.js": "^2.6.0"
+  },
+  "devDependencies": {
+    "@types/plotly.js": "^3.0.10"
   }
 }

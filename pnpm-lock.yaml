@@ -11,6 +11,19 @@ importers:
       '@gradientbattle/core':
         specifier: workspace:*
         version: link:packages/core
+      plotly.js-cartesian-dist-min:
+        specifier: ^3.5.0
+        version: 3.5.0
+      plotly.js-dist-min:
+        specifier: ^3.5.0
+        version: 3.5.0
+      react-plotly.js:
+        specifier: ^2.6.0
+        version: 2.6.0(plotly.js@3.4.0(mapbox-gl@1.13.3))(react@19.2.3)
+    devDependencies:
+      '@types/plotly.js':
+        specifier: ^3.0.10
+        version: 3.0.10
 
   apps/web:
     dependencies:
@@ -2231,6 +2244,12 @@ packages:
   picomatch@4.0.3:
     resolution: {integrity: sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==}
     engines: {node: '>=12'}
+
+  plotly.js-cartesian-dist-min@3.5.0:
+    resolution: {integrity: sha512-0O7a4rUKPj1/5JS8MKQWe18Sr20fDxBuXWrEcyL7n83PCeT+M5MQpCnWhcWHvwnOeNuQmUfTOeBc0nxsOMgjbQ==}
+
+  plotly.js-dist-min@3.5.0:
+    resolution: {integrity: sha512-rN+0P4M6eIHiNeKsyv4F0cCmA3pslxIjUpGpEh6PbNzEQQMjHbXFbC7nVUbK805TaLxnjh6FnwsVau/DlWimUA==}
 
   plotly.js@3.4.0:
     resolution: {integrity: sha512-jdWfHLB8AxlGUmVhqJTGEKdwjCKGn9Yi8yg16067/JyqseuSado7F6IOM1XPZspdZyO/cf8IPuy7ROlVhqZZNw==}
@@ -5184,6 +5203,10 @@ snapshots:
   picomatch@2.3.1: {}
 
   picomatch@4.0.3: {}
+
+  plotly.js-cartesian-dist-min@3.5.0: {}
+
+  plotly.js-dist-min@3.5.0: {}
 
   plotly.js@3.4.0(mapbox-gl@1.13.3):
     dependencies:
