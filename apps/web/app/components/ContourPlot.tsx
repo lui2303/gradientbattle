@@ -3,7 +3,7 @@
 import { Point } from '@gradientbattle/core';
 import dynamic from 'next/dynamic';
 import type { Data, Layout, PlotlyHTMLElement } from 'plotly.js';
-import { RefObject, useEffect, useMemo, useRef } from 'react';
+import { RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import {SimulationEngine} from '@gradientbattle/core/src/simulation_engine'
 
 const loadPlotly = () => import('plotly.js-cartesian-dist-min').then((m) => m.default);
@@ -23,6 +23,8 @@ const colors = ["#0bf565", "#f50be5", "#def50b"]
 
 export default function ContourPlot({simulationEngineRef}: {simulationEngineRef: RefObject<SimulationEngine | null>}) {
   const graphRef = useRef<PlotlyHTMLElement | null>(null);
+  const [running, setRunning] = useState(false);
+  const runningRef = useRef(false);
 
   const x = [-2, -1, 0, 1, 2];
   const y = [-2, -1, 0, 1, 2];
@@ -30,6 +32,16 @@ export default function ContourPlot({simulationEngineRef}: {simulationEngineRef:
 
 
   const playAll = async () => {
+    if (runningRef.current) {
+      runningRef.current = false;
+      setRunning(false);
+      return
+    }
+
+    runningRef.current = true;
+    setRunning(true);
+    
+
     console.log(graphRef.current)
     console.log(simulationEngineRef.current)
     const gd = graphRef.current;
@@ -55,6 +67,7 @@ export default function ContourPlot({simulationEngineRef}: {simulationEngineRef:
     await Plotly.addTraces(gd, optimizerTraces);
     
     for (const step of engine) {
+      if (runningRef.current !== true) return
       console.log(step)
       currentSteps = [...currentSteps, step]
 
@@ -72,6 +85,10 @@ export default function ContourPlot({simulationEngineRef}: {simulationEngineRef:
       }
       await new Promise((r) => setTimeout(r, 300));
     }
+
+    runningRef.current = false;
+    setRunning(false);
+
   };
 
   const layout: Partial<Layout> = {
@@ -107,7 +124,7 @@ export default function ContourPlot({simulationEngineRef}: {simulationEngineRef:
       />
 
       <div className="flex gap-2 mt-2">
-        <button onClick={playAll}>Play</button>
+        <button onClick={playAll}>{running ? "Stop" : "Start"}</button>
       </div>
     </div>
   );
