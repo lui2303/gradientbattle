@@ -1,6 +1,6 @@
 import { objectiveFunction, Optimizer, Point } from "./types";
 
-class SimulationEngine implements Iterable<Point[]>{
+export class SimulationEngine implements Iterable<Point[]>{
     objectiveFunc: objectiveFunction
     optimizers: Optimizer[]
     steps: number

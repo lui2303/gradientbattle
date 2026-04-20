@@ -3,7 +3,8 @@
 import { Point } from '@gradientbattle/core';
 import dynamic from 'next/dynamic';
 import type { Data, Layout, PlotlyHTMLElement } from 'plotly.js';
-import { useMemo, useRef } from 'react';
+import { RefObject, useEffect, useMemo, useRef } from 'react';
+import {SimulationEngine} from '@gradientbattle/core/src/simulation_engine'
 
 const loadPlotly = () => import('plotly.js-cartesian-dist-min').then((m) => m.default);
 
@@ -18,78 +19,60 @@ const Plot = dynamic(
   { ssr: false }
 );
 
-export default function ContourPlot({
-  startingPoint,
-}: {
-  startingPoint: Point;
-}) {
+const colors = ["#0bf565", "#f50be5", "#def50b"]
+
+export default function ContourPlot({simulationEngineRef}: {simulationEngineRef: RefObject<SimulationEngine | null>}) {
   const graphRef = useRef<PlotlyHTMLElement | null>(null);
 
   const x = [-2, -1, 0, 1, 2];
   const y = [-2, -1, 0, 1, 2];
   const z = y.map((yv) => x.map((xv) => xv * xv + yv * yv));
 
-  const steps = useMemo(
-    () => [
-      { x: startingPoint.x, y: startingPoint.y },
-      { x: 1, y: 1 },
-      { x: 1.5, y: 0 },
-      { x: 0, y: 1 },
-    ],
-    [startingPoint]
-  );
-
-  // Plotly.restyle updates the existing SVG elements in place — no z-order changes,
-  // no addFrames race condition, no redraw side-effects.
-  const goToStep = async (i: number) => {
-    const gd = graphRef.current;
-    if (!gd || i < 0 || i >= steps.length) return;
-    const Plotly = await loadPlotly();
-    await Plotly.restyle(
-      gd,
-      {
-        x: [steps.slice(0, i + 1).map((p) => p.x), [steps[i].x]],
-        y: [steps.slice(0, i + 1).map((p) => p.y), [steps[i].y]],
-      },
-      [1, 2]
-    );
-  };
 
   const playAll = async () => {
-    for (let i = 0; i < steps.length; i++) {
-      await goToStep(i);
+    console.log(graphRef.current)
+    console.log(simulationEngineRef.current)
+    const gd = graphRef.current;
+    if (!gd) return;
+    if (!simulationEngineRef.current) return
+    
+    const Plotly = await loadPlotly();
+    
+    const engine: SimulationEngine = simulationEngineRef.current
+
+    let currentSteps: Point[][] = [engine.optimizers.map(() => ({x: engine.startingPoint.x, y: engine.startingPoint.y}))]
+
+
+    const optimizerTraces = engine.optimizers.map((opt, i) => ({
+      x: [engine.startingPoint.x],
+      y: [engine.startingPoint.y],
+      type: "scatter" as const,
+      mode: "lines+markers" as const,
+      name: opt.name,
+      line: { color: colors[i] },
+    }));
+
+    await Plotly.addTraces(gd, optimizerTraces);
+    
+    for (const step of engine) {
+      console.log(step)
+      currentSteps = [...currentSteps, step]
+
+      
+      for (let i=0; i < step.length; i++) {
+        await Plotly.restyle(
+        gd,
+        { 
+          x: [currentSteps.map((p) => p[i].x)],
+          y: [currentSteps.map((p) => p[i].y)],
+        },
+        [i+1]
+      );
+
+      }
       await new Promise((r) => setTimeout(r, 300));
     }
   };
-
-  const data: Partial<Data>[] = [
-    {
-      type: 'contour',
-      x,
-      y,
-      z,
-      name: 'Loss surface',
-      colorbar: { tickfont: { color: 'white' } },
-    },
-    {
-      type: 'scatter',
-      mode: 'lines',
-      name: 'Path',
-      x: [steps[0].x],
-      y: [steps[0].y],
-      line: { color: '#3b82f6', width: 3 },
-      marker: { color: '#3b82f6', size: 8 },
-    },
-    {
-      type: 'scatter',
-      mode: 'markers',
-      name: 'Current point',
-      x: [steps[0].x],
-      y: [steps[0].y],
-      marker: { color: '#f59e0b', size: 12 },
-      showlegend: false,
-    },
-  ];
 
   const layout: Partial<Layout> = {
     title: { text: '$f(x, y) = x^2 + y^2$', font: { color: 'white' } },
@@ -103,7 +86,14 @@ export default function ContourPlot({
   return (
     <div>
       <Plot
-        data={data}
+        data={[{
+          type: "contour",
+          x,
+          y,
+          z,
+          name: "Loss surface",
+          colorbar: { tickfont: { color: "white" } },
+        }]}
         layout={layout}
         config={{ displayModeBar: false, typesetMath: true }}
         useResizeHandler
@@ -117,9 +107,6 @@ export default function ContourPlot({
       />
 
       <div className="flex gap-2 mt-2">
-        <button onClick={() => goToStep(1)}>Step 1</button>
-        <button onClick={() => goToStep(2)}>Step 2</button>
-        <button onClick={() => goToStep(3)}>Step 3</button>
         <button onClick={playAll}>Play</button>
       </div>
     </div>

@@ -2,9 +2,12 @@
 
 import { optimizationAlgorithms, optimizationAlgorithmsList } from "@gradientbattle/core/src/optimizers/optimizer_registry"
 import AlgorithmSelectContainer from "./AlgorithmSelectContainer"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { Optimizer } from "../types"
 import ContourPlot from "./ContourPlot"
+import { SimulationEngine } from "@gradientbattle/core/src/simulation_engine"
+import { quadraticFunction } from "@gradientbattle/core/src/functions/quadratic"
+import { DummyOptimizer } from "@gradientbattle/core/src/optimizers/dummy_optimizer"
 
 export function AlgoSimulation() {
 
@@ -16,10 +19,18 @@ export function AlgoSimulation() {
     const [optimizers, setOptimizers] = useState<Record<string, Optimizer>>({[crypto.randomUUID()]: defaultOptimizer})
     const [startingPoint, setStartingPoint] = useState({x: 1, y:1})
     const [simulationRunning, setSimulationRunning] = useState(false)
+    const engineRef = useRef<SimulationEngine | null>(null);
 
+  if (engineRef.current === null) {
+    const quadratic = new quadraticFunction([[1,2], [2,3]], {x: 1, y:1}, 2)
+    const engine = new SimulationEngine(quadratic, 10, { x: 0, y: 0 });
+    engine.addOptimizer(new DummyOptimizer(-0.05, quadratic))
+    engine.addOptimizer(new DummyOptimizer(0.1, quadratic))
+    engineRef.current = engine
+}
     return (
         <div>
-            <ContourPlot startingPoint={startingPoint}>
+            <ContourPlot simulationEngineRef={engineRef}>
             </ContourPlot>
             
             <div className="grid grid-cols-[140px_auto] gap-y-2">
