@@ -8,6 +8,7 @@ import ContourPlot from "./ContourPlot"
 import { SimulationEngine } from "@gradientbattle/core/src/simulation_engine"
 import { quadraticFunction } from "@gradientbattle/core/src/functions/quadratic"
 import { DummyOptimizer } from "@gradientbattle/core/src/optimizers/dummy_optimizer"
+import { optimizerFactory } from "@gradientbattle/core/src/optimizers/optimizer_factory"
 import { start } from "repl"
 
 export function AlgoSimulation() {
@@ -24,11 +25,12 @@ export function AlgoSimulation() {
         () => {
             const quadratic = new quadraticFunction([[1,2], [2,3]], {x: 1, y:1}, 2)
             const engine = new SimulationEngine(quadratic, 10, startingPoint);
-            engine.addOptimizer(new DummyOptimizer(-0.05, quadratic))
-            engine.addOptimizer(new DummyOptimizer(0.1, quadratic))
+            Object.keys(optimizers).forEach((optiKey) => {
+                engine.addOptimizer(optimizerFactory(optimizers[optiKey].name, {...optimizers[optiKey].params, objective: quadratic}))
+            })
             return engine
         },
-        [startingPoint]
+        [startingPoint, optimizers]
     );
 
     return (

@@ -1,7 +1,7 @@
 import { objectiveFunction } from "../types"
 import { VanillaGD } from "./vanilla_gd"
 
-type Param = {name: string, value: number}
+export type Param = {name: string, value: number}
 export const optimizationAlgorithms: Record<string, Record<string, Record<string, number>>> = {
     "Vanilla Gradient Descent": {"params": {"lr": 0.05}},
     "Dummy Optimization Algorithm": {"params": {"lr": 2, "alpha": 0.07}}
