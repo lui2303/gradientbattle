@@ -1,8 +1,8 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import type { Data, Layout, PlotlyHTMLElement, ScatterData, PlotData } from 'plotly.js';
-import { RefObject, useEffect, useMemo, useRef, useState } from 'react';
+import type { Layout, PlotData } from 'plotly.js';
+import { RefObject, useRef, useState } from 'react';
 import {SimulationEngine} from '@gradientbattle/core/src/simulation_engine'
 
 const loadPlotly = () => import('plotly.js-cartesian-dist-min').then((m) => m.default);
@@ -20,7 +20,7 @@ const Plot = dynamic(
 
 const colors = ["#0bf565", "#f50be5", "#def50b"]
 
-export default function ContourPlot({simulationEngineRef}: {simulationEngineRef: RefObject<SimulationEngine | null>}) {
+export default function ContourPlot({simulationEngine}: {simulationEngine: SimulationEngine}) {
   const [running, setRunning] = useState(false);
   const runningRef = useRef(false);
   
@@ -39,6 +39,7 @@ export default function ContourPlot({simulationEngineRef}: {simulationEngineRef:
   const [traces, setTraces] = useState<Partial<PlotData>[]>([contourTrace])
 
   const playAll = async () => {
+    
     if (runningRef.current) {
       runningRef.current = false;
       setRunning(false);
@@ -47,16 +48,11 @@ export default function ContourPlot({simulationEngineRef}: {simulationEngineRef:
 
     runningRef.current = true;
     setRunning(true);
-    
-    console.log(simulationEngineRef.current)
 
-    if (!simulationEngineRef.current) return
 
-    const engine: SimulationEngine = simulationEngineRef.current
-
-    const optimizerTraces = engine.optimizers.map((opt, i) => ({
-      x: [engine.startingPoint.x],
-      y: [engine.startingPoint.y],
+    const optimizerTraces = simulationEngine.optimizers.map((opt, i) => ({
+      x: [simulationEngine.startingPoint.x],
+      y: [simulationEngine.startingPoint.y],
       type: "scatter" as const,
       mode: "lines+markers" as const,
       name: opt.name,
@@ -65,7 +61,7 @@ export default function ContourPlot({simulationEngineRef}: {simulationEngineRef:
 
     setTraces(prev => [...prev.slice(0,1), ...optimizerTraces])
     
-    for (const step of engine) {
+    for (const step of simulationEngine) {
       if (runningRef.current !== true) return
 
       console.log(step)
