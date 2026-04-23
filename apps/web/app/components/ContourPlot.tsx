@@ -1,8 +1,7 @@
 'use client';
 
-import { Point } from '@gradientbattle/core';
 import dynamic from 'next/dynamic';
-import type { Data, Layout, PlotlyHTMLElement } from 'plotly.js';
+import type { Data, Layout, PlotlyHTMLElement, ScatterData, PlotData } from 'plotly.js';
 import { RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import {SimulationEngine} from '@gradientbattle/core/src/simulation_engine'
 
@@ -22,14 +21,22 @@ const Plot = dynamic(
 const colors = ["#0bf565", "#f50be5", "#def50b"]
 
 export default function ContourPlot({simulationEngineRef}: {simulationEngineRef: RefObject<SimulationEngine | null>}) {
-  const graphRef = useRef<PlotlyHTMLElement | null>(null);
   const [running, setRunning] = useState(false);
   const runningRef = useRef(false);
-
+  
   const x = [-2, -1, 0, 1, 2];
   const y = [-2, -1, 0, 1, 2];
   const z = y.map((yv) => x.map((xv) => xv * xv + yv * yv));
 
+  const contourTrace = {
+          type: "contour" as const,
+          x,
+          y,
+          z,
+          name: "Loss surface",
+          colorbar: { tickfont: { color: "white" } },
+        }
+  const [traces, setTraces] = useState<Partial<PlotData>[]>([contourTrace])
 
   const playAll = async () => {
     if (runningRef.current) {
@@ -41,19 +48,11 @@ export default function ContourPlot({simulationEngineRef}: {simulationEngineRef:
     runningRef.current = true;
     setRunning(true);
     
-
-    console.log(graphRef.current)
     console.log(simulationEngineRef.current)
-    const gd = graphRef.current;
-    if (!gd) return;
+
     if (!simulationEngineRef.current) return
-    
-    const Plotly = await loadPlotly();
-    
+
     const engine: SimulationEngine = simulationEngineRef.current
-
-    let currentSteps: Point[][] = [engine.optimizers.map(() => ({x: engine.startingPoint.x, y: engine.startingPoint.y}))]
-
 
     const optimizerTraces = engine.optimizers.map((opt, i) => ({
       x: [engine.startingPoint.x],
@@ -64,25 +63,25 @@ export default function ContourPlot({simulationEngineRef}: {simulationEngineRef:
       line: { color: colors[i] },
     }));
 
-    await Plotly.addTraces(gd, optimizerTraces);
+    setTraces(prev => [...prev.slice(0,1), ...optimizerTraces])
     
     for (const step of engine) {
       if (runningRef.current !== true) return
-      console.log(step)
-      currentSteps = [...currentSteps, step]
 
-      
-      for (let i=0; i < step.length; i++) {
-        await Plotly.restyle(
-        gd,
-        { 
-          x: [currentSteps.map((p) => p[i].x)],
-          y: [currentSteps.map((p) => p[i].y)],
-        },
-        [i+1]
+      console.log(step)
+
+      setTraces(prev =>
+        prev.map((trace, index) =>
+          index === 0 || !trace
+            ? trace
+            : {
+                ...trace,
+                x: [...((trace.x as number[] | undefined) ?? []), step[index - 1].x],
+                y: [...((trace.y as number[] | undefined) ?? []), step[index - 1].y]
+              }
+        )
       );
 
-      }
       await new Promise((r) => setTimeout(r, 300));
     }
 
@@ -103,24 +102,11 @@ export default function ContourPlot({simulationEngineRef}: {simulationEngineRef:
   return (
     <div>
       <Plot
-        data={[{
-          type: "contour",
-          x,
-          y,
-          z,
-          name: "Loss surface",
-          colorbar: { tickfont: { color: "white" } },
-        }]}
+        data={traces}
         layout={layout}
         config={{ displayModeBar: false, typesetMath: true }}
         useResizeHandler
         style={{ width: '100%', height: '100%' }}
-        onInitialized={(_, gd) => {
-          graphRef.current = gd as PlotlyHTMLElement;
-        }}
-        onUpdate={(_, gd) => {
-          graphRef.current = gd as PlotlyHTMLElement;
-        }}
       />
 
       <div className="flex gap-2 mt-2">
