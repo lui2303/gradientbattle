@@ -5,14 +5,14 @@ export class SimulationEngine implements Iterable<Point[]>{
     optimizers: Optimizer[]
     steps: number
     iterates: Point[][]
-    startingPoint: Point
+    startingPoints: Point[]
 
-    constructor(objFunc: objectiveFunction, steps: number, startingPoint: Point) {
+    constructor(objFunc: objectiveFunction, steps: number, startingPoints: Point[]) {
         this.objectiveFunc = objFunc
         this.optimizers = [];
         this.steps = steps
         this.iterates = []
-        this.startingPoint = startingPoint
+        this.startingPoints = startingPoints
     } 
 
     addOptimizer(optimizer: Optimizer) {
@@ -29,8 +29,8 @@ export class SimulationEngine implements Iterable<Point[]>{
     }
 
     *[Symbol.iterator](): Iterator<Point[]> {
-        let last_iterate: Point[] = Array.from({ length: this.optimizers.length }, () => ({ x: this.startingPoint.x, y: this.startingPoint.y }));;
-        
+        let last_iterate: Point[] = this.startingPoints
+
         for (let i = 0; i < this.steps; i++) {
             for (const [index, optimizer] of this.optimizers.entries()) {
                 last_iterate[index] = optimizer.step(last_iterate[index])

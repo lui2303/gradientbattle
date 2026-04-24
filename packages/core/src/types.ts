@@ -11,6 +11,7 @@ export type Optimizer = {
     step(point: Point): Point
     objective: objectiveFunction
     name: string
+    startingPoint: Point
 }
 
 export type Mat2 = [[number, number],

@@ -58,8 +58,8 @@ export default function ContourPlot({simulationEngine, objFunction}: {simulation
 
 
     const optimizerTraces = simulationEngine.optimizers.map((opt, i) => ({
-      x: [simulationEngine.startingPoint.x],
-      y: [simulationEngine.startingPoint.y],
+      x: [opt.startingPoint.x],
+      y: [opt.startingPoint.y],
       type: "scatter" as const,
       mode: "lines+markers" as const,
       name: opt.name,

@@ -6,11 +6,13 @@ export class DummyOptimizer implements Optimizer {
     lr: number
     objective: objectiveFunction
     alpha: number
+    startingPoint: Point;
 
-    constructor(lr: number, objective: objectiveFunction, alpha: number) {
+    constructor(lr: number, objective: objectiveFunction, alpha: number, startingPoint: Point) {
         this.lr = lr
         this.objective = objective
         this.alpha = alpha
+        this.startingPoint = startingPoint
     }
 
     step(point: Point): Point {

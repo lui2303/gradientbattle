@@ -6,10 +6,12 @@ export class VanillaGD implements Optimizer {
     name= "Vanilla Gradient Descent"
     lr: number
     objective: objectiveFunction;
+    startingPoint: Point;
 
-    constructor(lr: number, objective: objectiveFunction) {
+    constructor(lr: number, objective: objectiveFunction, startingPoint: Point) {
         this.lr = lr
         this.objective = objective
+        this.startingPoint = startingPoint
     }
 
     step(point: Point): Point {
