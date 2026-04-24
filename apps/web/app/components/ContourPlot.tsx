@@ -2,8 +2,9 @@
 
 import dynamic from 'next/dynamic';
 import type { Layout, PlotData } from 'plotly.js';
-import { RefObject, useRef, useState } from 'react';
+import { RefObject, useMemo, useRef, useState } from 'react';
 import {SimulationEngine} from '@gradientbattle/core/src/simulation_engine'
+import { objectiveFunction } from '@gradientbattle/core';
 
 const loadPlotly = () => import('plotly.js-cartesian-dist-min').then((m) => m.default);
 
@@ -20,19 +21,25 @@ const Plot = dynamic(
 
 const colors = ["#0bf565", "#f50be5", "#def50b"]
 
-export default function ContourPlot({simulationEngine}: {simulationEngine: SimulationEngine}) {
+export default function ContourPlot({simulationEngine, objFunction}: {simulationEngine: SimulationEngine, objFunction: objectiveFunction}) {
   const [running, setRunning] = useState(false);
   const runningRef = useRef(false);
   
-  const x = [-2, -1, 0, 1, 2];
-  const y = [-2, -1, 0, 1, 2];
-  const z = y.map((yv) => x.map((xv) => xv * xv + yv * yv));
+  const plotValues = useMemo(() => {
+    const x = Array.from({ length: 100 }, (_, i) => i * 0.25 - 10)
+    const y = Array.from({ length: 100 }, (_, i) => i * 0.25 - 10 )
 
+    const z = y.map((yv) => x.map((xv) => objFunction.objective({x: xv, y: yv})))
+    
+    return {x:x, y:y, z:z}
+  }, [objFunction])
+
+  
   const contourTrace = {
           type: "contour" as const,
-          x,
-          y,
-          z,
+          x: plotValues["x"],
+          y: plotValues["y"],
+          z: plotValues["z"],
           name: "Loss surface",
           colorbar: { tickfont: { color: "white" } },
         }
@@ -88,8 +95,8 @@ export default function ContourPlot({simulationEngine}: {simulationEngine: Simul
 
   const layout: Partial<Layout> = {
     title: { text: '$f(x, y) = x^2 + y^2$', font: { color: 'white' } },
-    xaxis: { title: { text: 'x' }, color: 'white', range: [Math.min(...x), Math.max(...x)] },
-    yaxis: { title: { text: 'y' }, color: 'white', range: [Math.min(...y), Math.max(...y)] },
+    xaxis: { title: { text: 'x' }, color: 'white', range: [Math.min(...plotValues["x"]), Math.max(...plotValues["x"])] },
+    yaxis: { title: { text: 'y' }, color: 'white', range: [Math.min(...plotValues["y"]), Math.max(...plotValues["y"])] },
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
     autosize: true,
