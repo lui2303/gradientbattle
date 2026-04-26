@@ -9,8 +9,8 @@ export default function AlgorithmSelectContainer({optimizers, setOptimizers, def
             <div>
                 {Object.keys(optimizers).map((id) => <AlgorithmSelectCard key={id} id={id} optimizers={optimizers} setOptimizers={setOptimizers}></AlgorithmSelectCard>)}
             </div>
+            {Object.keys(optimizers).length < 5 && <button className="bg-blue-500" onClick={() => setOptimizers(prev => ({ ...prev, [crypto.randomUUID()]: {...defaultOptimizer} }))}>Add new Optimizer</button>}
             
-            <button className="bg-blue-500" onClick={() => setOptimizers(prev => ({ ...prev, [crypto.randomUUID()]: {...defaultOptimizer} }))}>Add new Optimizer</button>
         </div>
     )
 }
