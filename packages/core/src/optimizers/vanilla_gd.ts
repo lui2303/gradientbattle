@@ -17,7 +17,6 @@ export class VanillaGD implements Optimizer {
     }
 
     step(point: Point): Point {
-        console.log(this.objective)
         const gradientStep: Point = scalarMultiplication(this.objective.gradient(point), -this.lr)
 
         return vectorAddition(gradientStep, point)

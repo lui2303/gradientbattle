@@ -29,7 +29,7 @@ export class SimulationEngine implements Iterable<Point[]>{
     }
 
     *[Symbol.iterator](): Iterator<Point[]> {
-        let last_iterate: Point[] = this.startingPoints
+        let last_iterate: Point[] = [...this.startingPoints]
 
         for (let i = 0; i < this.steps; i++) {
             for (const [index, optimizer] of this.optimizers.entries()) {
