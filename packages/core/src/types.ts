@@ -12,6 +12,7 @@ export type Optimizer = {
     objective: objectiveFunction
     name: string
     startingPoint: Point
+    id: string
 }
 
 export type Mat2 = [[number, number],

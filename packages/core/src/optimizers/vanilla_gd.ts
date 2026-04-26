@@ -5,13 +5,15 @@ import { scalarMultiplication, vectorAddition } from "../math_helper";
 export class VanillaGD implements Optimizer {
     name= "Vanilla Gradient Descent"
     lr: number
-    objective: objectiveFunction;
-    startingPoint: Point;
+    objective: objectiveFunction
+    startingPoint: Point
+    id: string
 
-    constructor(lr: number, objective: objectiveFunction, startingPoint: Point) {
+    constructor(lr: number, objective: objectiveFunction, startingPoint: Point, id: string) {
         this.lr = lr
         this.objective = objective
         this.startingPoint = startingPoint
+        this.id = id
     }
 
     step(point: Point): Point {

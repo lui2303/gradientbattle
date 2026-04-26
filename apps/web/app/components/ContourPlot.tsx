@@ -5,6 +5,7 @@ import type { Layout, PlotData } from 'plotly.js';
 import { RefObject, useMemo, useRef, useState } from 'react';
 import {SimulationEngine} from '@gradientbattle/core/src/simulation_engine'
 import { objectiveFunction } from '@gradientbattle/core';
+import { Optimizer } from '../types';
 
 const loadPlotly = () => import('plotly.js-cartesian-dist-min').then((m) => m.default);
 
@@ -19,9 +20,7 @@ const Plot = dynamic(
   { ssr: false }
 );
 
-const colors = ["#0bf565", "#f50be5", "#def50b"]
-
-export default function ContourPlot({simulationEngine, objFunction}: {simulationEngine: SimulationEngine, objFunction: objectiveFunction}) {
+export default function ContourPlot({simulationEngine, objFunction, optimizers}: {simulationEngine: SimulationEngine, objFunction: objectiveFunction, optimizers: Record<string, Optimizer>}) {
   const [running, setRunning] = useState(false);
   const runningRef = useRef(false);
   
@@ -56,22 +55,19 @@ export default function ContourPlot({simulationEngine, objFunction}: {simulation
     runningRef.current = true;
     setRunning(true);
 
-
     const optimizerTraces = simulationEngine.optimizers.map((opt, i) => ({
       x: [opt.startingPoint.x],
       y: [opt.startingPoint.y],
       type: "scatter" as const,
       mode: "lines+markers" as const,
       name: opt.name,
-      line: { color: colors[i] },
+      line: { color: optimizers[opt.id].color },
     }));
 
     setTraces(prev => [...prev.slice(0,1), ...optimizerTraces])
     
     for (const step of simulationEngine) {
       if (runningRef.current !== true) return
-
-      console.log(step)
 
       setTraces(prev =>
         prev.map((trace, index) =>
