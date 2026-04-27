@@ -1,6 +1,6 @@
 import { Point } from "@gradientbattle/core/src/types";
 
-export type Optimizer = {name: string, params: Record<string, number>, startingPoint: Point}
+export type Optimizer = {name: string, params: Record<string, number>, startingPoint: Point, color: string}
 
 export type AlgorithmSelectCardProps = {
   id: string;

@@ -15,6 +15,10 @@ export type Optimizer = {
     id: string
 }
 
+export type Parameter = objectiveFunction | number | Point | string
+
 export type Mat2 = [[number, number],
                     [number, number]]
+
+    
 
