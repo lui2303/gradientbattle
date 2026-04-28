@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import type { Layout, PlotData } from 'plotly.js';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {SimulationEngine} from '@gradientbattle/core/src/simulation_engine'
 import { objectiveFunction } from '@gradientbattle/core';
 import { Optimizer } from '../types';
@@ -23,6 +23,7 @@ const Plot = dynamic(
 export default function ContourPlot({simulationEngine, objFunction, optimizers}: {simulationEngine: SimulationEngine, objFunction: objectiveFunction, optimizers: Record<string, Optimizer>}) {
   const [running, setRunning] = useState(false);
   const runningRef = useRef(false);
+  const [optimizerTraces, setOptimizerTraces] = useState<Partial<PlotData>[]>([])
   
   const plotValues = useMemo(() => {
     const x = Array.from({ length: 101 }, (_, i) => i * 0.2 - 10)
@@ -33,17 +34,18 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers}:
     return {x:x, y:y, z:z}
   }, [objFunction])
 
-  
-  const contourTrace = useMemo(() => ({
-    type: "contour" as const,
-    x: plotValues["x"],
-    y: plotValues["y"],
-    z: plotValues["z"],
-    name: "Loss surface",
-    colorbar: { tickfont: { color: "white" } },
-  }), [plotValues])
+  const contourTrace = useMemo(() => {
+    
+    return {
+      type: "contour" as const,
+      x: plotValues["x"],
+      y: plotValues["y"],
+      z: plotValues["z"],
+      name: "Loss surface",
+      colorbar: { tickfont: { color: "white" } },
+  }}, [plotValues])
 
-  const [optimizerTraces, setOptimizerTraces] = useState<Partial<PlotData>[]>([])
+  
 
   const playAll = async () => {
     
@@ -52,6 +54,8 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers}:
       setRunning(false);
       return
     }
+
+    if ( simulationEngine.optimizers.length === 0) return
 
     runningRef.current = true;
     setRunning(true);
@@ -116,3 +120,4 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers}:
   );
 }
 
+// TODO: clear optimizer traces after function change!!
