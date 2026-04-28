@@ -1,10 +1,13 @@
+import { objectiveFunction } from "../types";
 import { functionList } from "./function_registry";
-import { quadraticFunction } from "./quadratic"
+import { quadraticFunction } from "./quadratic_function"
+import { matyasFunction } from "./matyas_function"
 
 
-export function functionFactory(functionName: string, props: any) {
+export function functionFactory(functionName: string): objectiveFunction {
     switch(functionName) {
-        case functionList[0]:
-            return new quadraticFunction(props.A, props.b, props.d)
+        case functionList[1]:
+            return new matyasFunction();
     }
+    return new quadraticFunction([[1,0], [0,1]], {x:0, y:0}, 0)
 }

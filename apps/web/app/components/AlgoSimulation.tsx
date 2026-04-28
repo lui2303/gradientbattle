@@ -6,8 +6,10 @@ import { useMemo, useRef, useState } from "react"
 import { Optimizer } from "../types"
 import ContourPlot from "./ContourPlot"
 import { SimulationEngine } from "@gradientbattle/core/src/simulation_engine"
-import { quadraticFunction } from "@gradientbattle/core/src/functions/quadratic"
+import { quadraticFunction } from "@gradientbattle/core/src/functions/quadratic_function"
 import { optimizerFactory } from "@gradientbattle/core/src/optimizers/optimizer_factory"
+import { FunctionSelector } from "./FunctionSelector"
+import { objectiveFunction } from "@gradientbattle/core"
 
 
 
@@ -20,7 +22,7 @@ export function AlgoSimulation() {
             "color": "#0bf565"
         }
 
-    const [func, setFunc] = useState(new quadraticFunction([[1, 0],[0,1]], {x: 0, y:0}, 0))
+    const [func, setFunc] = useState<objectiveFunction>(new quadraticFunction([[1, 0],[0,1]], {x: 0, y:0}, 0))
             
     const [optimizers, setOptimizers] = useState<Record<string, Optimizer>>({[crypto.randomUUID()]: defaultOptimizer})
 
@@ -41,6 +43,8 @@ export function AlgoSimulation() {
         <div>
             <ContourPlot simulationEngine={engine} objFunction={func} optimizers={optimizers}>
             </ContourPlot>
+
+            <FunctionSelector func={func} setFunc={setFunc}></FunctionSelector>
                 
             <AlgorithmSelectContainer optimizers={optimizers} setOptimizers={setOptimizers} defaultOptimizer={defaultOptimizer}>
             </AlgorithmSelectContainer>

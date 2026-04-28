@@ -1,1 +1,1 @@
-export const functionList = ["Quadratic"]
+export const functionList = ["Quadratic", "Matyas"]
