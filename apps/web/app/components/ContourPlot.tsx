@@ -24,6 +24,7 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers}:
   const [running, setRunning] = useState(false);
   const runningRef = useRef(false);
   const [optimizerTraces, setOptimizerTraces] = useState<Partial<PlotData>[]>([])
+  const [animationSpeed, setAnimationSpeed] = useState(50)
   
   const plotValues = useMemo(() => {
     const x = Array.from({ length: 101 }, (_, i) => i * 0.2 - 10)
@@ -86,7 +87,7 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers}:
         )
       );
 
-      await new Promise((r) => setTimeout(r, 300));
+      await new Promise((r) => setTimeout(r, animationSpeed));
     }
 
     runningRef.current = false;
@@ -115,6 +116,15 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers}:
 
       <div className="flex gap-2 mt-2">
         <button onClick={playAll}>{running ? "Stop" : "Start"}</button>
+        <label>Animation Speed: { animationSpeed } ms</label>
+        <input
+          type="range"
+          min="50"
+          max="2000"
+          value={animationSpeed}
+          onChange={(e) => setAnimationSpeed(Number(e.target.value))}
+          style={{ width: "100%" }}
+        />
       </div>
     </div>
   );

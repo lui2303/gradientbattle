@@ -25,7 +25,7 @@ export function AlgoSimulation() {
     const [func, setFunc] = useState<objectiveFunction>(new quadraticFunction([[1, 0],[0,1]], {x: 0, y:0}, 0))
             
     const [optimizers, setOptimizers] = useState<Record<string, Optimizer>>({[crypto.randomUUID()]: defaultOptimizer})
-
+    
     const engine = useMemo(
         () => {
             const engine = new SimulationEngine(func, 100, Object.values(optimizers).map(x => x.startingPoint));
