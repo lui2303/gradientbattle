@@ -1,4 +1,4 @@
-export type objectiveFunction = {readonly name?: string, objective: (point: Point) => number, gradient: (point: Point) => Point}
+export type objectiveFunction = {readonly name?: string, objective: (point: Point) => number, gradient: (point: Point) => Point, latex: string}
 
 export type Point = {
     x: number,

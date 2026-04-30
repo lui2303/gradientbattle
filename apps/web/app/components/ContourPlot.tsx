@@ -96,7 +96,7 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers}:
   };
 
   const layout: Partial<Layout> = {
-    title: { text: '$f(x, y) = x^2 + y^2$', font: { color: 'white' } },
+    title: { text: `$${objFunction.latex}$`, font: { color: 'white' } },
     xaxis: { title: { text: 'x' }, color: 'white', range: [Math.min(...plotValues["x"]), Math.max(...plotValues["x"])], autorange: false },
     yaxis: { title: { text: 'y' }, color: 'white', range: [Math.min(...plotValues["y"]), Math.max(...plotValues["y"])], autorange: false },
     paper_bgcolor: 'rgba(0,0,0,0)',

@@ -6,11 +6,13 @@ export class quadraticFunction implements objectiveFunction {
     A: Mat2 // must be symmetric
     b: Point
     d: number
+    latex: string
 
     constructor(A: Mat2, b: Point, d: number) {
         this.A = A
         this.b = b
         this.d = d
+        this.latex = `f(x) = x^T \\! \\begin{bmatrix} ${A[0][0]} & ${A[0][1]} \\\\ ${A[1][0]} & ${A[1][1]} \\end{bmatrix} x + x^T \\! \\begin{bmatrix} ${b.x} \\\\ ${b.y} \\end{bmatrix} + ${d}`
     }
 
     objective(point: Point): number {

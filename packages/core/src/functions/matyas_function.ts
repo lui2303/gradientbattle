@@ -2,6 +2,8 @@ import type { objectiveFunction, Point } from "../types";
 
 export class matyasFunction implements objectiveFunction {
     name = "Matyas";
+    latex: string = "f(x, y) = 0.26(x^2 + y^2) - 0.48xy"
+
     objective(point: Point): number {
         return 0.26*(point.x*point.x + point.y*point.y) - 0.48*point.x*point.y
     }
