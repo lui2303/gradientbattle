@@ -2,10 +2,11 @@
 
 import dynamic from 'next/dynamic';
 import type { Layout, PlotData } from 'plotly.js';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import {SimulationEngine} from '@gradientbattle/core/src/simulation_engine'
 import { objectiveFunction } from '@gradientbattle/core';
 import { Optimizer } from '../types';
+import { Leaderboard } from './Leaderboard';
 
 const loadPlotly = () => import('plotly.js-cartesian-dist-min').then((m) => m.default);
 
@@ -61,12 +62,12 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers}:
     runningRef.current = true;
     setRunning(true);
 
-    const optimizerTraces = simulationEngine.optimizers.map((opt, i) => ({
+    const optimizerTraces = simulationEngine.optimizers.map((opt) => ({
       x: [opt.startingPoint.x],
       y: [opt.startingPoint.y],
       type: "scatter" as const,
       mode: "lines+markers" as const,
-      name: opt.name,
+      name: opt.id,
       line: { color: optimizers[opt.id].color },
     }));
 
@@ -126,8 +127,14 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers}:
           style={{ width: "100%" }}
         />
       </div>
+
+      <br />
+
+      <Leaderboard optimizers={optimizers} optimizerTraces={optimizerTraces}></Leaderboard>
+
     </div>
   );
 }
 
 // TODO: clear optimizer traces after function change!!
+// TODO: move most of state into parent and decouple leaderboard

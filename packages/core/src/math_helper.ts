@@ -25,3 +25,7 @@ export function scalarMultiplication(point: Point, scalar: number): Point {
         y: point.y*scalar
     }
 }
+
+export function norm(point: Point) {
+    return Math.sqrt(point.x*point.x + point.y*point.y)
+}
