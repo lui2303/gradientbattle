@@ -114,7 +114,11 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers}:
         useResizeHandler
         style={{ width: '100%', height: '100%' }}
       />
+      
+      <Leaderboard optimizers={optimizers} optimizerTraces={optimizerTraces} objectiveFunction={objFunction}></Leaderboard>
 
+      <br />
+      
       <div className="flex gap-2 mt-2">
         <button onClick={playAll}>{running ? "Stop" : "Start"}</button>
         <label>Animation Speed: { animationSpeed } ms</label>
@@ -130,7 +134,6 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers}:
 
       <br />
 
-      <Leaderboard optimizers={optimizers} optimizerTraces={optimizerTraces}></Leaderboard>
 
     </div>
   );
