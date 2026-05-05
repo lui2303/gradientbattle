@@ -1,0 +1,2 @@
+export const GD_NAME = "Gradient Descent"
+export const GD_MOMENTUM_NAME = "Gradient Descent with Momentum"

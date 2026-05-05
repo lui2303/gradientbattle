@@ -1,9 +1,10 @@
 import type { objectiveFunction, Optimizer, Point } from "../types";
 import { scalarMultiplication, vectorAddition } from "../math_helper";
 
+import {GD_NAME} from "./constants"
 
-export class VanillaGD implements Optimizer {
-    name= "Vanilla Gradient Descent"
+export class GradientDescent implements Optimizer {
+    name= GD_NAME
     lr: number
     objective: objectiveFunction
     startingPoint: Point
@@ -20,5 +21,8 @@ export class VanillaGD implements Optimizer {
         const gradientStep: Point = scalarMultiplication(this.objective.gradient(point), -this.lr)
 
         return vectorAddition(gradientStep, point)
+    }
+    reset(): void {
+        return
     }
 }

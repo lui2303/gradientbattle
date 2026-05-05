@@ -28,6 +28,10 @@ export class SimulationEngine implements Iterable<Point[]>{
         this.iterates = []
     }
 
+    reset_optimizers() {
+        this.optimizers.map((opti) => opti.reset())
+    }
+
     *[Symbol.iterator](): Iterator<Point[]> {
         let last_iterate: Point[] = [...this.startingPoints]
 

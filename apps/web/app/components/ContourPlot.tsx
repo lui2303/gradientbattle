@@ -47,8 +47,6 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers}:
       colorbar: { tickfont: { color: "white" } },
   }}, [plotValues])
 
-  
-
   const playAll = async () => {
     
     if (runningRef.current) {
@@ -57,7 +55,9 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers}:
       return
     }
 
-    if ( simulationEngine.optimizers.length === 0) return
+    if (simulationEngine.optimizers.length === 0) return
+    
+    simulationEngine.reset_optimizers()
 
     runningRef.current = true;
     setRunning(true);
