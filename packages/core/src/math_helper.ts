@@ -29,3 +29,11 @@ export function scalarMultiplication(point: Point, scalar: number): Point {
 export function norm(point: Point) {
     return Math.sqrt(point.x*point.x + point.y*point.y)
 }
+
+export function hadamardProduct(point1: Point, point2: Point) {
+    return {
+        x: point1.x*point2.x,
+        y: point1.y*point2.y
+    }
+}
+
