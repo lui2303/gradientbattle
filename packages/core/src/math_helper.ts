@@ -37,3 +37,9 @@ export function hadamardProduct(point1: Point, point2: Point) {
     }
 }
 
+export function adaGradSumManipulation(point: Point, eps: number) {
+    return {
+        x: 1/ (Math.sqrt(eps + point.x)),
+        y: 1/ (Math.sqrt(eps + point.y))
+    }
+}

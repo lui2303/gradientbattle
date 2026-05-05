@@ -1,0 +1,35 @@
+import { adaGradSumManipulation, hadamardProduct, scalarMultiplication, vectorAddition } from "../math_helper";
+import { objectiveFunction, Optimizer, Point } from "../types";
+import { RMSPROP_NAME } from "./constants";
+
+export class RMSProp implements Optimizer {
+    lr: number;
+    decay: number;
+    objective: objectiveFunction;
+    name = RMSPROP_NAME
+    startingPoint: Point;
+    id: string;
+    velocity: Point
+    eps = 1e-8
+
+    constructor(lr: number, objective: objectiveFunction, startingPoint: Point, id: string, momentum: number) {
+        this.lr = lr
+        this.objective = objective
+        this.startingPoint = startingPoint
+        this.id = id
+        this.decay = momentum
+        this.velocity = {x: 0, y:0}
+    }
+
+    step(point: Point): Point {
+        const gradient = this.objective.gradient(point)
+        this.velocity = vectorAddition(scalarMultiplication(this.velocity, this.decay), scalarMultiplication(hadamardProduct(gradient, gradient), (1-this.decay)))
+        
+        return vectorAddition(point, hadamardProduct(scalarMultiplication(adaGradSumManipulation(this.velocity, this.eps),-this.lr), gradient))
+    }
+    
+    reset() {
+        this.velocity = {x: 0, y: 0}
+    }
+
+}

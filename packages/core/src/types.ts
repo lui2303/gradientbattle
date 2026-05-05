@@ -6,8 +6,6 @@ export type Point = {
 }
 
 export type Optimizer = {
-    lr?: number,
-    momentum?: number,
     step(point: Point): Point
     objective: objectiveFunction
     name: string
