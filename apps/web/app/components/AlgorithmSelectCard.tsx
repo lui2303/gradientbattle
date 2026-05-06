@@ -3,7 +3,7 @@
 import {optimizationAlgorithmsList, optimizationAlgorithms} from "@gradientbattle/core/src/optimizers/optimizer_registry"
 import { AlgorithmSelectCardProps, Optimizer } from "../types";
 
-export default function AlgorithmSelectCard({id, optimizers, setOptimizers}: AlgorithmSelectCardProps) {
+export default function AlgorithmSelectCard({id, optimizers, setOptimizers, setOptimizerTraces}: AlgorithmSelectCardProps) {
     return (
         <div className="border-2 p-4" style={{ borderColor: optimizers[id].color }}>
             <select value={optimizers[id]["name"]} onChange={(option) => {
@@ -30,6 +30,8 @@ export default function AlgorithmSelectCard({id, optimizers, setOptimizers}: Alg
                     <input value={optimizers[id].startingPoint.x} type="number" onChange={(event) => {
                         const newValue = parseFloat(event.target.value)
                         if (isNaN(newValue)) return
+                        
+                        setOptimizerTraces(prev => prev.map((item) => item.name === id ? {...item, x: [newValue]}: item))
 
                         setOptimizers(prev => ({...prev, [id]: {
                             ...prev[id],
@@ -43,6 +45,8 @@ export default function AlgorithmSelectCard({id, optimizers, setOptimizers}: Alg
                         const newValue = parseFloat(event.target.value)
                         if (isNaN(newValue)) return
 
+                        setOptimizerTraces(prev => prev.map((item) => item.name === id ? {...item, y: [newValue]}: item))
+
                         setOptimizers(prev => ({...prev, [id]: {
                             ...prev[id],
                             startingPoint: { ...prev[id]["startingPoint"], "y": newValue}
@@ -53,12 +57,15 @@ export default function AlgorithmSelectCard({id, optimizers, setOptimizers}: Alg
                 <input
                     type="color"
                     value= {optimizers[id].color}
-                    onChange={(e) => setOptimizers(prev => ({
-                        ...prev, [id] : {
-                            ...prev[id],
-                            "color": e.target.value
+                    onChange={(e) => {
+                        setOptimizerTraces(prev => prev.map((item) => item.name === id ? {...item, line: {...item.line, color: e.target.value}}: item))
+                        setOptimizers(prev => ({
+                            ...prev, [id] : {
+                                ...prev[id],
+                                "color": e.target.value
                         }
                     }))}
+                }
                 />
                 <br />
                 <button className="bg-blue-700" onClick={() => setOptimizers(prev => {

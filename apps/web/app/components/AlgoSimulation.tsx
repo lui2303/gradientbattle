@@ -11,6 +11,7 @@ import { optimizerFactory } from "@gradientbattle/core/src/optimizers/optimizer_
 import { FunctionSelector } from "./FunctionSelector"
 import { objectiveFunction } from "@gradientbattle/core"
 import { PlotData } from "plotly.js"
+import { Leaderboard } from "./Leaderboard"
 
 
 
@@ -23,12 +24,19 @@ export function AlgoSimulation() {
         }
 
     const [func, setFunc] = useState<objectiveFunction>(new quadraticFunction([[1, 0],[0,1]], {x: 0, y:0}, 0))
-            
-    const [optimizers, setOptimizers] = useState<Record<string, Optimizer>>({[crypto.randomUUID()]: defaultOptimizer})
+    const id = crypto.randomUUID()
+    const [optimizers, setOptimizers] = useState<Record<string, Optimizer>>({[id]: defaultOptimizer})
     const [running, setRunning] = useState(false);
     const runningRef = useRef(false);
     
-    const [optimizerTraces, setOptimizerTraces] = useState<Partial<PlotData>[]>([])
+    const [optimizerTraces, setOptimizerTraces] = useState<Partial<PlotData>[]>([{
+                        x: [defaultOptimizer.startingPoint.x],
+                        y: [defaultOptimizer.startingPoint.y],
+                        type: "scatter" as const,
+                        mode: "lines+markers" as const,
+                        name: id,
+                        line: { color: defaultOptimizer.color },
+                }])
     
     const engine = useMemo(
         () => {
@@ -45,15 +53,17 @@ export function AlgoSimulation() {
 
     return (
         <div>
+            
             <ContourPlot simulationEngine={engine} objFunction={func} optimizers={optimizers} running={running} setRunning={setRunning} runningRef={runningRef} optimizerTraces={optimizerTraces} setOptimizerTraces={setOptimizerTraces}>
             </ContourPlot>
 
             <FunctionSelector func={func} setFuncCallback={(func) => {
-                setOptimizerTraces([])
                 setFunc(func)
+                setOptimizerTraces(prev => prev.map((item) => ({...item, x: [(item.x! as number[])[0]], y: [(item.y! as number[])[0]]})))
             }}></FunctionSelector>
-                
-            <AlgorithmSelectContainer optimizers={optimizers} setOptimizers={setOptimizers} defaultOptimizer={defaultOptimizer}>
+            <Leaderboard optimizers={optimizers} optimizerTraces={optimizerTraces} objectiveFunction={func}></Leaderboard>
+
+            <AlgorithmSelectContainer optimizers={optimizers} setOptimizers={setOptimizers} defaultOptimizer={defaultOptimizer} setOptimizerTraces={setOptimizerTraces}>
             </AlgorithmSelectContainer>
         </div>
 

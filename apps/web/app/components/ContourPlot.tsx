@@ -2,11 +2,11 @@
 
 import dynamic from 'next/dynamic';
 import type { Layout, PlotData } from 'plotly.js';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {SimulationEngine} from '@gradientbattle/core/src/simulation_engine'
 import { objectiveFunction } from '@gradientbattle/core';
-import { Optimizer } from '../types';
-import { Leaderboard } from './Leaderboard';
+import { ContourPlotProps, Optimizer } from '../types';
+
 
 const loadPlotly = () => import('plotly.js-cartesian-dist-min').then((m) => m.default);
 
@@ -21,7 +21,7 @@ const Plot = dynamic(
   { ssr: false }
 );
 
-export default function ContourPlot({simulationEngine, objFunction, optimizers,running,setRunning,runningRef, optimizerTraces, setOptimizerTraces}: {simulationEngine: SimulationEngine, objFunction: objectiveFunction, optimizers: Record<string, Optimizer>, running: boolean, setRunning: React.Dispatch<React.SetStateAction<boolean>>, runningRef: React.RefObject<boolean>, optimizerTraces: Partial<PlotData>[], setOptimizerTraces: React.Dispatch<React.SetStateAction<Partial<PlotData>[]>>}) {
+export default function ContourPlot({simulationEngine, objFunction, optimizers,running,setRunning,runningRef, optimizerTraces, setOptimizerTraces}: ContourPlotProps) {
   const [animationSpeed, setAnimationSpeed] = useState(50)
   
   const plotValues = useMemo(() => {
@@ -32,10 +32,6 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers,r
     
     return {x:x, y:y, z:z}
   }, [objFunction])
-
-  useEffect(() => {                                                             
-    setOptimizerTraces([]);
-  }, [objFunction]);
 
   const contourTrace = useMemo(() => {
     return {
@@ -71,22 +67,21 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers,r
       line: { color: optimizers[opt.id].color },
     }));
 
-    setOptimizerTraces(optimizerTraces)
+    setOptimizerTraces(prev => prev.map((item) => ({...item, x: [(item.x! as number[])[0]], y: [(item.y! as number[])[0]]})))
 
     for (const step of simulationEngine) {
       if (runningRef.current !== true) return
 
       setOptimizerTraces(prev =>
-        prev.map((trace, index) =>
-          !trace
-            ? trace
-            : {
+        prev.map((trace, index) => ({
                 ...trace,
-                x: [...((trace.x as number[] | undefined) ?? []), step[index].x],
-                y: [...((trace.y as number[] | undefined) ?? []), step[index].y]
-              }
+                x: [...((trace.x as number[])), step[index].x],
+                y: [...((trace.y as number[])), step[index].y]
+              })
         )
       );
+
+      console.log(optimizerTraces)
 
       await new Promise((r) => setTimeout(r, animationSpeed));
     }
@@ -114,8 +109,6 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers,r
         useResizeHandler
         style={{ width: '100%', height: '100%' }}
       />
-      
-      <Leaderboard optimizers={optimizers} optimizerTraces={optimizerTraces} objectiveFunction={objFunction}></Leaderboard>
 
       <br />
       
