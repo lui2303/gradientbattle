@@ -53,18 +53,20 @@ export function AlgoSimulation() {
 
     return (
         <div>
+            <div className="flex flex-col gap-4 p-4">
+                <ContourPlot simulationEngine={engine} objFunction={func} optimizers={optimizers} running={running} setRunning={setRunning} runningRef={runningRef} optimizerTraces={optimizerTraces} setOptimizerTraces={setOptimizerTraces}></ContourPlot>
             
-            <ContourPlot simulationEngine={engine} objFunction={func} optimizers={optimizers} running={running} setRunning={setRunning} runningRef={runningRef} optimizerTraces={optimizerTraces} setOptimizerTraces={setOptimizerTraces}>
-            </ContourPlot>
+
+            <Leaderboard optimizers={optimizers} optimizerTraces={optimizerTraces} objectiveFunction={func}></Leaderboard>
 
             <FunctionSelector func={func} setFuncCallback={(func) => {
                 setFunc(func)
                 setOptimizerTraces(prev => prev.map((item) => ({...item, x: [(item.x! as number[])[0]], y: [(item.y! as number[])[0]]})))
             }}></FunctionSelector>
-            <Leaderboard optimizers={optimizers} optimizerTraces={optimizerTraces} objectiveFunction={func}></Leaderboard>
-
+            
             <AlgorithmSelectContainer optimizers={optimizers} setOptimizers={setOptimizers} defaultOptimizer={defaultOptimizer} setOptimizerTraces={setOptimizerTraces}>
             </AlgorithmSelectContainer>
+            </div>
         </div>
 
     )

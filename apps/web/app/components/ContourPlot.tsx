@@ -1,11 +1,9 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import type { Layout, PlotData } from 'plotly.js';
+import type { Layout } from 'plotly.js';
 import { useMemo, useState } from 'react';
-import {SimulationEngine} from '@gradientbattle/core/src/simulation_engine'
-import { objectiveFunction } from '@gradientbattle/core';
-import { ContourPlotProps, Optimizer } from '../types';
+import { ContourPlotProps } from '../types';
 
 
 const loadPlotly = () => import('plotly.js-cartesian-dist-min').then((m) => m.default);
@@ -109,11 +107,10 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers,r
         useResizeHandler
         style={{ width: '100%', height: '100%' }}
       />
-
-      <br />
       
-      <div className="flex gap-2 mt-2">
-        <button onClick={playAll}>{running ? "Stop" : "Start"}</button>
+      <div className="flex flex-col gap-2 mt-2">
+        <button className="bg-cyan-800" onClick={playAll}>{running ? "Stop" : "Start"}</button>
+        <br />
         <label>Animation Speed: { animationSpeed } ms</label>
         <input
           type="range"
@@ -124,8 +121,6 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers,r
           style={{ width: "100%" }}
         />
       </div>
-
-      <br />
 
 
     </div>
