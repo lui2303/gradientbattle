@@ -48,7 +48,10 @@ export function AlgoSimulation() {
             <ContourPlot simulationEngine={engine} objFunction={func} optimizers={optimizers} running={running} setRunning={setRunning} runningRef={runningRef} optimizerTraces={optimizerTraces} setOptimizerTraces={setOptimizerTraces}>
             </ContourPlot>
 
-            <FunctionSelector func={func} setFunc={setFunc}></FunctionSelector>
+            <FunctionSelector func={func} setFuncCallback={(func) => {
+                setOptimizerTraces([])
+                setFunc(func)
+            }}></FunctionSelector>
                 
             <AlgorithmSelectContainer optimizers={optimizers} setOptimizers={setOptimizers} defaultOptimizer={defaultOptimizer}>
             </AlgorithmSelectContainer>
