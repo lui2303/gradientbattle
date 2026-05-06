@@ -10,11 +10,11 @@ import { quadraticFunction } from "@gradientbattle/core/src/functions/quadratic_
 import { optimizerFactory } from "@gradientbattle/core/src/optimizers/optimizer_factory"
 import { FunctionSelector } from "./FunctionSelector"
 import { objectiveFunction } from "@gradientbattle/core"
+import { PlotData } from "plotly.js"
 
 
 
 export function AlgoSimulation() {
-    
     const defaultOptimizer = {
             "name": optimizationAlgorithmsList[0],
             "params": optimizationAlgorithms[optimizationAlgorithmsList[0]]["params"],
@@ -25,6 +25,10 @@ export function AlgoSimulation() {
     const [func, setFunc] = useState<objectiveFunction>(new quadraticFunction([[1, 0],[0,1]], {x: 0, y:0}, 0))
             
     const [optimizers, setOptimizers] = useState<Record<string, Optimizer>>({[crypto.randomUUID()]: defaultOptimizer})
+    const [running, setRunning] = useState(false);
+    const runningRef = useRef(false);
+    
+    const [optimizerTraces, setOptimizerTraces] = useState<Partial<PlotData>[]>([])
     
     const engine = useMemo(
         () => {
@@ -41,7 +45,7 @@ export function AlgoSimulation() {
 
     return (
         <div>
-            <ContourPlot simulationEngine={engine} objFunction={func} optimizers={optimizers}>
+            <ContourPlot simulationEngine={engine} objFunction={func} optimizers={optimizers} running={running} setRunning={setRunning} runningRef={runningRef} optimizerTraces={optimizerTraces} setOptimizerTraces={setOptimizerTraces}>
             </ContourPlot>
 
             <FunctionSelector func={func} setFunc={setFunc}></FunctionSelector>

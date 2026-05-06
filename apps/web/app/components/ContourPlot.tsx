@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import type { Layout, PlotData } from 'plotly.js';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {SimulationEngine} from '@gradientbattle/core/src/simulation_engine'
 import { objectiveFunction } from '@gradientbattle/core';
 import { Optimizer } from '../types';
@@ -21,10 +21,7 @@ const Plot = dynamic(
   { ssr: false }
 );
 
-export default function ContourPlot({simulationEngine, objFunction, optimizers}: {simulationEngine: SimulationEngine, objFunction: objectiveFunction, optimizers: Record<string, Optimizer>}) {
-  const [running, setRunning] = useState(false);
-  const runningRef = useRef(false);
-  const [optimizerTraces, setOptimizerTraces] = useState<Partial<PlotData>[]>([])
+export default function ContourPlot({simulationEngine, objFunction, optimizers,running,setRunning,runningRef, optimizerTraces, setOptimizerTraces}: {simulationEngine: SimulationEngine, objFunction: objectiveFunction, optimizers: Record<string, Optimizer>, running: boolean, setRunning: React.Dispatch<React.SetStateAction<boolean>>, runningRef: React.RefObject<boolean>, optimizerTraces: Partial<PlotData>[], setOptimizerTraces: React.Dispatch<React.SetStateAction<Partial<PlotData>[]>>}) {
   const [animationSpeed, setAnimationSpeed] = useState(50)
   
   const plotValues = useMemo(() => {
@@ -36,8 +33,11 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers}:
     return {x:x, y:y, z:z}
   }, [objFunction])
 
+  useEffect(() => {                                                             
+    setOptimizerTraces([]);
+  }, [objFunction]);
+
   const contourTrace = useMemo(() => {
-    
     return {
       type: "contour" as const,
       x: plotValues["x"],
@@ -139,5 +139,4 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers}:
   );
 }
 
-// TODO: clear optimizer traces after function change!!
 // TODO: move most of state into parent and decouple leaderboard
