@@ -2,9 +2,8 @@
 
 import dynamic from 'next/dynamic';
 import type { Layout } from 'plotly.js';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { ContourPlotProps } from '../types';
-import { norm } from '@gradientbattle/core/src/math_helper';
 
 
 const loadPlotly = () => import('plotly.js-cartesian-dist-min').then((m) => m.default);
@@ -20,8 +19,7 @@ const Plot = dynamic(
   { ssr: false }
 );
 
-export default function ContourPlot({simulationEngine, objFunction, optimizers,running,setRunning,runningRef, optimizerTraces, setOptimizerTraces}: ContourPlotProps) {
-  const [animationSpeed, setAnimationSpeed] = useState(50)
+export default function ContourPlot({objFunction, optimizerTraces}: ContourPlotProps) {
   
   const plotValues = useMemo(() => {
     const x = Array.from({ length: 101 }, (_, i) => i * 0.2 - 10)
@@ -42,44 +40,6 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers,r
       colorbar: { tickfont: { color: "white" } },
   }}, [plotValues])
 
-  const playAll = async () => {
-    
-    if (runningRef.current) {
-      runningRef.current = false;
-      setRunning(false);
-      return
-    }
-
-    if (simulationEngine.optimizers.length === 0) return
-    
-    simulationEngine.reset_optimizers()
-
-    runningRef.current = true;
-    setRunning(true);
-
-    setOptimizerTraces(prev => prev.map((item) => ({...item, x: [(item.x! as number[])[0]], y: [(item.y! as number[])[0]], distances: [item.distances[0]], objectiveValues: [item.objectiveValues[0]]})))
-
-    for (const step of simulationEngine) {
-      if (runningRef.current !== true) return
-
-      setOptimizerTraces(prev =>
-        prev.map((trace, index) => ({
-                ...trace,
-                x: [...((trace.x as number[])), step[index].x],
-                y: [...((trace.y as number[])), step[index].y],
-                distances: [...trace.distances, norm(step[index])],
-                objectiveValues: [...trace.objectiveValues,objFunction.objective(step[index])]
-              })
-        )
-      );
-
-      await new Promise((r) => setTimeout(r, animationSpeed));
-    }
-
-    runningRef.current = false;
-    setRunning(false);
-
-  };
 
   const layout: Partial<Layout> = {
     title: { text: `$${objFunction.latex}$`, font: { color: 'white' } },
@@ -101,24 +61,6 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers,r
         useResizeHandler
         style={{ width: '100%', height: '100%' }}
       />
-
-      <div className="flex flex-col gap-2 mt-2">
-        <button className="bg-cyan-800" onClick={playAll}>{running ? "Stop" : "Start"}</button>
-        <br />
-        <label>Animation Speed: { animationSpeed } ms</label>
-        <input
-          type="range"
-          min="50"
-          max="2000"
-          value={animationSpeed}
-          onChange={(e) => setAnimationSpeed(Number(e.target.value))}
-
-        />
-      </div>
-
-
     </div>
   );
 }
-
-// TODO: move most of state into parent and decouple leaderboard

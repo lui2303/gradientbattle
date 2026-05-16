@@ -26,10 +26,14 @@ export function AlgoSimulation() {
         }
 
     const [func, setFunc] = useState<objectiveFunction>(new quadraticFunction([[1, 0],[0,1]], {x: 0, y:0}, 0))
+    
     const id = crypto.randomUUID()
     const [optimizers, setOptimizers] = useState<Record<string, Optimizer>>({[id]: defaultOptimizer})
+    
     const [running, setRunning] = useState(false);
     const runningRef = useRef(false);
+
+    const [animationSpeed, setAnimationSpeed] = useState(50)
     
     const [optimizerTraces, setOptimizerTraces] = useState<TraceData>([{
                         x: [defaultOptimizer.startingPoint.x],
@@ -55,19 +59,51 @@ export function AlgoSimulation() {
             
         },
         [optimizers, func]
-    );
+    )
 
+    const playSimulation = async () => {
+        if (runningRef.current) {
+            runningRef.current = false;
+            setRunning(false);
+            return
+        }
+
+        if (engine.optimizers.length === 0) return
+        
+        engine.reset_optimizers()
+
+        runningRef.current = true;
+        setRunning(true);
+
+        setOptimizerTraces(prev => prev.map((item) => ({...item, x: [(item.x! as number[])[0]], y: [(item.y! as number[])[0]], distances: [item.distances[0]], objectiveValues: [item.objectiveValues[0]]})))
+
+        for (const step of engine) {
+        if (runningRef.current !== true) return
+
+        setOptimizerTraces(prev =>
+            prev.map((trace, index) => ({
+                    ...trace,
+                    x: [...((trace.x as number[])), step[index].x],
+                    y: [...((trace.y as number[])), step[index].y],
+                    distances: [...trace.distances, norm(step[index])],
+                    objectiveValues: [...trace.objectiveValues,func.objective(step[index])]
+                })
+            )
+        );
+
+        await new Promise((r) => setTimeout(r, animationSpeed));
+        }
+
+        runningRef.current = false;
+        setRunning(false);
+    };
 
     return (
         <div>
             <div className="flex flex-col gap-4 p-4">
 
                 <div className="grid grid-cols-3 gap-4"> 
-                    <ContourPlot simulationEngine={engine}
-                        objFunction={func} optimizers={optimizers}
-                        running={running} setRunning={setRunning}
-                        runningRef={runningRef} optimizerTraces={optimizerTraces}
-                        setOptimizerTraces={setOptimizerTraces}></ContourPlot>
+                    <ContourPlot objFunction={func} optimizerTraces={optimizerTraces}></ContourPlot>
                 
                     <DistancePlot optimizerTraces={optimizerTraces}></DistancePlot>
 
@@ -76,14 +112,26 @@ export function AlgoSimulation() {
                 
 
                 <Leaderboard optimizers={optimizers} optimizerTraces={optimizerTraces} objectiveFunction={func}></Leaderboard>
+                <div className="flex flex-col gap-2 mt-2">
+                    <button className="bg-cyan-800" onClick={playSimulation}>{running ? "Stop" : "Start"}</button>
+                    <br />
+                    <label>Animation Speed: { animationSpeed } ms</label>
+                    <input
+                    type="range"
+                    min="50"
+                    max="2000"
+                    value={animationSpeed}
+                    onChange={(e) => setAnimationSpeed(Number(e.target.value))}
 
+                    />
+                </div>
                 <FunctionSelector func={func} setFuncCallback={(func) => {
                     setFunc(func)
                     setOptimizerTraces(prev => prev.map((item) => ({...item,
                         x: [(item.x! as number[])[0]],
                         y: [(item.y! as number[])[0]],
-                        distances: [item.distances[0]],
-                        objectiveValues: [item.objectiveValues[0]]})))
+                        distances: [norm({x: (item.x! as number[])[0], y: (item.y! as number[])[0]})],
+                        objectiveValues: [func.objective({x: (item.x! as number[])[0], y: (item.y! as number[])[0]})]})))
                 }}></FunctionSelector>
                 
                 <AlgorithmSelectContainer func={func} optimizers={optimizers} setOptimizers={setOptimizers} defaultOptimizer={defaultOptimizer} setOptimizerTraces={setOptimizerTraces}>

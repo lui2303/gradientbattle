@@ -26,13 +26,9 @@ export type PlotHandlerProps = {
   startingPoint: Point
 }
 
-export type ContourPlotProps = {simulationEngine: SimulationEngine,
+export type ContourPlotProps = {
   objFunction: objectiveFunction,
-  optimizers: Record<string, Optimizer>,
-  running: boolean, setRunning: React.Dispatch<React.SetStateAction<boolean>>,
-  runningRef: React.RefObject<boolean>,
   optimizerTraces: TraceData,
-  setOptimizerTraces: React.Dispatch<React.SetStateAction<TraceData>>
 }
 
 export type DistancePlotProps = {
