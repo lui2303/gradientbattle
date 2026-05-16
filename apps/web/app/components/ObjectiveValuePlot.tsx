@@ -1,4 +1,4 @@
-import { DistancePlotProps } from "../types";
+import { ObjectiveValuePlotProps } from "../types";
 import { Layout } from "plotly.js";
 import dynamic from "next/dynamic";
 
@@ -21,20 +21,20 @@ const Plot = dynamic(
 export function ObjectiveValuePlot({optimizerTraces}: ObjectiveValuePlotProps) {
 
     const layout: Partial<Layout> = {
-        xaxis: { title: { text: 'step t' }, color: 'white', autorange: true },
-        yaxis: { title: { text: 'Norm(x)' }, color: 'white', autorange: true },
+        xaxis: { title: { text: 'steps' }, color: 'white', autorange: true },
+        yaxis: { title: { text: 'f(x)' }, color: 'white', autorange: true },
         paper_bgcolor: 'rgba(0,0,0,0)',
         plot_bgcolor: 'rgba(0,0,0,0)',
         autosize: true,
-    };
-
+    }
+    
     return (
         <div>
             <Plot
                 data={optimizerTraces.map((trace) => ({
                     ...trace,
                     x: Array.from({ length: trace.x!.length }, (_, i) => i + 1),
-                    y: trace.distances
+                    y: trace.objectiveValues
                 }))}
                 layout={layout}
                 config={{ displayModeBar: false, typesetMath: true }}
@@ -44,10 +44,3 @@ export function ObjectiveValuePlot({optimizerTraces}: ObjectiveValuePlotProps) {
         </div>
     )
 }
-
-
-//data={[optimizerTraces.map((trace) => ({
-//                    ...trace,
-//                    x: Array.from({ length: n }, (_, i) => i + 1),
-//                    y: trace.distances
-//                }))]}

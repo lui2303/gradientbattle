@@ -57,7 +57,7 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers,r
     runningRef.current = true;
     setRunning(true);
 
-    setOptimizerTraces(prev => prev.map((item) => ({...item, x: [(item.x! as number[])[0]], y: [(item.y! as number[])[0]], distances: [item.distances[0]]})))
+    setOptimizerTraces(prev => prev.map((item) => ({...item, x: [(item.x! as number[])[0]], y: [(item.y! as number[])[0]], distances: [item.distances[0]], objectiveValues: [item.objectiveValues[0]]})))
 
     for (const step of simulationEngine) {
       if (runningRef.current !== true) return
@@ -67,7 +67,8 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers,r
                 ...trace,
                 x: [...((trace.x as number[])), step[index].x],
                 y: [...((trace.y as number[])), step[index].y],
-                distances: [...trace.distances, norm(step[index])]
+                distances: [...trace.distances, norm(step[index])],
+                objectiveValues: [...trace.objectiveValues,objFunction.objective(step[index])]
               })
         )
       );

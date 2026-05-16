@@ -6,11 +6,11 @@ import { norm } from "@gradientbattle/core/src/math_helper";
 
 
 
-export default function AlgorithmSelectContainer({optimizers, setOptimizers, defaultOptimizer, setOptimizerTraces}: AlgorithmSelectContainerProps) {
+export default function AlgorithmSelectContainer({optimizers, setOptimizers, defaultOptimizer, setOptimizerTraces, func}: AlgorithmSelectContainerProps) {
     return (
         <div>
             <div>
-                {Object.keys(optimizers).map((id) => <AlgorithmSelectCard key={id} id={id} optimizers={optimizers} setOptimizers={setOptimizers} setOptimizerTraces={setOptimizerTraces}></AlgorithmSelectCard>)}
+                {Object.keys(optimizers).map((id) => <AlgorithmSelectCard func ={func} key={id} id={id} optimizers={optimizers} setOptimizers={setOptimizers} setOptimizerTraces={setOptimizerTraces}></AlgorithmSelectCard>)}
             </div>
             {Object.keys(optimizers).length < 5 && <button className="bg-blue-500" onClick={() => {
                 const id = crypto.randomUUID()
@@ -23,7 +23,8 @@ export default function AlgorithmSelectContainer({optimizers, setOptimizers, def
                         mode: "lines+markers" as const,
                         name: id,
                         line: { color: defaultOptimizer.color },
-                        distances: [norm(defaultOptimizer.startingPoint)]
+                        distances: [norm(defaultOptimizer.startingPoint)],
+                        objectiveValues: [func.objective(defaultOptimizer.startingPoint)]
                 }]))
                 }}>Add new Optimizer</button>}
             

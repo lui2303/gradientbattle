@@ -21,7 +21,7 @@ const Plot = dynamic(
 export function DistancePlot({optimizerTraces}: DistancePlotProps) {
 
     const layout: Partial<Layout> = {
-        xaxis: { title: { text: 'step t' }, color: 'white', autorange: true },
+        xaxis: { title: { text: 'steps' }, color: 'white', autorange: true },
         yaxis: { title: { text: 'Norm(x)' }, color: 'white', autorange: true },
         paper_bgcolor: 'rgba(0,0,0,0)',
         plot_bgcolor: 'rgba(0,0,0,0)',
@@ -44,10 +44,3 @@ export function DistancePlot({optimizerTraces}: DistancePlotProps) {
         </div>
     )
 }
-
-
-//data={[optimizerTraces.map((trace) => ({
-//                    ...trace,
-//                    x: Array.from({ length: n }, (_, i) => i + 1),
-//                    y: trace.distances
-//                }))]}
