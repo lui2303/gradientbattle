@@ -4,18 +4,20 @@ import { PlotData } from "plotly.js";
 
 export type Optimizer = {name: string, params: Record<string, number>, startingPoint: Point, color: string}
 
+export type TraceData = (Partial<PlotData> & { distances: number[] })[]
+
 export type AlgorithmSelectCardProps = {
   id: string;
   optimizers: Record<string, Optimizer>;
   setOptimizers: React.Dispatch<React.SetStateAction<Record<string, Optimizer>>>,
-  setOptimizerTraces: React.Dispatch<React.SetStateAction<Partial<PlotData>[]>>
+  setOptimizerTraces: React.Dispatch<React.SetStateAction<TraceData>>
 };
 
 export type AlgorithmSelectContainerProps = {
   optimizers: Record<string, Optimizer>;
   setOptimizers: React.Dispatch<React.SetStateAction<Record<string, Optimizer>>>
   defaultOptimizer: Optimizer,
-  setOptimizerTraces: React.Dispatch<React.SetStateAction<Partial<PlotData>[]>>
+  setOptimizerTraces: React.Dispatch<React.SetStateAction<TraceData>>
 }
 
 export type PlotHandlerProps = {
@@ -27,6 +29,10 @@ export type ContourPlotProps = {simulationEngine: SimulationEngine,
   optimizers: Record<string, Optimizer>,
   running: boolean, setRunning: React.Dispatch<React.SetStateAction<boolean>>,
   runningRef: React.RefObject<boolean>,
-  optimizerTraces: Partial<PlotData>[],
-  setOptimizerTraces: React.Dispatch<React.SetStateAction<Partial<PlotData>[]>>
+  optimizerTraces: TraceData,
+  setOptimizerTraces: React.Dispatch<React.SetStateAction<TraceData>>
+}
+
+export type DistancePlotProps = {
+  optimizerTraces: TraceData,
 }

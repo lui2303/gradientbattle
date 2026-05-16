@@ -2,6 +2,7 @@
 
 import {optimizationAlgorithmsList, optimizationAlgorithms} from "@gradientbattle/core/src/optimizers/optimizer_registry"
 import { AlgorithmSelectCardProps, Optimizer } from "../types";
+import { norm } from "@gradientbattle/core/src/math_helper";
 
 export default function AlgorithmSelectCard({id, optimizers, setOptimizers, setOptimizerTraces}: AlgorithmSelectCardProps) {
     return (
@@ -31,7 +32,7 @@ export default function AlgorithmSelectCard({id, optimizers, setOptimizers, setO
                         const newValue = parseFloat(event.target.value)
                         if (isNaN(newValue)) return
                         
-                        setOptimizerTraces(prev => prev.map((item) => item.name === id ? {...item, x: [newValue]}: item))
+                        setOptimizerTraces(prev => prev.map((item) => item.name === id ? {...item, y: [(item.x as number[])![0]], x: [newValue], distances: [norm({y: (item.x as number[])[0], x: newValue})]}: item))
 
                         setOptimizers(prev => ({...prev, [id]: {
                             ...prev[id],
@@ -45,7 +46,7 @@ export default function AlgorithmSelectCard({id, optimizers, setOptimizers, setO
                         const newValue = parseFloat(event.target.value)
                         if (isNaN(newValue)) return
 
-                        setOptimizerTraces(prev => prev.map((item) => item.name === id ? {...item, y: [newValue]}: item))
+                        setOptimizerTraces(prev => prev.map((item) => item.name === id ? {...item, x: [(item.x as number[])![0]], y: [newValue], distances: [norm({x: (item.x as number[])[0], y: newValue})]}: item))
 
                         setOptimizers(prev => ({...prev, [id]: {
                             ...prev[id],

@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import type { Layout } from 'plotly.js';
 import { useMemo, useState } from 'react';
 import { ContourPlotProps } from '../types';
+import { norm } from '@gradientbattle/core/src/math_helper';
 
 
 const loadPlotly = () => import('plotly.js-cartesian-dist-min').then((m) => m.default);
@@ -56,15 +57,6 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers,r
     runningRef.current = true;
     setRunning(true);
 
-    const optimizerTraces = simulationEngine.optimizers.map((opt) => ({
-      x: [opt.startingPoint.x],
-      y: [opt.startingPoint.y],
-      type: "scatter" as const,
-      mode: "lines+markers" as const,
-      name: opt.id,
-      line: { color: optimizers[opt.id].color },
-    }));
-
     setOptimizerTraces(prev => prev.map((item) => ({...item, x: [(item.x! as number[])[0]], y: [(item.y! as number[])[0]]})))
 
     for (const step of simulationEngine) {
@@ -74,12 +66,11 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers,r
         prev.map((trace, index) => ({
                 ...trace,
                 x: [...((trace.x as number[])), step[index].x],
-                y: [...((trace.y as number[])), step[index].y]
+                y: [...((trace.y as number[])), step[index].y],
+                distances: [...trace.distances, norm(step[index])]
               })
         )
       );
-
-      console.log(optimizerTraces)
 
       await new Promise((r) => setTimeout(r, animationSpeed));
     }
@@ -118,7 +109,7 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers,r
           max="2000"
           value={animationSpeed}
           onChange={(e) => setAnimationSpeed(Number(e.target.value))}
-          style={{ width: "100%" }}
+          
         />
       </div>
 

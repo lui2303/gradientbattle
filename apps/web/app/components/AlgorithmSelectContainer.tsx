@@ -2,6 +2,7 @@
 
 import AlgorithmSelectCard from "./AlgorithmSelectCard";
 import { AlgorithmSelectContainerProps } from "../types";
+import { norm } from "@gradientbattle/core/src/math_helper";
 
 
 
@@ -22,6 +23,7 @@ export default function AlgorithmSelectContainer({optimizers, setOptimizers, def
                         mode: "lines+markers" as const,
                         name: id,
                         line: { color: defaultOptimizer.color },
+                        distances: [norm(defaultOptimizer.startingPoint)]
                 }]))
                 }}>Add new Optimizer</button>}
             
