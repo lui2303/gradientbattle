@@ -61,15 +61,19 @@ export function AlgoSimulation() {
     return (
         <div>
             <div className="flex flex-col gap-4 p-4">
-                <ContourPlot simulationEngine={engine}
-                    objFunction={func} optimizers={optimizers}
-                    running={running} setRunning={setRunning}
-                    runningRef={runningRef} optimizerTraces={optimizerTraces}
-                    setOptimizerTraces={setOptimizerTraces}></ContourPlot>
-                
-                <DistancePlot optimizerTraces={optimizerTraces}></DistancePlot>
 
-                <ObjectiveValuePlot optimizerTraces={optimizerTraces}></ObjectiveValuePlot>
+                <div className="grid grid-cols-3 gap-4"> 
+                    <ContourPlot simulationEngine={engine}
+                        objFunction={func} optimizers={optimizers}
+                        running={running} setRunning={setRunning}
+                        runningRef={runningRef} optimizerTraces={optimizerTraces}
+                        setOptimizerTraces={setOptimizerTraces}></ContourPlot>
+                
+                    <DistancePlot optimizerTraces={optimizerTraces}></DistancePlot>
+
+                    <ObjectiveValuePlot optimizerTraces={optimizerTraces}></ObjectiveValuePlot>
+                </div>
+                
 
                 <Leaderboard optimizers={optimizers} optimizerTraces={optimizerTraces} objectiveFunction={func}></Leaderboard>
 

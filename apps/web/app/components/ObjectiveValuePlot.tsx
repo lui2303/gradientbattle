@@ -26,10 +26,12 @@ export function ObjectiveValuePlot({optimizerTraces}: ObjectiveValuePlotProps) {
         paper_bgcolor: 'rgba(0,0,0,0)',
         plot_bgcolor: 'rgba(0,0,0,0)',
         autosize: true,
+        showlegend: false,
+        legend: { itemclick: false, itemdoubleclick: false },
     }
-    
+
     return (
-        <div>
+        <div className="w-full aspect-square">
             <Plot
                 data={optimizerTraces.map((trace) => ({
                     ...trace,

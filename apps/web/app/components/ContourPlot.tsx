@@ -88,10 +88,12 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers,r
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
     autosize: true,
+    showlegend: false,
+    legend: { itemclick: false, itemdoubleclick: false },
   };
 
   return (
-    <div>
+    <div className="w-full aspect-square">
       <Plot
         data={[contourTrace, ...optimizerTraces]}
         layout={layout}
@@ -99,7 +101,7 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers,r
         useResizeHandler
         style={{ width: '100%', height: '100%' }}
       />
-      
+
       <div className="flex flex-col gap-2 mt-2">
         <button className="bg-cyan-800" onClick={playAll}>{running ? "Stop" : "Start"}</button>
         <br />
@@ -110,7 +112,7 @@ export default function ContourPlot({simulationEngine, objFunction, optimizers,r
           max="2000"
           value={animationSpeed}
           onChange={(e) => setAnimationSpeed(Number(e.target.value))}
-          
+
         />
       </div>
 

@@ -6,7 +6,7 @@ export default function Page() {
 
   return (
     <main className="min-h-screen p-8">
-      <div className="mx-auto h-[500px] max-w-4xl">
+      <div className="mx-auto max-w-none">
         <AlgoSimulation>
         </AlgoSimulation>
       </div>
