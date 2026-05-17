@@ -11,12 +11,6 @@
     "test": "pnpm --filter @gradientbattle/core test"
   },
   "dependencies": {
-    "@gradientbattle/core": "workspace:*",
-    "plotly.js-cartesian-dist-min": "^3.5.0",
-    "plotly.js-dist-min": "^3.5.0",
-    "react-plotly.js": "^2.6.0"
-  },
-  "devDependencies": {
-    "@types/plotly.js": "^3.0.10"
+    "@gradientbattle/core": "workspace:*"
   }
 }

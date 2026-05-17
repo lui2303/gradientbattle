@@ -33,9 +33,9 @@ function approx(p: Point, expected: Point, tol = 1e-6) {
   expect(p.y).toBeCloseTo(expected.y, -Math.log10(tol));
 }
 
-function runSteps(opt: Optimizer, n: number, start: Point): Point {
-  let p = start;
-  for (let i = 0; i < n; i++) p = opt.step(p);
+function runSteps(opt: Optimizer, n: number): Point {
+  let p: Point = { x: NaN, y: NaN };
+  for (let i = 0; i < n; i++) p = opt.step();
   return p;
 }
 
@@ -43,21 +43,22 @@ describe("GradientDescent", () => {
   it("performs the analytical first step on the sphere", () => {
     const opt = new GradientDescent(0.05, sphere(), START, "id");
     // grad(5,5) = (10,10); x_1 = x_0 - lr * grad = (5 - 0.5, 5 - 0.5) = (4.5, 4.5)
-    approx(opt.step(START), { x: 4.5, y: 4.5 });
+    approx(opt.step(), { x: 4.5, y: 4.5 });
   });
 
   it("converges to the minimum on the sphere", () => {
     const opt = new GradientDescent(0.05, sphere(), START, "id");
-    const final = runSteps(opt, 100, START);
+    const final = runSteps(opt, 100);
     expect(norm(final)).toBeLessThan(1e-3);
   });
 
-  it("reset is a no-op (stateless)", () => {
+  it("reset restores the starting iterate", () => {
     const opt = new GradientDescent(0.05, sphere(), START, "id");
-    runSteps(opt, 10, START);
-    expect(() => opt.reset()).not.toThrow();
-    // Subsequent step from START must still be the analytical first step.
-    approx(opt.step(START), { x: 4.5, y: 4.5 });
+    runSteps(opt, 10);
+    opt.reset();
+    expect(opt.lastIterate).toEqual(START);
+    // First step after reset must reproduce the analytical first step.
+    approx(opt.step(), { x: 4.5, y: 4.5 });
   });
 });
 
@@ -65,26 +66,25 @@ describe("GradientDescentMomentum", () => {
   it("performs the analytical first two steps on the sphere", () => {
     const opt = new GradientDescentMomentum(0.1, sphere(), START, "id", 0.8);
     // v_1 = 0.8*0 + grad(5,5) = (10,10); x_1 = (5,5) - 0.1*(10,10) = (4,4)
-    const x1 = opt.step(START);
-    approx(x1, { x: 4, y: 4 });
-    // v_2 = 0.8*(10,10) + grad(4,4) = (8,8)+(8,8) = (16,16); x_2 = (4,4)-0.1*(16,16) = (2.4,2.4)
-    approx(opt.step(x1), { x: 2.4, y: 2.4 });
+    approx(opt.step(), { x: 4, y: 4 });
+    // v_2 = 0.8*(10,10) + grad(4,4) = (16,16); x_2 = (4,4)-0.1*(16,16) = (2.4,2.4)
+    approx(opt.step(), { x: 2.4, y: 2.4 });
   });
 
   it("converges to the minimum on the sphere", () => {
     const opt = new GradientDescentMomentum(0.1, sphere(), START, "id", 0.8);
-    const final = runSteps(opt, 200, START);
+    const final = runSteps(opt, 200);
     expect(norm(final)).toBeLessThan(1e-3);
   });
 
-  it("reset zeros the velocity", () => {
+  it("reset zeros velocity and restores the starting iterate", () => {
     const opt = new GradientDescentMomentum(0.1, sphere(), START, "id", 0.8);
-    runSteps(opt, 5, START);
+    runSteps(opt, 5);
     expect(opt.velocity.x).not.toBe(0);
     opt.reset();
     expect(opt.velocity).toEqual({ x: 0, y: 0 });
-    // After reset, first step must again equal the analytical first step.
-    approx(opt.step(START), { x: 4, y: 4 });
+    expect(opt.lastIterate).toEqual(START);
+    approx(opt.step(), { x: 4, y: 4 });
   });
 });
 
@@ -92,28 +92,27 @@ describe("AdaGrad", () => {
   it("performs the analytical first step on the sphere", () => {
     const opt = new AdaGrad(0.1, sphere(), START, "id");
     // grad=(10,10); G_1=(100,100); update = -0.1*(10,10)/(sqrt(100)+eps) ~= (-0.1,-0.1)
-    approx(opt.step(START), { x: 4.9, y: 4.9 }, 1e-6);
+    approx(opt.step(), { x: 4.9, y: 4.9 }, 1e-6);
   });
 
   it("monotonically reduces the iterate norm on the sphere", () => {
     const opt = new AdaGrad(0.1, sphere(), START, "id");
-    let p = START;
-    let prev = norm(p);
+    let prev = norm(START);
     for (let i = 0; i < 50; i++) {
-      p = opt.step(p);
-      const n = norm(p);
+      const n = norm(opt.step());
       expect(n).toBeLessThanOrEqual(prev + 1e-12);
       prev = n;
     }
   });
 
-  it("reset zeros the squared gradient sum", () => {
+  it("reset zeros the squared gradient sum and restores the starting iterate", () => {
     const opt = new AdaGrad(0.1, sphere(), START, "id");
-    runSteps(opt, 5, START);
+    runSteps(opt, 5);
     expect(opt.squaredGradientSum.x).toBeGreaterThan(0);
     opt.reset();
     expect(opt.squaredGradientSum).toEqual({ x: 0, y: 0 });
-    approx(opt.step(START), { x: 4.9, y: 4.9 }, 1e-6);
+    expect(opt.lastIterate).toEqual(START);
+    approx(opt.step(), { x: 4.9, y: 4.9 }, 1e-6);
   });
 });
 
@@ -121,23 +120,24 @@ describe("RMSProp", () => {
   it("performs the analytical first step on the sphere", () => {
     const opt = new RMSProp(0.1, sphere(), START, "id", 0.99);
     // v_1 = 0.99*0 + 0.01*(100,100) = (1,1); update = -0.1*(10,10)/(sqrt(1)+eps) ~= (-1,-1)
-    approx(opt.step(START), { x: 4, y: 4 }, 1e-6);
+    approx(opt.step(), { x: 4, y: 4 }, 1e-6);
   });
 
   it("reduces the iterate norm by at least an order of magnitude", () => {
     // RMSProp without bias correction oscillates near the minimum, so we
     // assert order-of-magnitude reduction rather than convergence to zero.
     const opt = new RMSProp(0.01, sphere(), START, "id", 0.99);
-    const final = runSteps(opt, 500, START);
+    const final = runSteps(opt, 500);
     expect(norm(final)).toBeLessThan(norm(START) / 10);
   });
 
-  it("reset zeros the velocity", () => {
+  it("reset zeros velocity and restores the starting iterate", () => {
     const opt = new RMSProp(0.1, sphere(), START, "id", 0.99);
-    runSteps(opt, 5, START);
+    runSteps(opt, 5);
     expect(opt.velocity.x).toBeGreaterThan(0);
     opt.reset();
     expect(opt.velocity).toEqual({ x: 0, y: 0 });
+    expect(opt.lastIterate).toEqual(START);
   });
 });
 
@@ -145,25 +145,25 @@ describe("Adam", () => {
   it("performs the analytical first step on the sphere", () => {
     const opt = new Adam(0.1, sphere(), START, "id", 0.9, 0.999);
     // t=1: m_hat=g=(10,10), v_hat=g^2=(100,100); update = -0.1*(10,10)/(sqrt(100)+eps) ~= (-0.1,-0.1)
-    approx(opt.step(START), { x: 4.9, y: 4.9 }, 1e-6);
+    approx(opt.step(), { x: 4.9, y: 4.9 }, 1e-6);
   });
 
   it("converges to the minimum on the sphere", () => {
     const opt = new Adam(0.1, sphere(), START, "id", 0.9, 0.999);
-    const final = runSteps(opt, 500, START);
+    const final = runSteps(opt, 500);
     expect(norm(final)).toBeLessThan(1e-2);
   });
 
-  it("reset zeros moments and step counter", () => {
+  it("reset zeros moments, step counter, and restores the starting iterate", () => {
     const opt = new Adam(0.1, sphere(), START, "id", 0.9, 0.999);
-    runSteps(opt, 5, START);
+    runSteps(opt, 5);
     expect(opt.stepsCount).toBe(5);
     opt.reset();
     expect(opt.meanEstimation).toEqual({ x: 0, y: 0 });
     expect(opt.varianceEstimation).toEqual({ x: 0, y: 0 });
     expect(opt.stepsCount).toBe(0);
-    // First step after reset must reproduce the analytical first step.
-    approx(opt.step(START), { x: 4.9, y: 4.9 }, 1e-6);
+    expect(opt.lastIterate).toEqual(START);
+    approx(opt.step(), { x: 4.9, y: 4.9 }, 1e-6);
   });
 });
 
