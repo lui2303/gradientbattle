@@ -26,9 +26,8 @@ export function AlgoSimulation() {
         }
 
     const [func, setFunc] = useState<objectiveFunction>(new quadraticFunction([[1, 0],[0,1]], {x: 0, y:0}, 0))
-    
-    const id = crypto.randomUUID()
-    const [optimizers, setOptimizers] = useState<Record<string, Optimizer>>({[id]: defaultOptimizer})
+
+    const [optimizers, setOptimizers] = useState<Record<string, Optimizer>>({[crypto.randomUUID()]: defaultOptimizer})
     
     const [running, setRunning] = useState(false);
     const runningRef = useRef(false);
@@ -40,7 +39,7 @@ export function AlgoSimulation() {
                         y: [defaultOptimizer.startingPoint.y],
                         type: "scatter" as const,
                         mode: "lines+markers" as const,
-                        name: id,
+                        name: Object.keys(optimizers)[0],
                         line: { color: defaultOptimizer.color },
                         distances: [norm(defaultOptimizer.startingPoint)],
                         objectiveValues: [func.objective(defaultOptimizer.startingPoint)]
@@ -48,7 +47,7 @@ export function AlgoSimulation() {
     
     const engine = useMemo(
         () => {
-            const engine = new SimulationEngine(func, 100, Object.values(optimizers).map(x => x.startingPoint));
+            const engine = new SimulationEngine(func, 100);
             Object.keys(optimizers).forEach((optiKey) => {
                 engine.addOptimizer(optimizerFactory(optimizers[optiKey].name, {...optimizers[optiKey].params,
                     objective: func, 
@@ -103,11 +102,11 @@ export function AlgoSimulation() {
             <div className="flex flex-col gap-4 p-4">
 
                 <div className="grid grid-cols-3 gap-4"> 
-                    <ContourPlot objFunction={func} optimizerTraces={optimizerTraces}></ContourPlot>
+                    <ContourPlot objFunction={func} optimizerTraces={optimizerTraces} setOptimizerTraces={setOptimizerTraces}></ContourPlot>
                 
-                    <DistancePlot optimizerTraces={optimizerTraces}></DistancePlot>
+                    <DistancePlot optimizerTraces={optimizerTraces} setOptimizerTraces={setOptimizerTraces}></DistancePlot>
 
-                    <ObjectiveValuePlot optimizerTraces={optimizerTraces}></ObjectiveValuePlot>
+                    <ObjectiveValuePlot optimizerTraces={optimizerTraces} setOptimizerTraces={setOptimizerTraces}></ObjectiveValuePlot>
                 </div>
                 
 

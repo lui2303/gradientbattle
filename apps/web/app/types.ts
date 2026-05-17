@@ -29,12 +29,15 @@ export type PlotHandlerProps = {
 export type ContourPlotProps = {
   objFunction: objectiveFunction,
   optimizerTraces: TraceData,
+  setOptimizerTraces: React.Dispatch<React.SetStateAction<TraceData>>,
 }
 
 export type DistancePlotProps = {
   optimizerTraces: TraceData,
+  setOptimizerTraces: React.Dispatch<React.SetStateAction<TraceData>>,
 }
 
 export type ObjectiveValuePlotProps = {
   optimizerTraces: TraceData,
+  setOptimizerTraces: React.Dispatch<React.SetStateAction<TraceData>>,
 }

@@ -11,6 +11,7 @@ export class RMSProp implements Optimizer {
     id: string;
     velocity: Point
     eps = 1e-8
+    lastIterate: Point
 
     constructor(lr: number, objective: objectiveFunction, startingPoint: Point, id: string, momentum: number) {
         this.lr = lr
@@ -19,17 +20,19 @@ export class RMSProp implements Optimizer {
         this.id = id
         this.decay = momentum
         this.velocity = {x: 0, y:0}
+        this.lastIterate = startingPoint
     }
 
-    step(point: Point): Point {
-        const gradient = this.objective.gradient(point)
+    step(): Point {
+        const gradient = this.objective.gradient(this.lastIterate)
         this.velocity = vectorAddition(scalarMultiplication(this.velocity, this.decay), scalarMultiplication(hadamardProduct(gradient, gradient), (1-this.decay)))
-        
-        return vectorAddition(point, hadamardProduct(scalarMultiplication(adaGradSumManipulation(this.velocity, this.eps),-this.lr), gradient))
+        this.lastIterate = vectorAddition(this.lastIterate, hadamardProduct(scalarMultiplication(adaGradSumManipulation(this.velocity, this.eps),-this.lr), gradient))
+        return this.lastIterate
     }
     
     reset() {
         this.velocity = {x: 0, y: 0}
+        this.lastIterate = this.startingPoint
     }
 
 }

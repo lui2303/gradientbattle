@@ -6,7 +6,7 @@ export type Point = {
 }
 
 export type Optimizer = {
-    step(point: Point): Point
+    step(): Point
     objective: objectiveFunction
     name: string
     startingPoint: Point

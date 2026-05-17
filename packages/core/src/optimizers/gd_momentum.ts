@@ -10,6 +10,7 @@ export class GradientDescentMomentum implements Optimizer {
     startingPoint: Point;
     id: string;
     velocity: Point
+    lastIterate: Point
 
     constructor(lr: number, objective: objectiveFunction, startingPoint: Point, id: string, momentum: number) {
         this.lr = lr
@@ -18,15 +19,19 @@ export class GradientDescentMomentum implements Optimizer {
         this.id = id
         this.momentum = momentum
         this.velocity = {x: 0, y:0}
+        this.lastIterate = startingPoint
     }
 
-    step(point: Point): Point {
-        this.velocity = vectorAddition(scalarMultiplication(this.velocity, this.momentum), this.objective.gradient(point))
-
-        return vectorAddition(point, scalarMultiplication(this.velocity, -this.lr))
+    step(): Point {
+        this.velocity = vectorAddition(scalarMultiplication(this.velocity, this.momentum), this.objective.gradient(this.lastIterate))
+        
+        this.lastIterate = vectorAddition(this.lastIterate, scalarMultiplication(this.velocity, -this.lr))
+        
+        return this.lastIterate
     }
     
     reset() {
         this.velocity = {x: 0, y: 0}
+        this.lastIterate = this.startingPoint
     }
 }

@@ -18,7 +18,7 @@ const Plot = dynamic(
 );
 
 
-export function DistancePlot({optimizerTraces}: DistancePlotProps) {
+export function DistancePlot({optimizerTraces, setOptimizerTraces}: DistancePlotProps) {
 
     const layout: Partial<Layout> = {
         xaxis: { title: { text: 'steps' }, color: 'white', autorange: true },
@@ -42,6 +42,18 @@ export function DistancePlot({optimizerTraces}: DistancePlotProps) {
                 config={{ displayModeBar: false, typesetMath: true }}
                 useResizeHandler
                 style={{ width: '100%', height: '100%' }}
+                onHover={(event) => {
+                    const id = event.points[0].data.name
+                    setOptimizerTraces(prev => {
+                        return prev.map((v) => (v.name == id ? v : {...v, opacity: 0.4}))
+                    })
+                }}
+
+                onUnhover={(e) => {
+                    setOptimizerTraces(prev => {
+                        return prev.map((v) => ({...v, opacity: 1}))
+                    })
+                }}
             />
         </div>
     )

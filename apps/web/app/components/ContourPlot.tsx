@@ -19,7 +19,7 @@ const Plot = dynamic(
   { ssr: false }
 );
 
-export default function ContourPlot({objFunction, optimizerTraces}: ContourPlotProps) {
+export default function ContourPlot({objFunction, optimizerTraces, setOptimizerTraces}: ContourPlotProps) {
   
   const plotValues = useMemo(() => {
     const x = Array.from({ length: 101 }, (_, i) => i * 0.2 - 10)
@@ -60,6 +60,17 @@ export default function ContourPlot({objFunction, optimizerTraces}: ContourPlotP
         config={{ displayModeBar: false, typesetMath: true }}
         useResizeHandler
         style={{ width: '100%', height: '100%' }}
+        onHover={(event) => {
+                    const id = event.points[0].data.name
+                    setOptimizerTraces(prev => {
+                        return prev.map((v) => (v.name == id ? v : {...v, opacity: 0.4}))
+                    })
+                }}
+
+        onUnhover={(e) => {
+          setOptimizerTraces(prev => {
+            return prev.map((v) => ({...v, opacity: 1}))
+          })}}
       />
     </div>
   );

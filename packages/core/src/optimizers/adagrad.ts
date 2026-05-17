@@ -10,6 +10,7 @@ export class AdaGrad implements Optimizer {
     id: string
     squaredGradientSum: Point = {x: 0, y: 0}
     eps = 1e-8
+    lastIterate: Point
 
 
     constructor(lr: number, objective: objectiveFunction, startingPoint: Point, id: string) {
@@ -17,16 +18,19 @@ export class AdaGrad implements Optimizer {
         this.objective = objective
         this.startingPoint = startingPoint
         this.id = id
+        this.lastIterate = startingPoint
     }
 
-    step(point: Point): Point {
-        const gradient = this.objective.gradient(point)
+    step(): Point {
+        const gradient = this.objective.gradient(this.lastIterate)
         this.squaredGradientSum = {x: this.squaredGradientSum.x + gradient.x*gradient.x, y: this.squaredGradientSum.y + gradient.y*gradient.y}
-        return vectorAddition(point, hadamardProduct(scalarMultiplication(adaGradSumManipulation(this.squaredGradientSum, this.eps),-this.lr), gradient))
+        this.lastIterate = vectorAddition(this.lastIterate, hadamardProduct(scalarMultiplication(adaGradSumManipulation(this.squaredGradientSum, this.eps),-this.lr), gradient))
+        return this.lastIterate
     }
     
     reset(): void {
         this.squaredGradientSum = {x: 0, y:0}
+        this.lastIterate = this.startingPoint
     }
     
 }
