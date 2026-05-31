@@ -13,6 +13,7 @@ import { Point } from "@gradientbattle/core/src/types"
 import { DistancePlot } from "./DistancePlot"
 import { ObjectiveValuePlot } from "./ObjectiveValuePlot"
 import type { Config, Data, Layout, PlotHoverEvent, PlotlyHTMLElement } from "plotly.js"
+import { Leaderboard } from "./Leaderboard"
 
 const loadPlotly = () => import('plotly.js-cartesian-dist-min').then((m) => m.default);
 
@@ -61,6 +62,18 @@ export function AlgoSimulation() {
 
     const [optimizers, setOptimizers] = useState<Record<string, Optimizer>>({ [crypto.randomUUID()]: defaultOptimizer })
 
+    const [currentIterate, setcurrentIterate] = useState<Record<string, number[]>>({})
+    const [iterateSeed, setIterateSeed] = useState<{ optimizers: typeof optimizers; func: typeof func } | null>(null)
+
+    if (iterateSeed?.optimizers !== optimizers || iterateSeed?.func !== func) {
+        setIterateSeed({ optimizers, func })
+        const seed: Record<string, number[]> = {}
+        for (const [id, opt] of Object.entries(optimizers)) {
+            seed[id] = [norm(opt.startingPoint), func.objective(opt.startingPoint)]
+        }
+        setcurrentIterate(seed)
+    }
+
     const [running, setRunning] = useState(false);
     const runningRef = useRef(false);
 
@@ -102,9 +115,6 @@ export function AlgoSimulation() {
         }
     }, [])
 
-    // Rebuild the figures whenever the function or the optimizer set changes. Plotly.react diffs
-    // against the current figure, so this adds/removes/moves traces without duplicating them and
-    // without ever wiping animation work (no React render path touches the divs).
     useEffect(() => {
         const Plotly = plotlyRef.current
         if (!ready || !Plotly) return
@@ -130,6 +140,7 @@ export function AlgoSimulation() {
             name: id,
             line: { color: opt.color },
         }))
+        
         const objectiveSeeds: Data[] = entries.map(([id, opt]) => ({
             x: [0],
             y: [func.objective(opt.startingPoint)],
@@ -166,9 +177,7 @@ export function AlgoSimulation() {
         return () => ro.disconnect()
     }, [ready])
 
-    // Linked hover highlighting: hovering a trace dims every other optimizer trace across all three
-    // plots. Matching by trace name (the optimizer id) keeps this independent of per-plot index
-    // offsets and naturally skips the contour surface.
+
     useEffect(() => {
         const Plotly = plotlyRef.current
         if (!ready || !Plotly) return
@@ -251,12 +260,21 @@ export function AlgoSimulation() {
 
         // Append one simulation step per frame. Each `step` is one Point per optimizer, in id order.
         for (let s = 0; s < traces.length; s++) {
+            
             if (runningRef.current !== true) return
             const step = traces[s]
             const stepNumber = s + 1
             Plotly.extendTraces(c, { x: step.map((p) => [p.x]), y: step.map((p) => [p.y]) }, contourIdx)
             Plotly.extendTraces(d, { x: stepIdx.map(() => [stepNumber]), y: step.map((p) => [norm(p)]) }, stepIdx)
             Plotly.extendTraces(o, { x: stepIdx.map(() => [stepNumber]), y: step.map((p) => [func.objective(p)]) }, stepIdx)
+            setcurrentIterate(prev => {
+                const next = { ...prev };
+                Object.entries(next).forEach(([id, _], i) => {
+                    next[id] = [norm(step[i]), func.objective(step[i])]
+                })
+                return next
+            })
+            
             await new Promise((r) => setTimeout(r, animationSpeed));
         }
 
@@ -277,6 +295,8 @@ export function AlgoSimulation() {
                 </div>
 
                 <div className="flex flex-col gap-2 mt-2">
+                    <Leaderboard optimizers={optimizers} currentIterates={currentIterate}></Leaderboard>
+
                     <button className="bg-cyan-800" onClick={playSimulation}>{running ? "Stop" : "Start"}</button>
                     <br />
                     <label>Animation Speed: {animationSpeed} ms</label>
