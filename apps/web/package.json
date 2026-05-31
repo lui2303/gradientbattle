@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@prisma/adapter-better-sqlite3": "^7.8.0",
+    "@prisma/client": "^7.8.0",
     "next": "16.1.6",
     "plotly.js-cartesian-dist-min": "^3.5.0",
     "react": "19.2.3",
@@ -23,9 +25,11 @@
     "@types/react-dom": "^19",
     "@types/react-plotly.js": "^2.6.4",
     "babel-plugin-react-compiler": "1.0.0",
+    "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "prisma": "^7.8.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5.9.3"
   }
 }

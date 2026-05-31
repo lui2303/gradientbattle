@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(xargs ls *)",
-      "Bash(pnpm install *)"
+      "Bash(pnpm install *)",
+      "Bash(grep -E \"next|react\\($| \\)\")",
+      "Bash(docker exec *)"
     ]
   }
 }
