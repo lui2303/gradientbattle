@@ -1,4 +1,3 @@
-import { SimulationEngine } from "@gradientbattle/core/src/simulation_engine";
 import { objectiveFunction, Point } from "@gradientbattle/core/src/types";
 import { PlotData } from "plotly.js";
 

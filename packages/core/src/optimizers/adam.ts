@@ -1,4 +1,4 @@
-import { start } from "repl";
+
 import { adaGradSumManipulation, hadamardProduct, scalarMultiplication, vectorAddition } from "../math_helper";
 import { objectiveFunction, Optimizer, Point } from "../types";
 import { ADAM_NAME } from "./constants";

@@ -2,7 +2,7 @@
 
 import { optimizationAlgorithms, optimizationAlgorithmsList } from "@gradientbattle/core/src/optimizers/optimizer_registry"
 import AlgorithmSelectContainer from "./AlgorithmSelectContainer"
-import { useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Optimizer, TraceData } from "../types"
 import ContourPlot from "./ContourPlot"
 import { SimulationEngine } from "@gradientbattle/core/src/simulation_engine"
@@ -45,6 +45,7 @@ export function AlgoSimulation() {
                         objectiveValues: [func.objective(defaultOptimizer.startingPoint)]
                 }])
     
+    
     const engine = useMemo(
         () => {
             const engine = new SimulationEngine(func, 100);
@@ -55,7 +56,6 @@ export function AlgoSimulation() {
                     id: optiKey}))
             })
             return engine
-            
         },
         [optimizers, func]
     )
@@ -73,6 +73,17 @@ export function AlgoSimulation() {
 
         runningRef.current = true;
         setRunning(true);
+
+        const res = await fetch("/api/run_optimizers", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                optimizers,          // ← your existing Record<string, Optimizer> state, unchanged
+                steps: 100,
+                challengeId: 1,
+            }),
+         });
+        const { id, traces, iterations } = await res.json();
 
         setOptimizerTraces(prev => prev.map((item) => ({...item, x: [(item.x! as number[])[0]], y: [(item.y! as number[])[0]], distances: [item.distances[0]], objectiveValues: [item.objectiveValues[0]]})))
 
