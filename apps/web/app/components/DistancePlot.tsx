@@ -1,8 +1,8 @@
 'use client';
 
-import { DistancePlotProps } from '../types';
+import { PlotMountProps } from '../types';
 
 // Rendered imperatively by AlgoSimulation (Plotly.newPlot / Plotly.react). Just the mount point.
-export function DistancePlot({ divRef }: DistancePlotProps) {
+export function DistancePlot({ divRef }: PlotMountProps) {
   return <div ref={divRef} className="w-full aspect-square" />;
 }

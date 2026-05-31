@@ -8,6 +8,6 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/LeaderboardEntry'
+export type * from './models/Leaderboard'
 export type * from './models/Run'
 export type * from './commonInputTypes'

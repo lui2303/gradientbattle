@@ -3,7 +3,7 @@
 import { optimizationAlgorithms, optimizationAlgorithmsList } from "@gradientbattle/core/src/optimizers/optimizer_registry"
 import AlgorithmSelectContainer from "./AlgorithmSelectContainer"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { Optimizer } from "../types"
+import { Iterate, Optimizer } from "../types"
 import ContourPlot from "./ContourPlot"
 import { quadraticFunction } from "@gradientbattle/core/src/functions/quadratic_function"
 import { FunctionSelector } from "./FunctionSelector"
@@ -14,6 +14,7 @@ import { DistancePlot } from "./DistancePlot"
 import { ObjectiveValuePlot } from "./ObjectiveValuePlot"
 import type { Config, Data, Layout, PlotHoverEvent, PlotlyHTMLElement } from "plotly.js"
 import { Leaderboard } from "./Leaderboard"
+import { GlobalLeaderboard } from "./GlobalLeaderboard"
 
 const loadPlotly = () => import('plotly.js-cartesian-dist-min').then((m) => m.default);
 
@@ -51,7 +52,7 @@ export function AlgoSimulation() {
     const plotlyRef = useRef<typeof import('plotly.js') | null>(null)
     const [ready, setReady] = useState(false)
 
-    const defaultOptimizer = {
+    const defaultOptimizer: Optimizer = {
         "name": optimizationAlgorithmsList[0],
         "params": optimizationAlgorithms[optimizationAlgorithmsList[0]]["params"],
         "startingPoint": { x: 5, y: 5 },
@@ -62,12 +63,12 @@ export function AlgoSimulation() {
 
     const [optimizers, setOptimizers] = useState<Record<string, Optimizer>>({ [crypto.randomUUID()]: defaultOptimizer })
 
-    const [currentIterate, setcurrentIterate] = useState<Record<string, number[]>>({})
+    const [currentIterate, setcurrentIterate] = useState<Record<string, Iterate>>({})
     const [iterateSeed, setIterateSeed] = useState<{ optimizers: typeof optimizers; func: typeof func } | null>(null)
 
     if (iterateSeed?.optimizers !== optimizers || iterateSeed?.func !== func) {
         setIterateSeed({ optimizers, func })
-        const seed: Record<string, number[]> = {}
+        const seed: Record<string, Iterate> = {}
         for (const [id, opt] of Object.entries(optimizers)) {
             seed[id] = [norm(opt.startingPoint), func.objective(opt.startingPoint)]
         }
@@ -250,7 +251,7 @@ export function AlgoSimulation() {
                 challengeId: 1,
             }),
         });
-        const { traces }: { traces: Point[][] } = await res.json();
+        const { traces, id }: { traces: Point[][], id: string } = await res.json();
 
         // Reset every trace back to its starting point so replays don't append onto the last run.
         const starts = ids.map((id) => optimizers[id].startingPoint)
@@ -268,8 +269,8 @@ export function AlgoSimulation() {
             Plotly.extendTraces(d, { x: stepIdx.map(() => [stepNumber]), y: step.map((p) => [norm(p)]) }, stepIdx)
             Plotly.extendTraces(o, { x: stepIdx.map(() => [stepNumber]), y: step.map((p) => [func.objective(p)]) }, stepIdx)
             setcurrentIterate(prev => {
-                const next = { ...prev };
-                Object.entries(next).forEach(([id, _], i) => {
+                const next: Record<string, Iterate> = { ...prev };
+                ids.forEach((id, i) => {
                     next[id] = [norm(step[i]), func.objective(step[i])]
                 })
                 return next
@@ -278,6 +279,17 @@ export function AlgoSimulation() {
             await new Promise((r) => setTimeout(r, animationSpeed));
         }
 
+        const response = await fetch("/api/leaderboard", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                runID: id,
+                name: "Luis"
+            }),
+        });
+        const resp = await response.json()
+        console.log(resp)
+
         runningRef.current = false;
         setRunning(false);
     };
@@ -285,7 +297,7 @@ export function AlgoSimulation() {
     return (
         <div>
             <div className="flex flex-col gap-4 p-4">
-
+                <GlobalLeaderboard></GlobalLeaderboard>
                 <div className="grid grid-cols-3 gap-4">
                     <ContourPlot divRef={contourDiv}></ContourPlot>
 

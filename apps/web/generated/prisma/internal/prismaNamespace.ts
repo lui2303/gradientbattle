@@ -384,7 +384,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
-  LeaderboardEntry: 'LeaderboardEntry',
+  Leaderboard: 'Leaderboard',
   Run: 'Run'
 } as const
 
@@ -401,81 +401,81 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "leaderboardEntry" | "run"
+    modelProps: "leaderboard" | "run"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
-    LeaderboardEntry: {
-      payload: Prisma.$LeaderboardEntryPayload<ExtArgs>
-      fields: Prisma.LeaderboardEntryFieldRefs
+    Leaderboard: {
+      payload: Prisma.$LeaderboardPayload<ExtArgs>
+      fields: Prisma.LeaderboardFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.LeaderboardEntryFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardEntryPayload> | null
+          args: Prisma.LeaderboardFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.LeaderboardEntryFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardEntryPayload>
+          args: Prisma.LeaderboardFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardPayload>
         }
         findFirst: {
-          args: Prisma.LeaderboardEntryFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardEntryPayload> | null
+          args: Prisma.LeaderboardFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.LeaderboardEntryFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardEntryPayload>
+          args: Prisma.LeaderboardFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardPayload>
         }
         findMany: {
-          args: Prisma.LeaderboardEntryFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardEntryPayload>[]
+          args: Prisma.LeaderboardFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardPayload>[]
         }
         create: {
-          args: Prisma.LeaderboardEntryCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardEntryPayload>
+          args: Prisma.LeaderboardCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardPayload>
         }
         createMany: {
-          args: Prisma.LeaderboardEntryCreateManyArgs<ExtArgs>
+          args: Prisma.LeaderboardCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.LeaderboardEntryCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardEntryPayload>[]
+          args: Prisma.LeaderboardCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardPayload>[]
         }
         delete: {
-          args: Prisma.LeaderboardEntryDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardEntryPayload>
+          args: Prisma.LeaderboardDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardPayload>
         }
         update: {
-          args: Prisma.LeaderboardEntryUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardEntryPayload>
+          args: Prisma.LeaderboardUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardPayload>
         }
         deleteMany: {
-          args: Prisma.LeaderboardEntryDeleteManyArgs<ExtArgs>
+          args: Prisma.LeaderboardDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.LeaderboardEntryUpdateManyArgs<ExtArgs>
+          args: Prisma.LeaderboardUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.LeaderboardEntryUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardEntryPayload>[]
+          args: Prisma.LeaderboardUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardPayload>[]
         }
         upsert: {
-          args: Prisma.LeaderboardEntryUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardEntryPayload>
+          args: Prisma.LeaderboardUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardPayload>
         }
         aggregate: {
-          args: Prisma.LeaderboardEntryAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateLeaderboardEntry>
+          args: Prisma.LeaderboardAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLeaderboard>
         }
         groupBy: {
-          args: Prisma.LeaderboardEntryGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.LeaderboardEntryGroupByOutputType>[]
+          args: Prisma.LeaderboardGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LeaderboardGroupByOutputType>[]
         }
         count: {
-          args: Prisma.LeaderboardEntryCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.LeaderboardEntryCountAggregateOutputType> | number
+          args: Prisma.LeaderboardCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LeaderboardCountAggregateOutputType> | number
         }
       }
     }
@@ -589,20 +589,22 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-export const LeaderboardEntryScalarFieldEnum = {
+export const LeaderboardScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  iterations: 'iterations'
+  iterations: 'iterations',
+  challengeID: 'challengeID'
 } as const
 
-export type LeaderboardEntryScalarFieldEnum = (typeof LeaderboardEntryScalarFieldEnum)[keyof typeof LeaderboardEntryScalarFieldEnum]
+export type LeaderboardScalarFieldEnum = (typeof LeaderboardScalarFieldEnum)[keyof typeof LeaderboardScalarFieldEnum]
 
 
 export const RunScalarFieldEnum = {
   id: 'id',
   traces: 'traces',
   iterations: 'iterations',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  challengeID: 'challengeID'
 } as const
 
 export type RunScalarFieldEnum = (typeof RunScalarFieldEnum)[keyof typeof RunScalarFieldEnum]
@@ -638,6 +640,14 @@ export const QueryMode = {
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
 
@@ -797,7 +807,7 @@ export type PrismaClientOptions = ({
   queryPlanCacheMaxSize?: number
 }
 export type GlobalOmitConfig = {
-  leaderboardEntry?: Prisma.LeaderboardEntryOmit
+  leaderboard?: Prisma.LeaderboardOmit
   run?: Prisma.RunOmit
 }
 

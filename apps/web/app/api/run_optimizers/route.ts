@@ -35,7 +35,7 @@ export async function POST(request: Request) {
 
     const traces = Array.from(sim_engine)
 
-    const entry = await prisma.run.create({ data: { traces: traces, iterations: traces.length } });
+    const entry = await prisma.run.create({ data: { traces: traces, iterations: traces.length, challengeID: challengeId } });
     
     return NextResponse.json({ "id": entry.id, "traces": traces, "iterations": entry.iterations }, { status: 201 });
   }

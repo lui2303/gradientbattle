@@ -51,7 +51,7 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  LeaderboardEntry: 'LeaderboardEntry',
+  Leaderboard: 'Leaderboard',
   Run: 'Run'
 } as const
 
@@ -68,20 +68,22 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-export const LeaderboardEntryScalarFieldEnum = {
+export const LeaderboardScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  iterations: 'iterations'
+  iterations: 'iterations',
+  challengeID: 'challengeID'
 } as const
 
-export type LeaderboardEntryScalarFieldEnum = (typeof LeaderboardEntryScalarFieldEnum)[keyof typeof LeaderboardEntryScalarFieldEnum]
+export type LeaderboardScalarFieldEnum = (typeof LeaderboardScalarFieldEnum)[keyof typeof LeaderboardScalarFieldEnum]
 
 
 export const RunScalarFieldEnum = {
   id: 'id',
   traces: 'traces',
   iterations: 'iterations',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  challengeID: 'challengeID'
 } as const
 
 export type RunScalarFieldEnum = (typeof RunScalarFieldEnum)[keyof typeof RunScalarFieldEnum]
@@ -117,4 +119,12 @@ export const QueryMode = {
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 

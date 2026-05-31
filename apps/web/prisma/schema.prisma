@@ -12,10 +12,11 @@ datasource db {
   provider = "sqlite"
 }
 
-model LeaderboardEntry {
+model Leaderboard {
   id         Int    @id @default(autoincrement())
   name       String
   iterations Int
+  challengeID Int
 }
 
 model Run {
@@ -23,4 +24,5 @@ model Run {
   traces     Json
   iterations Int
   createdAt  DateTime @default(now())
+  challengeID Int?
 }

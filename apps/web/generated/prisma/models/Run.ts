@@ -28,22 +28,26 @@ export type AggregateRun = {
 
 export type RunAvgAggregateOutputType = {
   iterations: number | null
+  challengeID: number | null
 }
 
 export type RunSumAggregateOutputType = {
   iterations: number | null
+  challengeID: number | null
 }
 
 export type RunMinAggregateOutputType = {
   id: string | null
   iterations: number | null
   createdAt: Date | null
+  challengeID: number | null
 }
 
 export type RunMaxAggregateOutputType = {
   id: string | null
   iterations: number | null
   createdAt: Date | null
+  challengeID: number | null
 }
 
 export type RunCountAggregateOutputType = {
@@ -51,28 +55,33 @@ export type RunCountAggregateOutputType = {
   traces: number
   iterations: number
   createdAt: number
+  challengeID: number
   _all: number
 }
 
 
 export type RunAvgAggregateInputType = {
   iterations?: true
+  challengeID?: true
 }
 
 export type RunSumAggregateInputType = {
   iterations?: true
+  challengeID?: true
 }
 
 export type RunMinAggregateInputType = {
   id?: true
   iterations?: true
   createdAt?: true
+  challengeID?: true
 }
 
 export type RunMaxAggregateInputType = {
   id?: true
   iterations?: true
   createdAt?: true
+  challengeID?: true
 }
 
 export type RunCountAggregateInputType = {
@@ -80,6 +89,7 @@ export type RunCountAggregateInputType = {
   traces?: true
   iterations?: true
   createdAt?: true
+  challengeID?: true
   _all?: true
 }
 
@@ -174,6 +184,7 @@ export type RunGroupByOutputType = {
   traces: runtime.JsonValue
   iterations: number
   createdAt: Date
+  challengeID: number | null
   _count: RunCountAggregateOutputType | null
   _avg: RunAvgAggregateOutputType | null
   _sum: RunSumAggregateOutputType | null
@@ -204,6 +215,7 @@ export type RunWhereInput = {
   traces?: Prisma.JsonFilter<"Run">
   iterations?: Prisma.IntFilter<"Run"> | number
   createdAt?: Prisma.DateTimeFilter<"Run"> | Date | string
+  challengeID?: Prisma.IntNullableFilter<"Run"> | number | null
 }
 
 export type RunOrderByWithRelationInput = {
@@ -211,6 +223,7 @@ export type RunOrderByWithRelationInput = {
   traces?: Prisma.SortOrder
   iterations?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  challengeID?: Prisma.SortOrderInput | Prisma.SortOrder
 }
 
 export type RunWhereUniqueInput = Prisma.AtLeast<{
@@ -221,6 +234,7 @@ export type RunWhereUniqueInput = Prisma.AtLeast<{
   traces?: Prisma.JsonFilter<"Run">
   iterations?: Prisma.IntFilter<"Run"> | number
   createdAt?: Prisma.DateTimeFilter<"Run"> | Date | string
+  challengeID?: Prisma.IntNullableFilter<"Run"> | number | null
 }, "id">
 
 export type RunOrderByWithAggregationInput = {
@@ -228,6 +242,7 @@ export type RunOrderByWithAggregationInput = {
   traces?: Prisma.SortOrder
   iterations?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  challengeID?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.RunCountOrderByAggregateInput
   _avg?: Prisma.RunAvgOrderByAggregateInput
   _max?: Prisma.RunMaxOrderByAggregateInput
@@ -243,6 +258,7 @@ export type RunScalarWhereWithAggregatesInput = {
   traces?: Prisma.JsonWithAggregatesFilter<"Run">
   iterations?: Prisma.IntWithAggregatesFilter<"Run"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Run"> | Date | string
+  challengeID?: Prisma.IntNullableWithAggregatesFilter<"Run"> | number | null
 }
 
 export type RunCreateInput = {
@@ -250,6 +266,7 @@ export type RunCreateInput = {
   traces: Prisma.JsonNullValueInput | runtime.InputJsonValue
   iterations: number
   createdAt?: Date | string
+  challengeID?: number | null
 }
 
 export type RunUncheckedCreateInput = {
@@ -257,6 +274,7 @@ export type RunUncheckedCreateInput = {
   traces: Prisma.JsonNullValueInput | runtime.InputJsonValue
   iterations: number
   createdAt?: Date | string
+  challengeID?: number | null
 }
 
 export type RunUpdateInput = {
@@ -264,6 +282,7 @@ export type RunUpdateInput = {
   traces?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   iterations?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  challengeID?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type RunUncheckedUpdateInput = {
@@ -271,6 +290,7 @@ export type RunUncheckedUpdateInput = {
   traces?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   iterations?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  challengeID?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type RunCreateManyInput = {
@@ -278,6 +298,7 @@ export type RunCreateManyInput = {
   traces: Prisma.JsonNullValueInput | runtime.InputJsonValue
   iterations: number
   createdAt?: Date | string
+  challengeID?: number | null
 }
 
 export type RunUpdateManyMutationInput = {
@@ -285,6 +306,7 @@ export type RunUpdateManyMutationInput = {
   traces?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   iterations?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  challengeID?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type RunUncheckedUpdateManyInput = {
@@ -292,6 +314,7 @@ export type RunUncheckedUpdateManyInput = {
   traces?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   iterations?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  challengeID?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type RunCountOrderByAggregateInput = {
@@ -299,30 +322,43 @@ export type RunCountOrderByAggregateInput = {
   traces?: Prisma.SortOrder
   iterations?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  challengeID?: Prisma.SortOrder
 }
 
 export type RunAvgOrderByAggregateInput = {
   iterations?: Prisma.SortOrder
+  challengeID?: Prisma.SortOrder
 }
 
 export type RunMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   iterations?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  challengeID?: Prisma.SortOrder
 }
 
 export type RunMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   iterations?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  challengeID?: Prisma.SortOrder
 }
 
 export type RunSumOrderByAggregateInput = {
   iterations?: Prisma.SortOrder
+  challengeID?: Prisma.SortOrder
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 
@@ -332,6 +368,7 @@ export type RunSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   traces?: boolean
   iterations?: boolean
   createdAt?: boolean
+  challengeID?: boolean
 }, ExtArgs["result"]["run"]>
 
 export type RunSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -339,6 +376,7 @@ export type RunSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extension
   traces?: boolean
   iterations?: boolean
   createdAt?: boolean
+  challengeID?: boolean
 }, ExtArgs["result"]["run"]>
 
 export type RunSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -346,6 +384,7 @@ export type RunSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extension
   traces?: boolean
   iterations?: boolean
   createdAt?: boolean
+  challengeID?: boolean
 }, ExtArgs["result"]["run"]>
 
 export type RunSelectScalar = {
@@ -353,9 +392,10 @@ export type RunSelectScalar = {
   traces?: boolean
   iterations?: boolean
   createdAt?: boolean
+  challengeID?: boolean
 }
 
-export type RunOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "traces" | "iterations" | "createdAt", ExtArgs["result"]["run"]>
+export type RunOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "traces" | "iterations" | "createdAt" | "challengeID", ExtArgs["result"]["run"]>
 
 export type $RunPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Run"
@@ -365,6 +405,7 @@ export type $RunPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     traces: runtime.JsonValue
     iterations: number
     createdAt: Date
+    challengeID: number | null
   }, ExtArgs["result"]["run"]>
   composites: {}
 }
@@ -792,6 +833,7 @@ export interface RunFieldRefs {
   readonly traces: Prisma.FieldRef<"Run", 'Json'>
   readonly iterations: Prisma.FieldRef<"Run", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Run", 'DateTime'>
+  readonly challengeID: Prisma.FieldRef<"Run", 'Int'>
 }
     
 

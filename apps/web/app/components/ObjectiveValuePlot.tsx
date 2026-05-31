@@ -1,8 +1,8 @@
 'use client';
 
-import { ObjectiveValuePlotProps } from '../types';
+import { PlotMountProps } from '../types';
 
 // Rendered imperatively by AlgoSimulation (Plotly.newPlot / Plotly.react). Just the mount point.
-export function ObjectiveValuePlot({ divRef }: ObjectiveValuePlotProps) {
+export function ObjectiveValuePlot({ divRef }: PlotMountProps) {
   return <div ref={divRef} className="w-full aspect-square" />;
 }
