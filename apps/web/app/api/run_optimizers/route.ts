@@ -39,3 +39,8 @@ export async function POST(request: Request) {
     
     return NextResponse.json({ "id": entry.id, "traces": traces, "iterations": entry.iterations }, { status: 201 });
   }
+
+export async function GET(request: Request) {
+    const data = await prisma.run.findMany()
+    return NextResponse.json(data, {status: 200});
+}

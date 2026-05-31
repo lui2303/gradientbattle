@@ -9,7 +9,6 @@ export type AlgorithmSelectCardProps = {
   id: string;
   optimizers: Record<string, Optimizer>;
   setOptimizers: React.Dispatch<React.SetStateAction<Record<string, Optimizer>>>,
-  setOptimizerTraces: React.Dispatch<React.SetStateAction<TraceData>>,
   func: objectiveFunction,
 };
 
@@ -17,7 +16,6 @@ export type AlgorithmSelectContainerProps = {
   optimizers: Record<string, Optimizer>;
   setOptimizers: React.Dispatch<React.SetStateAction<Record<string, Optimizer>>>
   defaultOptimizer: Optimizer,
-  setOptimizerTraces: React.Dispatch<React.SetStateAction<TraceData>>,
   func: objectiveFunction,
 }
 
@@ -26,17 +24,13 @@ export type PlotHandlerProps = {
 }
 
 export type ContourPlotProps = {
-  objFunction: objectiveFunction,
-  optimizerTraces: TraceData,
-  setOptimizerTraces: React.Dispatch<React.SetStateAction<TraceData>>,
+  divRef: React.RefObject<HTMLDivElement | null>
 }
 
 export type DistancePlotProps = {
-  optimizerTraces: TraceData,
-  setOptimizerTraces: React.Dispatch<React.SetStateAction<TraceData>>,
+  divRef: React.RefObject<HTMLDivElement | null>
 }
 
 export type ObjectiveValuePlotProps = {
-  optimizerTraces: TraceData,
-  setOptimizerTraces: React.Dispatch<React.SetStateAction<TraceData>>,
+  divRef: React.RefObject<HTMLDivElement | null>
 }

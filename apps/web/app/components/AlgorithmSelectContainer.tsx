@@ -2,30 +2,17 @@
 
 import AlgorithmSelectCard from "./AlgorithmSelectCard";
 import { AlgorithmSelectContainerProps } from "../types";
-import { norm } from "@gradientbattle/core/src/math_helper";
 
 
-
-export default function AlgorithmSelectContainer({optimizers, setOptimizers, defaultOptimizer, setOptimizerTraces, func}: AlgorithmSelectContainerProps) {
+export default function AlgorithmSelectContainer({optimizers, setOptimizers, defaultOptimizer, func}: AlgorithmSelectContainerProps) {
     return (
         <div>
             <div>
-                {Object.keys(optimizers).map((id) => <AlgorithmSelectCard func ={func} key={id} id={id} optimizers={optimizers} setOptimizers={setOptimizers} setOptimizerTraces={setOptimizerTraces}></AlgorithmSelectCard>)}
+                {Object.keys(optimizers).map((id) => <AlgorithmSelectCard func ={func} key={id} id={id} optimizers={optimizers} setOptimizers={setOptimizers}></AlgorithmSelectCard>)}
             </div>
             {Object.keys(optimizers).length < 5 && <button className="bg-blue-500" onClick={() => {
                 const id = crypto.randomUUID()
                 setOptimizers(prev => ({ ...prev, [id]: {...defaultOptimizer} }))
-
-                setOptimizerTraces(prev => ([...prev, {
-                        x: [defaultOptimizer.startingPoint.x],
-                        y: [defaultOptimizer.startingPoint.y],
-                        type: "scatter" as const,
-                        mode: "lines+markers" as const,
-                        name: id,
-                        line: { color: defaultOptimizer.color },
-                        distances: [norm(defaultOptimizer.startingPoint)],
-                        objectiveValues: [func.objective(defaultOptimizer.startingPoint)]
-                }]))
                 }}>Add new Optimizer</button>}
             
         </div>

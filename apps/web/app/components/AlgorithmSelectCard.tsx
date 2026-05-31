@@ -2,9 +2,8 @@
 
 import {optimizationAlgorithmsList, optimizationAlgorithms} from "@gradientbattle/core/src/optimizers/optimizer_registry"
 import { AlgorithmSelectCardProps, Optimizer } from "../types";
-import { norm } from "@gradientbattle/core/src/math_helper";
 
-export default function AlgorithmSelectCard({id, optimizers, setOptimizers, setOptimizerTraces, func}: AlgorithmSelectCardProps) {
+export default function AlgorithmSelectCard({id, optimizers, setOptimizers, func}: AlgorithmSelectCardProps) {
     return (
         <div className="border-2 p-4" style={{ borderColor: optimizers[id].color }}>
             <select value={optimizers[id]["name"]} onChange={(option) => {
@@ -31,13 +30,6 @@ export default function AlgorithmSelectCard({id, optimizers, setOptimizers, setO
                     <input value={optimizers[id].startingPoint.x} type="number" onChange={(event) => {
                         const newValue = parseFloat(event.target.value)
                         if (isNaN(newValue)) return
-                        
-                        setOptimizerTraces(prev => prev.map((item) => item.name === id ? {...item,
-                            y: [(item.y as number[])![0]],
-                            x: [newValue],
-                            distances: [norm({y: (item.y as number[])[0], x: newValue})],
-                            objectiveValues: [func.objective({y: (item.y as number[])[0], x: newValue})]
-                        }: item))
 
                         setOptimizers(prev => ({...prev, [id]: {
                             ...prev[id],
@@ -51,13 +43,6 @@ export default function AlgorithmSelectCard({id, optimizers, setOptimizers, setO
                         const newValue = parseFloat(event.target.value)
                         if (isNaN(newValue)) return
 
-                        setOptimizerTraces(prev => prev.map((item) => item.name === id ? {...item,
-                            x: [(item.x as number[])![0]],
-                            y: [newValue],
-                            distances: [norm({x: (item.x as number[])[0], y: newValue})],
-                            objectiveValues: [func.objective({x: (item.x as number[])[0], y: newValue})]
-                        }: item))
-
                         setOptimizers(prev => ({...prev, [id]: {
                             ...prev[id],
                             startingPoint: { ...prev[id]["startingPoint"], "y": newValue}
@@ -69,7 +54,6 @@ export default function AlgorithmSelectCard({id, optimizers, setOptimizers, setO
                     type="color"
                     value= {optimizers[id].color}
                     onChange={(e) => {
-                        setOptimizerTraces(prev => prev.map((item) => item.name === id ? {...item, line: {...item.line, color: e.target.value}}: item))
                         setOptimizers(prev => ({
                             ...prev, [id] : {
                                 ...prev[id],
