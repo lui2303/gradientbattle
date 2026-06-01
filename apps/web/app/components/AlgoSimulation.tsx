@@ -51,6 +51,7 @@ export function AlgoSimulation() {
 
     const plotlyRef = useRef<typeof import('plotly.js') | null>(null)
     const [ready, setReady] = useState(false)
+    const [challengeMode, setchallengeMode] = useState(false)
 
     const defaultOptimizer: Optimizer = {
         "name": optimizationAlgorithmsList[0],
@@ -278,17 +279,17 @@ export function AlgoSimulation() {
             
             await new Promise((r) => setTimeout(r, animationSpeed));
         }
-
-        const response = await fetch("/api/leaderboard", {
+        
+        if(challengeMode) {
+            await fetch("/api/leaderboard", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 runID: id,
                 name: "Luis"
-            }),
-        });
-        const resp = await response.json()
-        console.log(resp)
+                }),
+            });
+        }
 
         runningRef.current = false;
         setRunning(false);
@@ -297,7 +298,7 @@ export function AlgoSimulation() {
     return (
         <div>
             <div className="flex flex-col gap-4 p-4">
-                <GlobalLeaderboard></GlobalLeaderboard>
+                <GlobalLeaderboard setfunc={setFunc} setchallengeMode={setchallengeMode}></GlobalLeaderboard>
                 <div className="grid grid-cols-3 gap-4">
                     <ContourPlot divRef={contourDiv}></ContourPlot>
 
@@ -321,7 +322,7 @@ export function AlgoSimulation() {
 
                     />
                 </div>
-                <FunctionSelector func={func} setFuncCallback={(func) => { setFunc(func) }}></FunctionSelector>
+                <FunctionSelector func={func} setFuncCallback={(func) => { setFunc(func); setchallengeMode(false) }}></FunctionSelector> 
 
                 <AlgorithmSelectContainer func={func} optimizers={optimizers} setOptimizers={setOptimizers} defaultOptimizer={defaultOptimizer}>
                 </AlgorithmSelectContainer>
@@ -330,3 +331,5 @@ export function AlgoSimulation() {
 
     )
 }
+
+//<FunctionSelector func={func} setFuncCallback={(func) => { setFunc(func); setchallengeMode(false) }}></FunctionSelector>  add the setchallengemode behind a conditional check if the selected function is the daily challenge function

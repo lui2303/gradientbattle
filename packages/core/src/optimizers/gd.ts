@@ -13,7 +13,7 @@ export class GradientDescent implements Optimizer {
     reachedOptimum: boolean = false
     optimumTreshhold: number
 
-    constructor(lr: number, objective: objectiveFunction, startingPoint: Point, id: string, optimumTreshhold: number = 0.0001) {
+    constructor(lr: number, objective: objectiveFunction, startingPoint: Point, id: string, optimumTreshhold: number = 0.001) {
         this.lr = lr
         this.objective = objective
         this.startingPoint = startingPoint

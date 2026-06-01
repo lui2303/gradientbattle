@@ -31,4 +31,5 @@ model Challenge {
   id         Int    @id @default(autoincrement())
   name       String
   params     Json?
+  createdAt   DateTime @default(now())
 }
