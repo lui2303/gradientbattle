@@ -22,7 +22,13 @@ model Leaderboard {
 model Run {
   id         String   @id @default(uuid())
   traces     Json
-  iterations Int
+  bestRun    Json?
   createdAt  DateTime @default(now())
   challengeID Int?
+}
+
+model Challenge {
+  id         Int    @id @default(autoincrement())
+  name       String
+  params     Json?
 }

@@ -5,6 +5,7 @@ export class SimulationEngine implements Iterable<Point[]>{
     optimizers: Optimizer[]
     steps: number
     iterates: Point[][]
+    bestRun: {optimizerID: string, iterations: number} | null = null 
 
     constructor(objFunc: objectiveFunction, steps: number) {
         this.objectiveFunc = objFunc
@@ -24,6 +25,7 @@ export class SimulationEngine implements Iterable<Point[]>{
     clear() {
         this.optimizers = []
         this.iterates = []
+        this.bestRun = null
     }
 
     reset_optimizers() {
@@ -35,6 +37,9 @@ export class SimulationEngine implements Iterable<Point[]>{
             let step = []
             for (const optimizer of this.optimizers) {
                 step.push(optimizer.step())
+                if(optimizer.reachedOptimum && !this.bestRun) {
+                    this.bestRun = {optimizerID: optimizer.id, iterations: i}
+                }
             }
             yield step;
         }

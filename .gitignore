@@ -6,4 +6,3 @@ coverage
 .env.local
 .pnpm-store/
 *.db
-*/generated/*

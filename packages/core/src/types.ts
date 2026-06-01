@@ -12,6 +12,7 @@ export type Optimizer = {
     startingPoint: Point
     id: string
     reset(): void
+    reachedOptimum: boolean
 }
 
 export type Parameter = objectiveFunction | number | Point | string
