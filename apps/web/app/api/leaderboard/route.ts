@@ -4,14 +4,13 @@ import { getCurrentChallenge } from "../challenge";
 
 export async function GET(req: Request) {
     const currentChallenge = await getCurrentChallenge()
-    console.log(currentChallenge)
     
     const entries = await prisma.leaderboard.findMany({
-        where: {challengeID: (currentChallenge ? currentChallenge.id : 1)}, 
+        where: {challengeID: (currentChallenge.id)}, 
         orderBy: { iterations: "asc" },
         take: 10
     });
-    console.log(entries)
+
     return NextResponse.json({challenge: currentChallenge.name, leaderboard: entries});
 }
 
@@ -28,6 +27,7 @@ export async function POST(req: Request) {
     const { runID, name } = body;
 
     const run = await prisma.run.findUnique({where: { id: runID }})
+    console.log(run)
 
     if (!run) return NextResponse.json({ error: `Couldn't find a run with ID: ${runID}`})
     

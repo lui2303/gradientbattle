@@ -15,6 +15,8 @@ import { ObjectiveValuePlot } from "./ObjectiveValuePlot"
 import type { Config, Data, Layout, PlotHoverEvent, PlotlyHTMLElement } from "plotly.js"
 import { Leaderboard } from "./Leaderboard"
 import { GlobalLeaderboard } from "./GlobalLeaderboard"
+import { addRun } from "@/lib/runs"
+import { create } from "domain"
 
 const loadPlotly = () => import('plotly.js-cartesian-dist-min').then((m) => m.default);
 
@@ -256,13 +258,15 @@ export function AlgoSimulation() {
         const resp = await res.json()
         console.log(resp)
         
-        const { traces, id }: { traces: Point[][], id: string } = resp;
+        const { traces, id, createdAt }: { traces: Point[][], id: string, createdAt: string } = resp;
 
         // Reset every trace back to its starting point so replays don't append onto the last run.
         const starts = ids.map((id) => optimizers[id].startingPoint)
         Plotly.restyle(c, { x: starts.map((p) => [p.x]), y: starts.map((p) => [p.y]) }, contourIdx)
         Plotly.restyle(d, { x: stepIdx.map(() => [0]), y: starts.map((p) => [norm(p)]) }, stepIdx)
         Plotly.restyle(o, { x: stepIdx.map(() => [0]), y: starts.map((p) => [func.objective(p)]) }, stepIdx)
+
+        addRun(optimizers, createdAt, 100, animationSpeed, id, func.name! )
 
         // Append one simulation step per frame. Each `step` is one Point per optimizer, in id order.
         for (let s = 0; s < traces.length; s++) {

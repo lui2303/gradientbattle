@@ -24,10 +24,10 @@ model Run {
   optimizers Json
   steps      Int
   funcName   String
-  traces     Json
   bestRun    Json?
   createdAt  DateTime @default(now())
   challengeID Int?
+  lastIterate Json
 }
 
 model Challenge {

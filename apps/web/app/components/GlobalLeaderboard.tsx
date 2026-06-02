@@ -22,11 +22,11 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react"
       }, [refresh])
 
       return (
-          <div>
-              <p>Daily Challenge: {challenge}</p>
-              <div>{entries.map((x,i) => <p key={i}>{x.name}: {x.iterations}</p>)}</div>
-              <button onClick={(e) => {setRefresh(prev => prev + 1)}}>Refresh</button>
-              <button onClick={(e) => {setfunc(functionFactory(challenge)); setchallengeMode(true)}}>Try it yourself!</button>
-          </div>
+        <div className="flex flex-col gap-4 p-4">
+            <p>Daily Challenge: {challenge}</p>
+            <div>{entries.map((x,i) => <p key={i}>{x.name}: {x.iterations}</p>)}</div>
+            <button onClick={(e) => {setRefresh(prev => prev + 1)}}>Refresh</button>
+            <button onClick={(e) => {setfunc(functionFactory(challenge)); setchallengeMode(true)}}>Try it yourself!</button>
+        </div>
       )
   }

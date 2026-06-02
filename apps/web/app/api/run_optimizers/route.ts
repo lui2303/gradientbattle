@@ -40,15 +40,18 @@ export async function POST(request: Request) {
 
     const query = {
             data: {
-                traces: traces,
+                optimizers: optimizers,
+                steps: steps,
+                funcName: funcName,
                 ...(sim_engine.bestRun && { bestRun: sim_engine.bestRun }),
                 ...(challengeMode && { challengeID: currentChallenge!.id }),
+                lastIterate: traces[traces.length - 1]
             }
         }
     
     const entry = await prisma.run.create(query);
 
-    return NextResponse.json(entry, { status: 201 });
+    return NextResponse.json({id: entry.id, traces: traces, createdAt: entry.createdAt}, { status: 201 });
   }
 
 export async function GET(request: Request) {
