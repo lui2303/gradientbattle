@@ -1,18 +1,17 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentChallenge, getCurrentChallengeID } from "../challenge";
-import { Leaderboard } from "@/app/components/Leaderboard";
+import { getCurrentChallenge } from "../challenge";
 
 export async function GET(req: Request) {
-    const currentChallengeID = getCurrentChallengeID() // central to not get out of sync if run is submitted last second
-    const currentChallenge = getCurrentChallenge()
+    const currentChallenge = await getCurrentChallenge()
+    console.log(currentChallenge)
     
     const entries = await prisma.leaderboard.findMany({
-        where: {challengeID: currentChallengeID}, 
+        where: {challengeID: (currentChallenge ? currentChallenge.id : 1)}, 
         orderBy: { iterations: "asc" },
         take: 10
     });
-
+    console.log(entries)
     return NextResponse.json({challenge: currentChallenge.name, leaderboard: entries});
 }
 
@@ -24,7 +23,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
     }
 
-    const currentChallengeID = getCurrentChallengeID() // central to not get out of sync if run is submitted last second
+    const currentChallenge = await getCurrentChallenge() // central to not get out of sync if run is submitted last second
 
     const { runID, name } = body;
 
@@ -32,10 +31,12 @@ export async function POST(req: Request) {
 
     if (!run) return NextResponse.json({ error: `Couldn't find a run with ID: ${runID}`})
     
-    if (!("challengeID" in run) || run["challengeID"] != currentChallengeID) return NextResponse.json({error: "The submitted run does not match the current challenge ID"})
+    if (!("challengeID" in run) || run["challengeID"] != currentChallenge.id) return NextResponse.json({error: "The submitted run does not match the current challenge ID"})
     
-    const entry = await prisma.leaderboard.create({"data": {"name": name, "iterations": run.iterations, challengeID: currentChallengeID}})
+    if(!run.bestRun) return NextResponse.json({error: "Submitted run did not contain a converging run"})
+    const iters = (run.bestRun as { optimizerID: string; iterations: number }).iterations
+
+    const entry = await prisma.leaderboard.create({"data": {"name": name, "iterations": iters, challengeID: currentChallenge.id}})
 
     return NextResponse.json({message: `Submitted best run with id ${entry.id}`}, {status: 201})
-
 }

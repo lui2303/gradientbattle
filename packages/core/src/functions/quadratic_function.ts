@@ -1,8 +1,9 @@
 import type { Mat2, objectiveFunction, Point } from "../types";
 import { matMult, vectorAddition, dotProduct, scalarMultiplication } from "../math_helper";
+import { functionList } from "./function_registry";
 
 export class quadraticFunction implements objectiveFunction {
-    readonly name = "Quadratic Function"
+    readonly name = functionList[0]
     A: Mat2 // must be symmetric
     b: Point
     d: number

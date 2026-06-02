@@ -1,7 +1,8 @@
 import type { objectiveFunction, Point } from "../types";
+import { functionList } from "./function_registry";
 
 export class matyasFunction implements objectiveFunction {
-    name = "Matyas";
+    name = functionList[1]
     latex: string = "f(x, y) = 0.26(x^2 + y^2) - 0.48xy"
 
     objective(point: Point): number {

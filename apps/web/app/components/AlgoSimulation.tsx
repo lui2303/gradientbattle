@@ -249,10 +249,14 @@ export function AlgoSimulation() {
             body: JSON.stringify({
                 optimizers,
                 steps: 100,
-                challengeId: 1,
+                funcName: func.name,
+                challengeMode: challengeMode,
             }),
         });
-        const { traces, id }: { traces: Point[][], id: string } = await res.json();
+        const resp = await res.json()
+        console.log(resp)
+        
+        const { traces, id }: { traces: Point[][], id: string } = resp;
 
         // Reset every trace back to its starting point so replays don't append onto the last run.
         const starts = ids.map((id) => optimizers[id].startingPoint)
@@ -281,7 +285,7 @@ export function AlgoSimulation() {
         }
         
         if(challengeMode) {
-            await fetch("/api/leaderboard", {
+            const resp = await fetch("/api/leaderboard", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -289,6 +293,7 @@ export function AlgoSimulation() {
                 name: "Luis"
                 }),
             });
+            console.log(await resp.json())
         }
 
         runningRef.current = false;
