@@ -21,6 +21,9 @@ model Leaderboard {
 
 model Run {
   id         String   @id @default(uuid())
+  optimizers Json
+  steps      Int
+  funcName   String
   traces     Json
   bestRun    Json?
   createdAt  DateTime @default(now())
