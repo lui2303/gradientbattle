@@ -17,16 +17,22 @@ export function LoadNotebookSidebar({setOptimizers, setFunc}: {setOptimizers: Re
     
 
     return (
-        <aside>
+        <aside className="fixed top-0 right-0 z-50">
             {collapsed ?
             <div>
                 <button onClick={(e) => setcollapsed(false)}>Expand</button>
             </div>
             :
-            <div>
+            <div className="h-screen bg-gray-800 text-white shadow-lg overflow-y-auto">
                 <button onClick={(e) => setcollapsed(true)}>Collapse</button>
                 <br></br>
                 <br></br>
+                <p>Saved</p>
+                
+                <br></br>
+                <br></br>
+                
+                
                 <p>History</p>
                 { getRuns().map((run) => {
                     return  (<div key={run.timestamp}>
@@ -34,6 +40,8 @@ export function LoadNotebookSidebar({setOptimizers, setFunc}: {setOptimizers: Re
                                 <button onClick={(e) => {setOptimizers(run.optimizers);setFunc(functionFactory(run.funcName))}}>Load</button>
                             </div>)
                 })}
+
+                
             </div>
             }
         </aside>
