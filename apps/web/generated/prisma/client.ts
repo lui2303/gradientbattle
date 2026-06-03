@@ -51,3 +51,8 @@ export type Leaderboard = Prisma.LeaderboardModel
  * 
  */
 export type Run = Prisma.RunModel
+/**
+ * Model Challenge
+ * 
+ */
+export type Challenge = Prisma.ChallengeModel

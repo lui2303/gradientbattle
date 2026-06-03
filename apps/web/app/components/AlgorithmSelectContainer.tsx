@@ -2,9 +2,10 @@
 
 import AlgorithmSelectCard from "./AlgorithmSelectCard";
 import { AlgorithmSelectContainerProps } from "../types";
+import { defaultOptimizer } from "../constants";
 
 
-export default function AlgorithmSelectContainer({optimizers, setOptimizers, defaultOptimizer, func}: AlgorithmSelectContainerProps) {
+export default function AlgorithmSelectContainer({optimizers, setOptimizers, func}: AlgorithmSelectContainerProps) {
     return (
         <div>
             <div>

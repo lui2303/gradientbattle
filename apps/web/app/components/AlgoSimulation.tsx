@@ -44,8 +44,8 @@ const objectiveLayout: Partial<Layout> = {
     legend: { itemclick: false, itemdoubleclick: false },
 }
 
-export function AlgoSimulation() {
-
+export function AlgoSimulation({optimizers, setOptimizers, func, setFunc}: {optimizers: Record<string, Optimizer>, setOptimizers: React.Dispatch<React.SetStateAction<Record<string, Optimizer>>>, func: objectiveFunction, setFunc: React.Dispatch<React.SetStateAction<objectiveFunction>> }) {
+    
     // The three plots are mounted as bare <div>s; Plotly draws into them imperatively.
     const contourDiv = useRef<HTMLDivElement | null>(null)
     const distanceDiv = useRef<HTMLDivElement | null>(null)
@@ -55,16 +55,6 @@ export function AlgoSimulation() {
     const [ready, setReady] = useState(false)
     const [challengeMode, setchallengeMode] = useState(false)
 
-    const defaultOptimizer: Optimizer = {
-        "name": optimizationAlgorithmsList[0],
-        "params": optimizationAlgorithms[optimizationAlgorithmsList[0]]["params"],
-        "startingPoint": { x: 5, y: 5 },
-        "color": "#0bf565"
-    }
-
-    const [func, setFunc] = useState<objectiveFunction>(new quadraticFunction([[1, 0], [0, 1]], { x: 0, y: 0 }, 0))
-
-    const [optimizers, setOptimizers] = useState<Record<string, Optimizer>>({ [crypto.randomUUID()]: defaultOptimizer })
 
     const [currentIterate, setcurrentIterate] = useState<Record<string, Iterate>>({})
     const [iterateSeed, setIterateSeed] = useState<{ optimizers: typeof optimizers; func: typeof func } | null>(null)
@@ -333,7 +323,7 @@ export function AlgoSimulation() {
                 </div>
                 <FunctionSelector func={func} setFuncCallback={(func) => { setFunc(func); setchallengeMode(false) }}></FunctionSelector> 
 
-                <AlgorithmSelectContainer func={func} optimizers={optimizers} setOptimizers={setOptimizers} defaultOptimizer={defaultOptimizer}>
+                <AlgorithmSelectContainer func={func} optimizers={optimizers} setOptimizers={setOptimizers}>
                 </AlgorithmSelectContainer>
             </div>
         </div>

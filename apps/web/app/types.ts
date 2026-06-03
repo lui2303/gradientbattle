@@ -18,7 +18,6 @@ export type AlgorithmSelectCardProps = {
 export type AlgorithmSelectContainerProps = {
   optimizers: Record<string, Optimizer>;
   setOptimizers: React.Dispatch<React.SetStateAction<Record<string, Optimizer>>>
-  defaultOptimizer: Optimizer,
   func: objectiveFunction,
 }
 

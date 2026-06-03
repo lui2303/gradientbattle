@@ -52,7 +52,8 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Leaderboard: 'Leaderboard',
-  Run: 'Run'
+  Run: 'Run',
+  Challenge: 'Challenge'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -80,13 +81,26 @@ export type LeaderboardScalarFieldEnum = (typeof LeaderboardScalarFieldEnum)[key
 
 export const RunScalarFieldEnum = {
   id: 'id',
-  traces: 'traces',
-  iterations: 'iterations',
+  optimizers: 'optimizers',
+  steps: 'steps',
+  funcName: 'funcName',
+  bestRun: 'bestRun',
   createdAt: 'createdAt',
-  challengeID: 'challengeID'
+  challengeID: 'challengeID',
+  lastIterate: 'lastIterate'
 } as const
 
 export type RunScalarFieldEnum = (typeof RunScalarFieldEnum)[keyof typeof RunScalarFieldEnum]
+
+
+export const ChallengeScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  params: 'params',
+  createdAt: 'createdAt'
+} as const
+
+export type ChallengeScalarFieldEnum = (typeof ChallengeScalarFieldEnum)[keyof typeof ChallengeScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -102,6 +116,14 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const JsonNullValueFilter = {

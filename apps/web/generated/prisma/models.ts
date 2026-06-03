@@ -10,4 +10,5 @@
  */
 export type * from './models/Leaderboard'
 export type * from './models/Run'
+export type * from './models/Challenge'
 export type * from './commonInputTypes'
