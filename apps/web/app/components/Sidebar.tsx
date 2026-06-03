@@ -1,10 +1,9 @@
 'use client'
 
-import { getRuns } from "@/lib/runs"
+import { getRuns, SavedNotebook, StoredRun } from "@/lib/run_storage"
 import { useEffect, useState } from "react"
 import { Optimizer } from "../types"
 import { objectiveFunction } from "@gradientbattle/core"
-import { optimizerFactory } from "@gradientbattle/core/src/optimizers/optimizer_factory"
 import { functionFactory } from "@gradientbattle/core/src/functions/function_factory"
 
 export function LoadNotebookSidebar({setOptimizers, setFunc}: {setOptimizers: React.Dispatch<React.SetStateAction<Record<string, Optimizer>>>, setFunc: React.Dispatch<React.SetStateAction<objectiveFunction>>}) {
@@ -12,7 +11,7 @@ export function LoadNotebookSidebar({setOptimizers, setFunc}: {setOptimizers: Re
     const [collapsed, setcollapsed] = useState<boolean>(true)
 
     useEffect(() => {
-        console.log(getRuns())
+        console.log(getRuns("saved:"))
     }, [])
     
 
@@ -28,15 +27,20 @@ export function LoadNotebookSidebar({setOptimizers, setFunc}: {setOptimizers: Re
                 <br></br>
                 <br></br>
                 <p>Saved</p>
-                
+                { getRuns("saved:").map((notebook) => {
+                    return  (<div key={notebook.timestamp}>
+                                <p key={(notebook as SavedNotebook).index}>{notebook.description} - {notebook.timestamp}</p>
+                                <button onClick={(e) => {setOptimizers(notebook.optimizers);setFunc(functionFactory(notebook.funcName))}}>Load</button>
+                            </div>)
+                })}
                 <br></br>
                 <br></br>
                 
                 
                 <p>History</p>
-                { getRuns().map((run) => {
+                { getRuns("history:").map((run) => {
                     return  (<div key={run.timestamp}>
-                                <p key={run.runID}>{run.timestamp} - {run.funcName}</p>
+                                <p key={(run as StoredRun).runID}>{run.timestamp} - {run.funcName}</p>
                                 <button onClick={(e) => {setOptimizers(run.optimizers);setFunc(functionFactory(run.funcName))}}>Load</button>
                             </div>)
                 })}

@@ -15,7 +15,7 @@ import { ObjectiveValuePlot } from "./ObjectiveValuePlot"
 import type { Config, Data, Layout, PlotHoverEvent, PlotlyHTMLElement } from "plotly.js"
 import { Leaderboard } from "./Leaderboard"
 import { GlobalLeaderboard } from "./GlobalLeaderboard"
-import { addRun } from "@/lib/runs"
+import { addRun, SavedNotebook, StoredRun } from "@/lib/run_storage"
 import { create } from "domain"
 
 const loadPlotly = () => import('plotly.js-cartesian-dist-min').then((m) => m.default);
@@ -54,6 +54,8 @@ export function AlgoSimulation({optimizers, setOptimizers, func, setFunc}: {opti
     const plotlyRef = useRef<typeof import('plotly.js') | null>(null)
     const [ready, setReady] = useState(false)
     const [challengeMode, setchallengeMode] = useState(false)
+
+    const inputRef = useRef<string>("")
 
 
     const [currentIterate, setcurrentIterate] = useState<Record<string, Iterate>>({})
@@ -256,7 +258,7 @@ export function AlgoSimulation({optimizers, setOptimizers, func, setFunc}: {opti
         Plotly.restyle(d, { x: stepIdx.map(() => [0]), y: starts.map((p) => [norm(p)]) }, stepIdx)
         Plotly.restyle(o, { x: stepIdx.map(() => [0]), y: starts.map((p) => [func.objective(p)]) }, stepIdx)
 
-        addRun(optimizers, createdAt, 100, animationSpeed, id, func.name! )
+        addRun({optimizers: optimizers, timestamp: createdAt, steps: 100, animationSpeed: animationSpeed, runID: id, funcName: func.name!} as StoredRun )
 
         // Append one simulation step per frame. Each `step` is one Point per optimizer, in id order.
         for (let s = 0; s < traces.length; s++) {
@@ -298,6 +300,12 @@ export function AlgoSimulation({optimizers, setOptimizers, func, setFunc}: {opti
         <div>
             <div className="flex flex-col gap-4 p-4">
                 <GlobalLeaderboard setfunc={setFunc} setchallengeMode={setchallengeMode}></GlobalLeaderboard>
+                <div>
+                    <p>Save notebook with short description as: </p>
+                    <input onChange={(e) => inputRef.current = e.target.value}></input>
+                    <button onClick={(e) => addRun({description: inputRef.current, optimizers: optimizers, timestamp: String(Date.now()), steps: 100, animationSpeed: animationSpeed, funcName: func.name!} as SavedNotebook  )
+}>Save</button>
+                </div>
                 <div className="grid grid-cols-3 gap-4">
                     <ContourPlot divRef={contourDiv}></ContourPlot>
 
