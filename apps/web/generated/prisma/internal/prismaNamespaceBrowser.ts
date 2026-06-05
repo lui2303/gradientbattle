@@ -110,6 +110,7 @@ export type ChallengeScalarFieldEnum = (typeof ChallengeScalarFieldEnum)[keyof t
 export const UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  elo: 'elo',
   email: 'email',
   emailVerified: 'emailVerified',
   image: 'image'

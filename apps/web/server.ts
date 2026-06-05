@@ -4,6 +4,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import { decode } from "next-auth/jwt";
 import { getRedis, redis } from "./lib/redisClient";
 import { userAgent } from "next/server";
+import { prisma } from "./lib/prisma";
 
 const PORT = Number(process.env.BATTLE_PORT ?? 3001);
 const SECRET = process.env.AUTH_SECRET;
@@ -105,13 +106,14 @@ const connections = new Map<string, AuthedSocket>();
 
 wss.on("connection", (raw) => {
     const ws = raw as AuthedSocket;
+    
     send(ws, "connected", { user: ws.user });
 
     connections.set(ws.user.id, ws)
 
     console.log("Send message")
 
-    ws.on("message", (buf) => {
+    ws.on("message", async (buf) => {
         let msg: { type?: string };
         try {
             msg = JSON.parse(buf.toString());
@@ -121,23 +123,33 @@ wss.on("connection", (raw) => {
 
         switch (msg.type) {
             case "find_opponent": {
-                queue(ws.user.id, 400).then((opponent) => {
+                const user = await prisma.user.findUnique({where: {id: ws.user.id}, select: {elo: true}}) // makes sure that connections can be reused
+                if(!user) {
+                    console.log("COULDN'T FIND USER IN DB")
+                    return // send error message
+                }
+
+                queue(ws.user.id, user.elo).then(async (opponent) => {
                     if(!opponent) {
                         send(ws, "enqueued")
                         return
                     }
-
-                    opponent = sanitize_opponent(opponent)
-                    console.log(opponent)
+                    const sanitized_opponent = sanitize_opponent(opponent)
+                    const opp = await prisma.user.findUnique({where: {id: sanitized_opponent.value}, select: {elo: true}})
+                    if(!opp) {
+                        console.log("DIDN'T FIND OPPONENT IN DB")
+                        return
+                    }
                     
-                    const opponentWs = connections.get(opponent.value)
+                    const opponentWs = connections.get(sanitized_opponent.value)
+
                     if(!opponentWs) {
                         console.log("FATAL ERROR: OPPONENTS CONNECTION DOES NOT EXIST")
                         return
                     } // report errors to the client
 
-                    send(ws, "found_opponent", {...opponentWs.user, elo: 400})
-                    send(connections.get(opponent.value)!, "found_opponent", {...ws.user, elo: 400})
+                    send(ws, "found_opponent", {id: opponentWs.user.id, name: opponentWs.user.name, elo: opp.elo})
+                    send(connections.get(sanitized_opponent.value)!, "found_opponent", {...ws.user, elo: 400})
                 }) 
                 break;
                 }

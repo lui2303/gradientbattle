@@ -44,7 +44,7 @@ export default function BattleScreen({ username }: { username: string }) {
                 Find opponent
             </button>
             <p className="mt-2 text-sm opacity-70">{status}</p>
-            <p>Found opponent {opponent?.id} with elo {opponent?.elo}</p>
+            <p>Found opponent {opponent?.name} with elo {opponent?.elo}</p>
         </main>
     );
 }
