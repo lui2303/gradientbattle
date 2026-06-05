@@ -4,7 +4,11 @@ import type { NextAuthConfig } from "next-auth";
 // Edge-safe config: providers, pages, session strategy + callbacks.
 // NO Prisma adapter here. Imported by both auth.ts (Node) and proxy.ts (Edge).
 export const authConfig = {
-    providers: [GitHub],
+    // `prompt: "login"` forces GitHub to show the login/consent screen on every
+    // sign-in instead of silently re-authenticating an already-authorized user.
+    // Useful for testing the auth flow; remove for production if you want the
+    // seamless re-login UX.
+    providers: [GitHub({ authorization: { params: { prompt: "login" } } })],
     pages: {
         signIn: "/login",
     },

@@ -10,6 +10,53 @@ services:
     volumes:
       - .:/workspace
       - gradientbattle-pnpm-store:/pnpm-store
+    # Healthy only once `pnpm install` has finished and Next is serving — the
+    # battle service waits on this so the two never run `pnpm install` at once.
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000').then(()=>process.exit(0)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 40
+      start_period: 10s
+    depends_on:
+      - redis
+
+  battle:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    working_dir: /workspace
+    # No `pnpm install` here — `web` owns the install; we wait for it to finish
+    # (see depends_on below) so node_modules already has tsx + ws.
+    command: bash -lc "corepack enable && pnpm --filter web battle"
+    # Shares AUTH_SECRET with the web app — required to decrypt the session JWE.
+    env_file:
+      - apps/web/.env
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/workspace
+      - gradientbattle-pnpm-store:/pnpm-store
+    depends_on:
+      web:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    # persist data across restarts (append-only file)
+    command: redis-server --appendonly yes
+    volumes:
+      - gradientbattle-redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
 volumes:
   gradientbattle-pnpm-store:
+  gradientbattle-redis:

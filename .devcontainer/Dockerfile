@@ -5,5 +5,5 @@ RUN corepack enable
 WORKDIR /workspace
 
 RUN apt-get update && apt-get install -y \
-    git curl bash \
+    git curl bash redis-server \
     && rm -rf /var/lib/apt/lists/*

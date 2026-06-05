@@ -22,6 +22,6 @@
       }
     }
   },
-  "postCreateCommand": "corepack enable && pnpm install",
-  "postStartCommand": "pnpm dev"
+  "forwardPorts": [3000, 3001],
+  "postCreateCommand": "corepack enable && pnpm install"
 }
