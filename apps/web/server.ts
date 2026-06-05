@@ -153,11 +153,16 @@ wss.on("connection", (raw) => {
                 }) 
                 break;
                 }
+            case "abort": {
+                break;
+            }
             }
     })
 
     ws.on("close", () => {
         connections.delete(ws.user.id)
+        redis.ZREM("queue", "user:" + ws.user.id)
+        console.log("REMOVED user " + ws.user.name + "FROM QUEUE (connection closed)")
     });
 });
 

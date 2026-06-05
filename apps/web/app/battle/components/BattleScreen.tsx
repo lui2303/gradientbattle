@@ -12,6 +12,7 @@ export default function BattleScreen({ username }: { username: string }) {
     function findOpponent() {
         const ws = wsRef.current ?? new WebSocket(WS_URL);
         wsRef.current = ws;
+        console.log(wsRef.current)
 
         const queue = () => ws.send(JSON.stringify({ type: "find_opponent" }));
         if (ws.readyState === WebSocket.OPEN) queue();
@@ -34,15 +35,16 @@ export default function BattleScreen({ username }: { username: string }) {
 
             }
         };
-        ws.onclose = () => setStatus("disconnected");
+        ws.onclose = () => {setStatus("idle"); wsRef.current = null}
     }
 
     return (
         <main className="min-h-screen p-8">
             <p>1v1 Battle Page. Logged in as {username}</p>
-            <button className="bg-amber-600 px-3 py-1 rounded" onClick={findOpponent}>
-                Find opponent
-            </button>
+            {
+                status === "idle" ? <button className="bg-amber-600 px-3 py-1 rounded" onClick={findOpponent}>Find opponent</button> 
+                : (!opponent ? <button className="bg-amber-600 px-3 py-1 rounded" onClick={() => {wsRef.current?.close()}}>Abort</button> : "")
+            }
             <p className="mt-2 text-sm opacity-70">{status}</p>
             <p>Found opponent {opponent?.name} with elo {opponent?.elo}</p>
         </main>
