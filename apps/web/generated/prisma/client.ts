@@ -31,8 +31,8 @@ export * from "./enums"
  * const prisma = new PrismaClient({
  *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
  * })
- * // Fetch zero or more Leaderboards
- * const leaderboards = await prisma.leaderboard.findMany()
+ * // Fetch zero or more Runs
+ * const runs = await prisma.run.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -42,15 +42,15 @@ export type PrismaClient<LogOpts extends Prisma.LogLevel = never, OmitOpts exten
 export { Prisma }
 
 /**
- * Model Leaderboard
- * 
- */
-export type Leaderboard = Prisma.LeaderboardModel
-/**
  * Model Run
  * 
  */
 export type Run = Prisma.RunModel
+/**
+ * Model ChallengeRun
+ * 
+ */
+export type ChallengeRun = Prisma.ChallengeRunModel
 /**
  * Model Challenge
  * 

@@ -8,8 +8,8 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/Leaderboard'
 export type * from './models/Run'
+export type * from './models/ChallengeRun'
 export type * from './models/Challenge'
 export type * from './models/User'
 export type * from './models/Account'

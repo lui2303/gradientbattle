@@ -12,72 +12,78 @@ datasource db {
   provider = "sqlite"
 }
 
-model Leaderboard {
-  id         Int    @id @default(autoincrement())
-  name       String
-  iterations Int
-  challengeID Int
-}
-
 model Run {
-  id         String   @id @default(uuid())
-  optimizers Json
-  steps      Int
-  funcName   String
-  bestRun    Json?
-  createdAt  DateTime @default(now())
-  challengeID Int?
+  id          String   @id @default(uuid())
+  optimizers  Json
+  steps       Int
+  funcName    String
+  bestRun     Json?
+  createdAt   DateTime @default(now())
   lastIterate Json
 }
 
-model Challenge {
-  id         Int    @id @default(autoincrement())
-  name       String
-  params     Json?
+model ChallengeRun {
+  id          String   @id @default(uuid())
+  username    String
+  optimizers  Json
+  lastIterate Json
   createdAt   DateTime @default(now())
+
+  challengeID Int // required now — every row belongs to a challenge
+  challenge   Challenge @relation(fields: [challengeID], references: [id], onDelete: Cascade)
+
+  iterations Int
+}
+
+model Challenge {
+  id            Int            @id @default(autoincrement())
+  name          String
+  params        Json?
+  createdAt     DateTime       @default(now())
+  challengeRuns ChallengeRun[]
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    elo           Int @default(400)
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-  }
+  id            String    @id @default(cuid())
+  name          String?
+  elo           Int       @default(400)
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+}
 
-  model Account {
-    id                String  @id @default(cuid())
-    userId            String
-    type              String
-    provider          String
-    providerAccountId String
-    refresh_token     String?
-    access_token      String?
-    expires_at        Int?
-    token_type        String?
-    scope             String?
-    id_token          String?
-    session_state     String?
-    user              User    @relation(fields: [userId], references: [id],onDelete: Cascade)
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([provider, providerAccountId])
-  }
+  @@unique([provider, providerAccountId])
+}
 
-  model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  }
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
-  model VerificationToken {
-    identifier String
-    token      String
-    expires    DateTime
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
 
-    @@unique([identifier, token])
-  }
+  @@unique([identifier, token])
+}

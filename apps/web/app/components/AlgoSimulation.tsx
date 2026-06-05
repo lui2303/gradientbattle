@@ -15,7 +15,6 @@ import type { Config, Data, Layout, PlotHoverEvent, PlotlyHTMLElement } from "pl
 import { Leaderboard } from "./Leaderboard"
 import { GlobalLeaderboard } from "./GlobalLeaderboard"
 import { addRun, SavedNotebook, StoredRun } from "@/lib/run_storage"
-import { create } from "domain"
 import { useSession } from "next-auth/react"
 
 const loadPlotly = () => import('plotly.js-cartesian-dist-min').then((m) => m.default);
@@ -54,7 +53,10 @@ export function AlgoSimulation({optimizers, setOptimizers, func, setFunc}: {opti
 
     const plotlyRef = useRef<typeof import('plotly.js') | null>(null)
     const [ready, setReady] = useState(false)
-    const [challengeMode, setchallengeMode] = useState(false)
+    const [challengeID, setchallengeID] = useState<number | null>(null)
+    // challengeID is set on every leaderboard load (it's just "today's challenge"); challengeMode
+    // is the actual routing decision, flipped on by the "Try it yourself!" button.
+    const [challengeMode, setChallengeMode] = useState(false)
 
     const inputRef = useRef<string>("")
 
@@ -240,19 +242,26 @@ export function AlgoSimulation({optimizers, setOptimizers, func, setFunc}: {opti
         runningRef.current = true;
         setRunning(true);
 
-        const res = await fetch("/api/run_optimizers", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                optimizers,
-                steps: 100,
-                funcName: func.name,
-                challengeMode: challengeMode,
-            }),
-        });
+        // challengeMode (set by "Try it yourself!" in GlobalLeaderboard) routes this run to the
+        // daily-challenge endpoint, which scores it on the leaderboard. That endpoint requires auth,
+        // so fall back to the normal endpoint when the user isn't signed in. A single request is the
+        // source of truth for both the animation and the recorded result.
+        const isDaily = challengeMode && status === "authenticated" && challengeID !== null;
+        const res = await fetch(
+            isDaily ? `/api/dailyChallenge/${challengeID}/run` : "/api/run_optimizers",
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(
+                    isDaily
+                        ? { optimizers }                                   // func + steps are pinned server-side
+                        : { optimizers, steps: 100, funcName: func.name }, // free play
+                ),
+            },
+        );
         const resp = await res.json()
         console.log(resp)
-        
+
         const { traces, id, createdAt }: { traces: Point[][], id: string, createdAt: string } = resp;
 
         // Reset every trace back to its starting point so replays don't append onto the last run.
@@ -283,18 +292,6 @@ export function AlgoSimulation({optimizers, setOptimizers, func, setFunc}: {opti
             await new Promise((r) => setTimeout(r, animationSpeed));
         }
         
-        if(challengeMode) {
-            const resp = await fetch("/api/leaderboard", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                runID: id,
-                name: "Luis"
-                }),
-            });
-            console.log(await resp.json())
-        }
-
         runningRef.current = false;
         setRunning(false);
     };
@@ -302,7 +299,8 @@ export function AlgoSimulation({optimizers, setOptimizers, func, setFunc}: {opti
     return (
         <div>
             <div className="flex flex-col gap-4 p-4">
-                <GlobalLeaderboard setfunc={setFunc} setchallengeMode={setchallengeMode}></GlobalLeaderboard>
+                <GlobalLeaderboard setfunc={setFunc} setchallengeID={setchallengeID} setChallengeMode={setChallengeMode}></GlobalLeaderboard>
+                
                 <div>
                     <p>Save notebook with short description as: </p>
                     <input onChange={(e) => inputRef.current = e.target.value}></input>
@@ -332,7 +330,7 @@ export function AlgoSimulation({optimizers, setOptimizers, func, setFunc}: {opti
 
                     />
                 </div>
-                <FunctionSelector func={func} setFuncCallback={(func) => { setFunc(func); setchallengeMode(false) }}></FunctionSelector> 
+                <FunctionSelector func={func} setFuncCallback={(func) => { setFunc(func); setChallengeMode(false) }}></FunctionSelector>
 
                 <AlgorithmSelectContainer func={func} optimizers={optimizers} setOptimizers={setOptimizers}>
                 </AlgorithmSelectContainer>

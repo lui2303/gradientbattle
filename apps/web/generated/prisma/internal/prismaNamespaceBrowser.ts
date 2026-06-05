@@ -51,8 +51,8 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  Leaderboard: 'Leaderboard',
   Run: 'Run',
+  ChallengeRun: 'ChallengeRun',
   Challenge: 'Challenge',
   User: 'User',
   Account: 'Account',
@@ -73,16 +73,6 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-export const LeaderboardScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  iterations: 'iterations',
-  challengeID: 'challengeID'
-} as const
-
-export type LeaderboardScalarFieldEnum = (typeof LeaderboardScalarFieldEnum)[keyof typeof LeaderboardScalarFieldEnum]
-
-
 export const RunScalarFieldEnum = {
   id: 'id',
   optimizers: 'optimizers',
@@ -90,11 +80,23 @@ export const RunScalarFieldEnum = {
   funcName: 'funcName',
   bestRun: 'bestRun',
   createdAt: 'createdAt',
-  challengeID: 'challengeID',
   lastIterate: 'lastIterate'
 } as const
 
 export type RunScalarFieldEnum = (typeof RunScalarFieldEnum)[keyof typeof RunScalarFieldEnum]
+
+
+export const ChallengeRunScalarFieldEnum = {
+  id: 'id',
+  username: 'username',
+  optimizers: 'optimizers',
+  lastIterate: 'lastIterate',
+  createdAt: 'createdAt',
+  challengeID: 'challengeID',
+  iterations: 'iterations'
+} as const
+
+export type ChallengeRunScalarFieldEnum = (typeof ChallengeRunScalarFieldEnum)[keyof typeof ChallengeRunScalarFieldEnum]
 
 
 export const ChallengeScalarFieldEnum = {

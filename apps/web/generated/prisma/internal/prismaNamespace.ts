@@ -384,8 +384,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
-  Leaderboard: 'Leaderboard',
   Run: 'Run',
+  ChallengeRun: 'ChallengeRun',
   Challenge: 'Challenge',
   User: 'User',
   Account: 'Account',
@@ -406,84 +406,10 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "leaderboard" | "run" | "challenge" | "user" | "account" | "session" | "verificationToken"
+    modelProps: "run" | "challengeRun" | "challenge" | "user" | "account" | "session" | "verificationToken"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
-    Leaderboard: {
-      payload: Prisma.$LeaderboardPayload<ExtArgs>
-      fields: Prisma.LeaderboardFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.LeaderboardFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.LeaderboardFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardPayload>
-        }
-        findFirst: {
-          args: Prisma.LeaderboardFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.LeaderboardFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardPayload>
-        }
-        findMany: {
-          args: Prisma.LeaderboardFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardPayload>[]
-        }
-        create: {
-          args: Prisma.LeaderboardCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardPayload>
-        }
-        createMany: {
-          args: Prisma.LeaderboardCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.LeaderboardCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardPayload>[]
-        }
-        delete: {
-          args: Prisma.LeaderboardDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardPayload>
-        }
-        update: {
-          args: Prisma.LeaderboardUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardPayload>
-        }
-        deleteMany: {
-          args: Prisma.LeaderboardDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.LeaderboardUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.LeaderboardUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardPayload>[]
-        }
-        upsert: {
-          args: Prisma.LeaderboardUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LeaderboardPayload>
-        }
-        aggregate: {
-          args: Prisma.LeaderboardAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateLeaderboard>
-        }
-        groupBy: {
-          args: Prisma.LeaderboardGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.LeaderboardGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.LeaderboardCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.LeaderboardCountAggregateOutputType> | number
-        }
-      }
-    }
     Run: {
       payload: Prisma.$RunPayload<ExtArgs>
       fields: Prisma.RunFieldRefs
@@ -555,6 +481,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.RunCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.RunCountAggregateOutputType> | number
+        }
+      }
+    }
+    ChallengeRun: {
+      payload: Prisma.$ChallengeRunPayload<ExtArgs>
+      fields: Prisma.ChallengeRunFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ChallengeRunFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengeRunPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ChallengeRunFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengeRunPayload>
+        }
+        findFirst: {
+          args: Prisma.ChallengeRunFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengeRunPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ChallengeRunFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengeRunPayload>
+        }
+        findMany: {
+          args: Prisma.ChallengeRunFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengeRunPayload>[]
+        }
+        create: {
+          args: Prisma.ChallengeRunCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengeRunPayload>
+        }
+        createMany: {
+          args: Prisma.ChallengeRunCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ChallengeRunCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengeRunPayload>[]
+        }
+        delete: {
+          args: Prisma.ChallengeRunDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengeRunPayload>
+        }
+        update: {
+          args: Prisma.ChallengeRunUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengeRunPayload>
+        }
+        deleteMany: {
+          args: Prisma.ChallengeRunDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ChallengeRunUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ChallengeRunUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengeRunPayload>[]
+        }
+        upsert: {
+          args: Prisma.ChallengeRunUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ChallengeRunPayload>
+        }
+        aggregate: {
+          args: Prisma.ChallengeRunAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateChallengeRun>
+        }
+        groupBy: {
+          args: Prisma.ChallengeRunGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ChallengeRunGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ChallengeRunCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ChallengeRunCountAggregateOutputType> | number
         }
       }
     }
@@ -964,16 +964,6 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-export const LeaderboardScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  iterations: 'iterations',
-  challengeID: 'challengeID'
-} as const
-
-export type LeaderboardScalarFieldEnum = (typeof LeaderboardScalarFieldEnum)[keyof typeof LeaderboardScalarFieldEnum]
-
-
 export const RunScalarFieldEnum = {
   id: 'id',
   optimizers: 'optimizers',
@@ -981,11 +971,23 @@ export const RunScalarFieldEnum = {
   funcName: 'funcName',
   bestRun: 'bestRun',
   createdAt: 'createdAt',
-  challengeID: 'challengeID',
   lastIterate: 'lastIterate'
 } as const
 
 export type RunScalarFieldEnum = (typeof RunScalarFieldEnum)[keyof typeof RunScalarFieldEnum]
+
+
+export const ChallengeRunScalarFieldEnum = {
+  id: 'id',
+  username: 'username',
+  optimizers: 'optimizers',
+  lastIterate: 'lastIterate',
+  createdAt: 'createdAt',
+  challengeID: 'challengeID',
+  iterations: 'iterations'
+} as const
+
+export type ChallengeRunScalarFieldEnum = (typeof ChallengeRunScalarFieldEnum)[keyof typeof ChallengeRunScalarFieldEnum]
 
 
 export const ChallengeScalarFieldEnum = {
@@ -1102,13 +1104,6 @@ export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
 /**
- * Reference to a field of type 'Int'
- */
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-/**
  * Reference to a field of type 'String'
  */
 export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String'>
@@ -1126,6 +1121,13 @@ export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'J
  * Reference to a field of type 'QueryMode'
  */
 export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
+ * Reference to a field of type 'Int'
+ */
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
     
 
 
@@ -1252,8 +1254,8 @@ export type PrismaClientOptions = ({
   queryPlanCacheMaxSize?: number
 }
 export type GlobalOmitConfig = {
-  leaderboard?: Prisma.LeaderboardOmit
   run?: Prisma.RunOmit
+  challengeRun?: Prisma.ChallengeRunOmit
   challenge?: Prisma.ChallengeOmit
   user?: Prisma.UserOmit
   account?: Prisma.AccountOmit

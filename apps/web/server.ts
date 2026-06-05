@@ -81,6 +81,12 @@ async function queue(userID: string, elo: number) {
 
     // make this operation atomic in the future. can slow down if too many clients exist because ghost games can occur
 }
+
+function onOpponentFound() {
+    // create a battle inside the database, by deciding which function is optimized on
+    // 
+}
+
 function sanitize_opponent(opponent: {value: string, score: number}) {
     return {...opponent, value: opponent.value.replace("user:", "")}
 }

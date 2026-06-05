@@ -18,3 +18,6 @@ export async function generateDailyChallenge() {
 }
 
 // There is currently a possible bug that if a user submits his run as the days switch it could possibly be registered for the next day which might contain a harder function and therefore could lead to cheats
+
+// fixed step size of 100 for daily challenges
+// add optimizer constraints (STARTING POINTS escpecially) to daily challenges
