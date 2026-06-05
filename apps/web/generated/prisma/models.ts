@@ -11,4 +11,8 @@
 export type * from './models/Leaderboard'
 export type * from './models/Run'
 export type * from './models/Challenge'
+export type * from './models/User'
+export type * from './models/Account'
+export type * from './models/Session'
+export type * from './models/VerificationToken'
 export type * from './commonInputTypes'

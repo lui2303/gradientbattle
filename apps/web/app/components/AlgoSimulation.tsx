@@ -5,7 +5,6 @@ import AlgorithmSelectContainer from "./AlgorithmSelectContainer"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { Iterate, Optimizer } from "../types"
 import ContourPlot from "./ContourPlot"
-import { quadraticFunction } from "@gradientbattle/core/src/functions/quadratic_function"
 import { FunctionSelector } from "./FunctionSelector"
 import { objectiveFunction } from "@gradientbattle/core"
 import { norm } from "@gradientbattle/core/src/math_helper"
@@ -17,6 +16,7 @@ import { Leaderboard } from "./Leaderboard"
 import { GlobalLeaderboard } from "./GlobalLeaderboard"
 import { addRun, SavedNotebook, StoredRun } from "@/lib/run_storage"
 import { create } from "domain"
+import { useSession } from "next-auth/react"
 
 const loadPlotly = () => import('plotly.js-cartesian-dist-min').then((m) => m.default);
 
@@ -45,8 +45,9 @@ const objectiveLayout: Partial<Layout> = {
 }
 
 export function AlgoSimulation({optimizers, setOptimizers, func, setFunc}: {optimizers: Record<string, Optimizer>, setOptimizers: React.Dispatch<React.SetStateAction<Record<string, Optimizer>>>, func: objectiveFunction, setFunc: React.Dispatch<React.SetStateAction<objectiveFunction>> }) {
-    
-    // The three plots are mounted as bare <div>s; Plotly draws into them imperatively.
+    const { data: session, status } = useSession();
+    console.log(session, status)
+
     const contourDiv = useRef<HTMLDivElement | null>(null)
     const distanceDiv = useRef<HTMLDivElement | null>(null)
     const objectiveDiv = useRef<HTMLDivElement | null>(null)
@@ -214,6 +215,8 @@ export function AlgoSimulation({optimizers, setOptimizers, func, setFunc}: {opti
     }, [ready])
 
     const playSimulation = async () => {
+        
+
         const Plotly = plotlyRef.current
         // A second click while running acts as Stop.
         if (runningRef.current) {
