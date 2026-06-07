@@ -8,6 +8,8 @@ import { prisma } from "./lib/prisma";
 
 const PORT = Number(process.env.BATTLE_PORT ?? 3001);
 const SECRET = process.env.AUTH_SECRET;
+const READY_TIME_MS = 20000
+
 if (!SECRET) throw new Error("AUTH_SECRET is required (must match the Next.js app)");
 
 // NextAuth v5 cookie names. The cookie name is also the JWE decryption salt.
@@ -61,6 +63,8 @@ const server = createServer((req, res) => {
 const wss = new WebSocketServer({ noServer: true });
 interface AuthedSocket extends WebSocket {
     user: BattleUser;
+    opponent?: BattleUser;
+    redisBattleID?: string
 }
 
 const ELO_TOLERANCE = 800
@@ -82,10 +86,9 @@ async function queue(userID: string, elo: number) {
     // make this operation atomic in the future. can slow down if too many clients exist because ghost games can occur
 }
 
-function onOpponentFound() {
-    // create a battle inside the database, by deciding which function is optimized on
-    // 
-}
+
+
+
 
 function sanitize_opponent(opponent: {value: string, score: number}) {
     return {...opponent, value: opponent.value.replace("user:", "")}
@@ -108,7 +111,42 @@ server.on("upgrade", async (req, socket, head) => {
 function send(ws: WebSocket, type: string, data: object = {}) {
     ws.send(JSON.stringify({ type, ...data }));
 }
-const connections = new Map<string, AuthedSocket>();
+
+const connections = new Map<string, AuthedSocket>()
+
+type gameState = "ABORTED" | "WAITING_FOR_READY" | "PLAYERS_READY_1" | "PREP_PHASE" | "RUNNING"
+
+function onPrepPhase() {
+    // this function is responsible for generating the function and optimizer constraints for the given battle. It will also log the battle to DB
+}
+
+async function onOpponentFound(ws: AuthedSocket, opponentWs: AuthedSocket) {
+    // create a battle inside the database, by deciding which function is optimized on
+    await redis.HSET(`games:${ws.user.id}#${opponentWs.user.id}`, {state: "WAITING_FOR_READY", player1: ws.user.id, player2: opponentWs.user.id})
+    setTimeout(async () => {
+        const currentGameState = await redis.HGET(`games:${ws.user.id}#${opponentWs.user.id}`, "state")
+        
+        if(!currentGameState) {
+            console.log(`games:${ws.user.id}#${opponentWs.user.id} was not found in redis after waiting for players to ready up -> aborting`)
+            ws.close()
+            opponentWs.close()
+            return
+        }
+
+        console.log("STATUS AFTER 20 SECONDS: " + currentGameState)
+
+        if(currentGameState !== "PREP_PHASE") {
+            send(ws, "abort", {message: "A player did not click ready -> Aborting game"})
+            send(opponentWs, "abort", {message: "A player did not click ready -> Aborting game"})
+            await redis.del(`games:${ws.user.id}#${opponentWs.user.id}`)
+            return
+        }
+
+        //await redis.HSET(`games:${ws.user.id}#${opponentWs.user.id}`, {state: gameState.PREP_PHASE, player1: ws.user.id, player2: opponentWs.user.id})
+        
+    }, READY_TIME_MS)
+}
+
 
 wss.on("connection", (raw) => {
     const ws = raw as AuthedSocket;
@@ -117,8 +155,6 @@ wss.on("connection", (raw) => {
 
     connections.set(ws.user.id, ws)
 
-    console.log("Send message")
-
     ws.on("message", async (buf) => {
         let msg: { type?: string };
         try {
@@ -126,6 +162,8 @@ wss.on("connection", (raw) => {
         } catch {
             return;
         }
+
+        let ready = false
 
         switch (msg.type) {
             case "find_opponent": {
@@ -141,6 +179,11 @@ wss.on("connection", (raw) => {
                         return
                     }
                     const sanitized_opponent = sanitize_opponent(opponent)
+
+                    if(sanitized_opponent.value === ws.user.id) {
+                        console.log("USER TRIED TO QUEUE TWICE => REJECTING") // add a TTL redis key into the queue so something going wrong doesnt break the app for the user forever
+                        return
+                    }
                     const opp = await prisma.user.findUnique({where: {id: sanitized_opponent.value}, select: {elo: true}})
                     if(!opp) {
                         console.log("DIDN'T FIND OPPONENT IN DB")
@@ -148,27 +191,62 @@ wss.on("connection", (raw) => {
                     }
                     
                     const opponentWs = connections.get(sanitized_opponent.value)
-
+                
                     if(!opponentWs) {
                         console.log("FATAL ERROR: OPPONENTS CONNECTION DOES NOT EXIST")
                         return
                     } // report errors to the client
 
+                    const redisBattleID = `games:${ws.user.id}#${opponentWs.user.id}`
+
+                    ;(ws as AuthedSocket).opponent = opponentWs?.user
+                    ;(ws as AuthedSocket).redisBattleID = redisBattleID
+
+                    ;(opponentWs as AuthedSocket).opponent = ws.user
+                    ;(opponentWs as AuthedSocket).redisBattleID = redisBattleID
+
                     send(ws, "found_opponent", {id: opponentWs.user.id, name: opponentWs.user.name, elo: opp.elo})
-                    send(connections.get(sanitized_opponent.value)!, "found_opponent", {...ws.user, elo: 400})
+                    send(connections.get(sanitized_opponent.value)!, "found_opponent", {...ws.user, elo: user.elo})
+
+                    onOpponentFound(ws, opponentWs)
                 }) 
                 break;
-                }
+            }
             case "abort": {
                 break;
             }
+
+            case "READY": {
+                if(!ws.opponent || ready) return
+                ready = true
+
+                const opponent = ws.opponent
+                const opponentWS = connections.get(opponent.id)
+
+                if(!opponentWS || !ws.redisBattleID) {
+                    console.log("Opponent web server does not exist in ready state") // report to client
+                    return
+                }
+                
+                const status = await redis.HGET(ws.redisBattleID, "state")
+                console.log("STATUS: " + status)
+                if(status == "PLAYERS_READY_1") {
+                    await redis.HSET(ws.redisBattleID, {"state": "PREP_PHASE"})
+                    send(ws, "PREP_PHASE", {}) // wire onPrepPhase in here to set up the whole function space and everything. Also uploads the battle to the DB to be queried when done
+                    send(opponentWS, "PREP_PHASE", {})
+                    return 
+                }
+
+                await redis.HSET(ws.redisBattleID, {"state": "PLAYERS_READY_1"})
+                
             }
+        }
     })
 
-    ws.on("close", () => {
+    ws.on("close", async () => {
         connections.delete(ws.user.id)
-        redis.ZREM("queue", "user:" + ws.user.id)
-        console.log("REMOVED user " + ws.user.name + "FROM QUEUE (connection closed)")
+        const rem = await redis.ZREM("queue", "user:" + ws.user.id)
+        if(rem) console.log("REMOVED user " + ws.user.name + "FROM QUEUE (connection closed)")
     });
 });
 

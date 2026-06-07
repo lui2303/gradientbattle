@@ -1,6 +1,5 @@
 'use client'
 
-import { optimizationAlgorithms, optimizationAlgorithmsList } from "@gradientbattle/core/src/optimizers/optimizer_registry"
 import AlgorithmSelectContainer from "./AlgorithmSelectContainer"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { Iterate, Optimizer } from "../types"
@@ -300,7 +299,7 @@ export function AlgoSimulation({optimizers, setOptimizers, func, setFunc}: {opti
         <div>
             <div className="flex flex-col gap-4 p-4">
                 <GlobalLeaderboard setfunc={setFunc} setchallengeID={setchallengeID} setChallengeMode={setChallengeMode}></GlobalLeaderboard>
-                
+
                 <div>
                     <p>Save notebook with short description as: </p>
                     <input onChange={(e) => inputRef.current = e.target.value}></input>
