@@ -1,10 +1,14 @@
+import { Point } from "../types"
 import { ADAGRAD_NAME, ADAM_NAME, GD_MOMENTUM_NAME, GD_NAME, RMSPROP_NAME } from "./constants"
 
 export type Param = {name: string, value: number}
 
 const startingPoint = {x: 5, y: 5}
 
-export const optimizationAlgorithms: Record<string, Record<string, Record<string, number>>> = {
+type OptimizationAlgorithm = Record<string,{params: Record<string, number>, startingPoint: Point}>
+
+
+export const optimizationAlgorithms: OptimizationAlgorithm = {
     [GD_NAME]: {"params": {"lr": 0.05},"startingPoint": startingPoint},
     [GD_MOMENTUM_NAME]: {"params": {"lr": 0.1, "momentum": 0.8}, startingPoint: startingPoint},
     [ADAGRAD_NAME]: {"params": {"lr": 0.1}, startingPoint: startingPoint},

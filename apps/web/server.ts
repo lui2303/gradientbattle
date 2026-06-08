@@ -1,10 +1,13 @@
-import { createServer, validateHeaderValue } from "node:http";
-import { randomUUID } from "node:crypto";
+import { createServer  } from "node:http";
 import { WebSocketServer, WebSocket } from "ws";
 import { decode } from "next-auth/jwt";
 import { getRedis, redis } from "./lib/redisClient";
-import { userAgent } from "next/server";
 import { prisma } from "./lib/prisma";
+import { objectiveFunction, Optimizer, Point } from "@gradientbattle/core";
+import { ADAGRAD_NAME, ADAM_NAME, GD_MOMENTUM_NAME, GD_NAME, RMSPROP_NAME } from "@gradientbattle/core/src/optimizers/constants";
+import { optimizationAlgorithms, optimizationAlgorithmsList } from "@gradientbattle/core/src/optimizers/optimizer_registry";
+import { start } from "node:repl";
+import { quadraticFunction } from "@gradientbattle/core/src/functions/quadratic_function";
 
 const PORT = Number(process.env.BATTLE_PORT ?? 3001);
 const SECRET = process.env.AUTH_SECRET;
@@ -116,9 +119,71 @@ const connections = new Map<string, AuthedSocket>()
 
 type gameState = "ABORTED" | "WAITING_FOR_READY" | "PLAYERS_READY_1" | "PREP_PHASE" | "RUNNING"
 
-function onPrepPhase() {
-    // this function is responsible for generating the function and optimizer constraints for the given battle. It will also log the battle to DB
+type RankedOptimizationAlgorithm = {name: string, params: Record<string, {enabled: boolean, value: number}>, startingPoint: {fixed: boolean, value: Point}}
+
+export const RANKED_OPTIMIZER_PROBABILTIES: Record<string, number> = {
+    [GD_NAME]: 1,
+    [GD_MOMENTUM_NAME]: 0.95,
+    [ADAGRAD_NAME]: 0.8,
+    [RMSPROP_NAME]: 0.7,
+    [ADAM_NAME]: 0.3
 }
+
+
+type rankedGame = {
+    "objective": string,
+    "startingPointsInequalities" : ((point: Point) => boolean)[], // inequalities that every non fixed starting point needs to satisfy
+    "optimizers": RankedOptimizationAlgorithm[],
+    "max_number_of_optimizers": number,
+    "battleID": string | null
+}
+
+function checkStartingPoint(startingPointsInequalities: ((point: Point) => boolean)[], point: Point): boolean {
+    return startingPointsInequalities.some((inequality) => !inequality(point))
+}
+
+const STARTING_POINT_INEQUALITIES = [(point: Point) => {return point.x > 5 && point.y > 5}]
+// TODO: use strategy pattern to fitler between different starting point inequalities
+// TODO: add ranges for the parameters to also make them random
+
+function generateRankedGame(): Omit<rankedGame, "battleID"> {
+    const rankedOptimizers: RankedOptimizationAlgorithm[] = []
+
+    for(const [optimizerName, config] of Object.entries(optimizationAlgorithms)) {
+        const optimizerProbability: number = RANKED_OPTIMIZER_PROBABILTIES[optimizerName]
+
+        if(Math.random() > optimizerProbability) continue
+
+        const startingPoint: {fixed: boolean, value: Point} = {fixed: false, value: {x: 5, y: 5}}
+        if(Math.random() > 1/2) {
+            startingPoint.fixed = true
+            startingPoint.value = {x: 5+Math.random()*5, y: 5+Math.random()*5}   
+        }
+
+        const optimizerParams: Record<string, {enabled: boolean, value: number}> = {}
+        Object.keys(config.params).map((key, value) => {
+            if(Math.random() > 0.5 && optimizerName != GD_NAME){
+                optimizerParams[key] = {enabled: false, value: config.params[key]}
+                return
+            }
+            optimizerParams[key] = {enabled: true, value: value}
+        })
+
+        rankedOptimizers.push({
+            name: optimizerName,
+            params: optimizerParams,
+            startingPoint: startingPoint
+        })
+    }
+
+    return {
+        max_number_of_optimizers: Math.floor(Math.random() * 5) + 1,
+        startingPointsInequalities: STARTING_POINT_INEQUALITIES,
+        optimizers: rankedOptimizers,
+        objective: quadraticFunction.name // TODO: randomize this
+    }
+}
+
 
 async function onOpponentFound(ws: AuthedSocket, opponentWs: AuthedSocket) {
     // create a battle inside the database, by deciding which function is optimized on
@@ -135,7 +200,7 @@ async function onOpponentFound(ws: AuthedSocket, opponentWs: AuthedSocket) {
 
         console.log("STATUS AFTER 20 SECONDS: " + currentGameState)
 
-        if(currentGameState !== "PREP_PHASE") {
+        if(currentGameState === "WAITING_FOR_READY" || currentGameState === "PLAYERS_READY_1") {
             send(ws, "abort", {message: "A player did not click ready -> Aborting game"})
             send(opponentWs, "abort", {message: "A player did not click ready -> Aborting game"})
             await redis.del(`games:${ws.user.id}#${opponentWs.user.id}`)
@@ -167,6 +232,8 @@ wss.on("connection", (raw) => {
 
         switch (msg.type) {
             case "find_opponent": {
+                if (await redis.ZSCORE("queue", `user:${ws.user.id}`) !== null) return // already in queue
+
                 const user = await prisma.user.findUnique({where: {id: ws.user.id}, select: {elo: true}}) // makes sure that connections can be reused
                 if(!user) {
                     console.log("COULDN'T FIND USER IN DB")
@@ -230,10 +297,26 @@ wss.on("connection", (raw) => {
                 
                 const status = await redis.HGET(ws.redisBattleID, "state")
                 console.log("STATUS: " + status)
+
+                const generatedGame = generateRankedGame()
+
                 if(status == "PLAYERS_READY_1") {
                     await redis.HSET(ws.redisBattleID, {"state": "PREP_PHASE"})
-                    send(ws, "PREP_PHASE", {}) // wire onPrepPhase in here to set up the whole function space and everything. Also uploads the battle to the DB to be queried when done
-                    send(opponentWS, "PREP_PHASE", {})
+
+                    const entry = await prisma.battle.create({data: {
+                        status: "PREP_PHASE",
+                        game: JSON.stringify(generatedGame),
+                        player1Id: ws.user.id,
+                        player2Id: opponentWS.user.id,
+                    }})
+
+                    const game: rankedGame = {
+                        ...generatedGame,
+                        battleID: entry.id
+                    }
+                    await redis.EXPIRE(ws.redisBattleID, 180_000) // expire redis key for this battle after 3 minutes. This allows reconnecting logic in the future but prevents database bugs that could arise from back to back games between the same players, because the game will have concluded by then
+                    send(ws, "PREP_PHASE", game)
+                    send(opponentWS, "PREP_PHASE", game)
                     return 
                 }
 
@@ -250,4 +333,6 @@ wss.on("connection", (raw) => {
     });
 });
 
-server.listen(PORT, () => console.log(`battle server listening on :${PORT}`));
+getRedis()
+    .then(() => server.listen(PORT, () => console.log(`battle server listening on :${PORT}`)))
+    .catch((e) => { console.error("failed to connect redis", e); process.exit(1); });

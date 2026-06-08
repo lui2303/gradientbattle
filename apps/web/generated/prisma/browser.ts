@@ -23,6 +23,11 @@ export * from './enums';
  */
 export type Run = Prisma.RunModel
 /**
+ * Model Battle
+ * 
+ */
+export type Battle = Prisma.BattleModel
+/**
  * Model ChallengeRun
  * 
  */

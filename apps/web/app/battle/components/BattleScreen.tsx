@@ -6,6 +6,8 @@ const WS_URL = process.env.NEXT_PUBLIC_BATTLE_WS_URL ?? "ws://localhost:3001";
 
 type GAME_STATUS = "ABORTED" | null | "READY" | "WAITING_FOR_READY" | "PREP_PHASE"
 
+
+
 export default function BattleScreen({ username }: { username: string }) {
     const wsRef = useRef<WebSocket | null>(null)
     const [status, setStatus] = useState("idle")
@@ -28,7 +30,7 @@ export default function BattleScreen({ username }: { username: string }) {
                 case "abort": { // an abort always comes with a message property
                     setStatus(msg.message)
                     setOpponent(null)
-                    setGameState("ABORTED")
+                    setGameState("ABORTED") 
                     break;
                 }
                 case "enqueued": setStatus("Waiting in queue...");break;
@@ -40,7 +42,7 @@ export default function BattleScreen({ username }: { username: string }) {
                 }
 
                 case "PREP_PHASE":{
-                    setStatus("PREP_PHASE")
+                    setStatus(JSON.stringify(msg))
                     setGameState("PREP_PHASE")
                     break;
                 }
@@ -72,6 +74,7 @@ export default function BattleScreen({ username }: { username: string }) {
                     wsRef.current?.send(JSON.stringify({ type: "READY" }))
                 }}>Ready</button> : ""
             }
+
         </main>
     );
 }

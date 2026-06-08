@@ -22,6 +22,22 @@ model Run {
   lastIterate Json
 }
 
+model Battle {
+  id        String   @id @default(uuid())
+  startedAt DateTime @default(now())
+  status    String
+
+  player1Id String
+  player1   User   @relation("BattlePlayer1", fields: [player1Id], references: [id])
+
+  player2Id String
+  player2   User   @relation("BattlePlayer2", fields: [player2Id], references: [id])
+  winnerId  String?
+
+  winner    User?  @relation("BattleWinner", fields: [winnerId], references: [id], onDelete: SetNull)
+  game      Json
+}
+
 model ChallengeRun {
   id          String   @id @default(uuid())
   username    String
@@ -52,6 +68,9 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  battlesAsPlayer1 Battle[] @relation("BattlePlayer1")
+  battlesAsPlayer2 Battle[] @relation("BattlePlayer2")
+  battlesWon       Battle[] @relation("BattleWinner")
 }
 
 model Account {

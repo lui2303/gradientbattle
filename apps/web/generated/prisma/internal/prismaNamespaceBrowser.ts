@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Run: 'Run',
+  Battle: 'Battle',
   ChallengeRun: 'ChallengeRun',
   Challenge: 'Challenge',
   User: 'User',
@@ -84,6 +85,19 @@ export const RunScalarFieldEnum = {
 } as const
 
 export type RunScalarFieldEnum = (typeof RunScalarFieldEnum)[keyof typeof RunScalarFieldEnum]
+
+
+export const BattleScalarFieldEnum = {
+  id: 'id',
+  startedAt: 'startedAt',
+  status: 'status',
+  player1Id: 'player1Id',
+  player2Id: 'player2Id',
+  winnerId: 'winnerId',
+  game: 'game'
+} as const
+
+export type BattleScalarFieldEnum = (typeof BattleScalarFieldEnum)[keyof typeof BattleScalarFieldEnum]
 
 
 export const ChallengeRunScalarFieldEnum = {
