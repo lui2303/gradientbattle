@@ -314,7 +314,7 @@ wss.on("connection", (raw) => {
                         ...generatedGame,
                         battleID: entry.id
                     }
-
+                    
                     await redis.EXPIRE(ws.redisBattleID, 120_000) // expire redis key for this battle after 3 minutes. This allows reconnecting logic in the future but prevents database bugs that could arise from back to back games between the same players, because the game will have concluded by then
                     
                     send(ws, "PREP_PHASE", game)

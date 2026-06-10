@@ -15,12 +15,14 @@ export type AlgorithmSelectCardProps = {
   id: string;
   optimizers: Record<string, FrontendOptimizer>;
   setOptimizers: React.Dispatch<React.SetStateAction<Record<string, FrontendOptimizer>>>,
+  allowedOptimizers: FrontendOptimizer[]
 };
 
 export type AlgorithmSelectContainerProps = {
   optimizers: Record<string, FrontendOptimizer>;
   setOptimizers: React.Dispatch<React.SetStateAction<Record<string, FrontendOptimizer>>>
-  defaultOptimizer: FrontendOptimizer
+  defaultOptimizer: FrontendOptimizer,
+  allowedOptimizers: FrontendOptimizer[]
 }
 
 export type PlotHandlerProps = {

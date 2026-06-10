@@ -293,9 +293,9 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
 
                     />
                 </div>
-                <FunctionSelector func={func} setFuncCallback={(func) => { setFunc(func)}}></FunctionSelector>
+                <FunctionSelector allowedFunctions={mode.allowedFunctions} func={func} setFuncCallback={(func) => { setFunc(func)}}></FunctionSelector>
 
-                <AlgorithmSelectContainer defaultOptimizer={mode.allowedOptimizer[0]} optimizers={optimizers} setOptimizers={setOptimizers}>
+                <AlgorithmSelectContainer allowedOptimizers={mode.allowedOptimizer} defaultOptimizer={mode.allowedOptimizer[0]} optimizers={optimizers} setOptimizers={setOptimizers}>
                 </AlgorithmSelectContainer>
         </div>
     )
