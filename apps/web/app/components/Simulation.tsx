@@ -2,7 +2,7 @@
 
 import AlgorithmSelectContainer from "./AlgorithmSelectContainer"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { Iterate, Optimizer } from "../types"
+import { Iterate, FrontendOptimizer } from "../types"
 import ContourPlot from "./ContourPlot"
 import { FunctionSelector } from "./FunctionSelector"
 import { objectiveFunction } from "@gradientbattle/core"
@@ -12,14 +12,12 @@ import { DistancePlot } from "./DistancePlot"
 import { ObjectiveValuePlot } from "./ObjectiveValuePlot"
 import type { Config, Data, Layout, PlotHoverEvent, PlotlyHTMLElement } from "plotly.js"
 import { Leaderboard } from "./Leaderboard"
-import { GlobalLeaderboard } from "./GlobalLeaderboard"
-import { addRun, SavedNotebook, StoredRun } from "@/lib/run_storage"
-import { useSession } from "next-auth/react"
+import { SimulationMode } from "@/lib/simulationMode"
+import { quadraticFunction } from "@gradientbattle/core/src/functions/quadratic_function"
 
 const loadPlotly = () => import('plotly.js-cartesian-dist-min').then((m) => m.default);
 
-// Stable, non-reactive figure config/layouts. The contour layout depends on `func` so it is
-// built inside the rebuild effect; these two never change.
+// Stable, non-reactive figure config/layouts.
 const config: Partial<Config> = { displayModeBar: false, typesetMath: true, responsive: true }
 
 const distanceLayout: Partial<Layout> = {
@@ -42,40 +40,36 @@ const objectiveLayout: Partial<Layout> = {
     legend: { itemclick: false, itemdoubleclick: false },
 }
 
-export function AlgoSimulation({optimizers, setOptimizers, func, setFunc}: {optimizers: Record<string, Optimizer>, setOptimizers: React.Dispatch<React.SetStateAction<Record<string, Optimizer>>>, func: objectiveFunction, setFunc: React.Dispatch<React.SetStateAction<objectiveFunction>> }) {
-    const { data: session, status } = useSession();
-    console.log(session, status)
 
+export function Simulation({ mode }: { mode: SimulationMode }) {
     const contourDiv = useRef<HTMLDivElement | null>(null)
     const distanceDiv = useRef<HTMLDivElement | null>(null)
     const objectiveDiv = useRef<HTMLDivElement | null>(null)
 
     const plotlyRef = useRef<typeof import('plotly.js') | null>(null)
     const [ready, setReady] = useState(false)
-    const [challengeID, setchallengeID] = useState<number | null>(null)
-    // challengeID is set on every leaderboard load (it's just "today's challenge"); challengeMode
-    // is the actual routing decision, flipped on by the "Try it yourself!" button.
-    const [challengeMode, setChallengeMode] = useState(false)
-
-    const inputRef = useRef<string>("")
-
+    
+    const [func, setFunc] = useState<objectiveFunction>(new quadraticFunction([[1,0],[0,1]], {x: 0, y: 0}, 0))
+    const [optimizers, setOptimizers] = useState<Record<string, FrontendOptimizer>>({[crypto.randomUUID()]: mode.allowedOptimizer[0]})
 
     const [currentIterate, setcurrentIterate] = useState<Record<string, Iterate>>({})
     const [iterateSeed, setIterateSeed] = useState<{ optimizers: typeof optimizers; func: typeof func } | null>(null)
-
-    if (iterateSeed?.optimizers !== optimizers || iterateSeed?.func !== func) {
-        setIterateSeed({ optimizers, func })
-        const seed: Record<string, Iterate> = {}
-        for (const [id, opt] of Object.entries(optimizers)) {
-            seed[id] = [norm(opt.startingPoint), func.objective(opt.startingPoint)]
-        }
-        setcurrentIterate(seed)
-    }
 
     const [running, setRunning] = useState(false);
     const runningRef = useRef(false);
 
     const [animationSpeed, setAnimationSpeed] = useState(50)
+
+    if (iterateSeed?.optimizers !== optimizers || iterateSeed?.func !== func) {
+        setIterateSeed({ optimizers, func })
+        const seed: Record<string, Iterate> = {}
+        for (const [id, opt] of Object.entries(optimizers)) {
+            seed[id] = [norm(opt.startingPoint.value), func.objective(opt.startingPoint.value)]
+        }
+        setcurrentIterate(seed)
+    }
+
+    
 
     // The loss surface is expensive (101x101 objective evaluations); recompute only when func changes.
     const surfaceTrace = useMemo<Data>(() => {
@@ -123,8 +117,8 @@ export function AlgoSimulation({optimizers, setOptimizers, func, setFunc}: {opti
         // their seeds start at step 0 with the metric of the starting point.
         const entries = Object.entries(optimizers)
         const contourSeeds: Data[] = entries.map(([id, opt]) => ({
-            x: [opt.startingPoint.x],
-            y: [opt.startingPoint.y],
+            x: [opt.startingPoint.value.x],
+            y: [opt.startingPoint.value.y],
             type: 'scatter' as const,
             mode: 'lines+markers' as const,
             name: id,
@@ -132,7 +126,7 @@ export function AlgoSimulation({optimizers, setOptimizers, func, setFunc}: {opti
         }))
         const distanceSeeds: Data[] = entries.map(([id, opt]) => ({
             x: [0],
-            y: [norm(opt.startingPoint)],
+            y: [norm(opt.startingPoint.value)],
             type: 'scatter' as const,
             mode: 'lines+markers' as const,
             name: id,
@@ -141,7 +135,7 @@ export function AlgoSimulation({optimizers, setOptimizers, func, setFunc}: {opti
         
         const objectiveSeeds: Data[] = entries.map(([id, opt]) => ({
             x: [0],
-            y: [func.objective(opt.startingPoint)],
+            y: [func.objective(opt.startingPoint.value)],
             type: 'scatter' as const,
             mode: 'lines+markers' as const,
             name: id,
@@ -164,7 +158,7 @@ export function AlgoSimulation({optimizers, setOptimizers, func, setFunc}: {opti
         Plotly.react(o, objectiveSeeds, objectiveLayout, config)
     }, [func, optimizers, ready, surfaceTrace])
 
-    // Plotly no longer auto-resizes (we dropped react-plotly's useResizeHandler); do it ourselves.
+    // Resizer
     useEffect(() => {
         const Plotly = plotlyRef.current
         if (!ready || !Plotly) return
@@ -216,8 +210,6 @@ export function AlgoSimulation({optimizers, setOptimizers, func, setFunc}: {opti
     }, [ready])
 
     const playSimulation = async () => {
-        
-
         const Plotly = plotlyRef.current
         // A second click while running acts as Stop.
         if (runningRef.current) {
@@ -241,35 +233,16 @@ export function AlgoSimulation({optimizers, setOptimizers, func, setFunc}: {opti
         runningRef.current = true;
         setRunning(true);
 
-        // challengeMode (set by "Try it yourself!" in GlobalLeaderboard) routes this run to the
-        // daily-challenge endpoint, which scores it on the leaderboard. That endpoint requires auth,
-        // so fall back to the normal endpoint when the user isn't signed in. A single request is the
-        // source of truth for both the animation and the recorded result.
-        const isDaily = challengeMode && status === "authenticated" && challengeID !== null;
-        const res = await fetch(
-            isDaily ? `/api/dailyChallenge/${challengeID}/run` : "/api/run_optimizers",
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(
-                    isDaily
-                        ? { optimizers }                                   // func + steps are pinned server-side
-                        : { optimizers, steps: 100, funcName: func.name }, // free play
-                ),
-            },
-        );
-        const resp = await res.json()
-        console.log(resp)
 
-        const { traces, id, createdAt }: { traces: Point[][], id: string, createdAt: string } = resp;
-
+        const { traces, id, createdAt }: { traces: Point[][], id: string, createdAt: string } = await mode.run(optimizers, func.name, 100)
+        console.log(traces)
         // Reset every trace back to its starting point so replays don't append onto the last run.
         const starts = ids.map((id) => optimizers[id].startingPoint)
-        Plotly.restyle(c, { x: starts.map((p) => [p.x]), y: starts.map((p) => [p.y]) }, contourIdx)
-        Plotly.restyle(d, { x: stepIdx.map(() => [0]), y: starts.map((p) => [norm(p)]) }, stepIdx)
-        Plotly.restyle(o, { x: stepIdx.map(() => [0]), y: starts.map((p) => [func.objective(p)]) }, stepIdx)
+        Plotly.restyle(c, { x: starts.map((p) => [p.value.x]), y: starts.map((p) => [p.value.y]) }, contourIdx)
+        Plotly.restyle(d, { x: stepIdx.map(() => [0]), y: starts.map((p) => [norm(p.value)]) }, stepIdx)
+        Plotly.restyle(o, { x: stepIdx.map(() => [0]), y: starts.map((p) => [func.objective(p.value)]) }, stepIdx)
 
-        addRun({optimizers: optimizers, timestamp: createdAt, steps: 100, animationSpeed: animationSpeed, runID: id, funcName: func.name} as StoredRun )
+        mode.onRunComplete?.()
 
         // Append one simulation step per frame. Each `step` is one Point per optimizer, in id order.
         for (let s = 0; s < traces.length; s++) {
@@ -297,15 +270,6 @@ export function AlgoSimulation({optimizers, setOptimizers, func, setFunc}: {opti
 
     return (
         <div>
-            <div className="flex flex-col gap-4 p-4">
-                <GlobalLeaderboard setfunc={setFunc} setchallengeID={setchallengeID} setChallengeMode={setChallengeMode}></GlobalLeaderboard>
-
-                <div>
-                    <p>Save notebook with short description as: </p>
-                    <input onChange={(e) => inputRef.current = e.target.value}></input>
-                    <button onClick={(e) => addRun({description: inputRef.current, optimizers: optimizers, timestamp: String(Date.now()), steps: 100, animationSpeed: animationSpeed, funcName: func.name} as SavedNotebook  )
-}>Save</button>
-                </div>
                 <div className="grid grid-cols-3 gap-4">
                     <ContourPlot divRef={contourDiv}></ContourPlot>
 
@@ -329,13 +293,11 @@ export function AlgoSimulation({optimizers, setOptimizers, func, setFunc}: {opti
 
                     />
                 </div>
-                <FunctionSelector func={func} setFuncCallback={(func) => { setFunc(func); setChallengeMode(false) }}></FunctionSelector>
+                <FunctionSelector func={func} setFuncCallback={(func) => { setFunc(func)}}></FunctionSelector>
 
-                <AlgorithmSelectContainer func={func} optimizers={optimizers} setOptimizers={setOptimizers}>
+                <AlgorithmSelectContainer defaultOptimizer={mode.allowedOptimizer[0]} optimizers={optimizers} setOptimizers={setOptimizers}>
                 </AlgorithmSelectContainer>
-            </div>
         </div>
-
     )
 }
 

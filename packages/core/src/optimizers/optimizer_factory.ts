@@ -6,17 +6,17 @@ import { AdaGrad } from './adagrad'
 import { ADAGRAD_NAME, ADAM_NAME, GD_MOMENTUM_NAME, RMSPROP_NAME } from './constants'
 import { Adam } from './adam'
 
-export function optimizerFactory(optimizerName: string, params: Record<string, Parameter>): Optimizer {
+export function optimizerFactory(optimizerName: string, params: Record<string, {enabled: boolean, value: number}>, startingPoint: Point, id: string, objective: objectiveFunction): Optimizer {
     switch (optimizerName) {
         case GD_MOMENTUM_NAME:
-            return new GradientDescentMomentum(params.lr as number, params.objective as objectiveFunction, params.startingPoint as Point, params.id as string, params.momentum as number)
+            return new GradientDescentMomentum(params.lr.value as number, objective, startingPoint, id, params.momentum.value)
         case ADAGRAD_NAME:
-            return new AdaGrad(params.lr as number, params.objective as objectiveFunction, params.startingPoint as Point, params.id as string)
+            return new AdaGrad(params.lr.value as number, objective, startingPoint, id)
         case RMSPROP_NAME:
-            return new RMSProp(params.lr as number, params.objective as objectiveFunction, params.startingPoint as Point, params.id as string, params.momentum as number)
+            return new RMSProp(params.lr.value, objective, startingPoint, id, params.momentum.value)
         case ADAM_NAME:
-            return new Adam(params.lr as number, params.objective as objectiveFunction, params.startingPoint as Point, params.id as string, params.beta1 as number, params.beta2 as number)
+            return new Adam(params.lr.value, objective, startingPoint, id, params.beta1a.value, params.beta2.value)
         }
 
-    return new GradientDescent(params.lr as number, params.objective as objectiveFunction, params.startingPoint as Point, params.id as string)
+    return new GradientDescent(params.lr.value, objective, startingPoint, id)
 }

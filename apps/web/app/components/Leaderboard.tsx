@@ -1,8 +1,8 @@
-import { Iterate, Optimizer } from "../types";
+import { LeaderboardProps } from "../types";
 
 import { useState } from "react";
 
-export function Leaderboard({optimizers, currentIterates}: {optimizers: Record<string, Optimizer>, currentIterates: Record<string, Iterate>}) {
+export function Leaderboard({optimizers, currentIterates}: LeaderboardProps) {
     // currentIterates[optiKey][0]: norm of current optimizer point
     // currentIterates[optiKey][1]: objective value of current optimizer point
     const [sortByObjValue, setsortByObjValue] = useState<boolean>(true)

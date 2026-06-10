@@ -7,6 +7,8 @@ import { useState } from "react";
 import {defaultFunc, defaultOptimizer} from '@/app/constants'
 import { objectiveFunction } from "@gradientbattle/core";
 import { SessionProvider } from "next-auth/react";
+import { Simulation } from "./components/Simulation";
+import { FreeForAllSimulationMode } from "@/lib/simulationMode";
 
 export default function Page() {
 
@@ -18,12 +20,15 @@ export default function Page() {
       <main className="min-h-screen p-8">
         <div className="mx-auto max-w-none flex gap-4 p-4">
           <div className="flex-1 min-w-0">
-            <AlgoSimulation optimizers={optimizers} setOptimizers={setOptimizers} func={func} setFunc={setFunc}>
-            </AlgoSimulation>
+            <Simulation mode={FreeForAllSimulationMode}></Simulation>
+            
           </div>
           <LoadNotebookSidebar setOptimizers={setOptimizers} setFunc={setFunc}></LoadNotebookSidebar>
         </div>
       </main>
       </SessionProvider>
     );
+
+    //<AlgoSimulation optimizers={optimizers} setOptimizers={setOptimizers} func={func} setFunc={setFunc}>
+    //</AlgoSimulation>
 }

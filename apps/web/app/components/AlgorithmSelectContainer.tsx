@@ -5,11 +5,11 @@ import { AlgorithmSelectContainerProps } from "../types";
 import { defaultOptimizer } from "../constants";
 
 
-export default function AlgorithmSelectContainer({optimizers, setOptimizers, func}: AlgorithmSelectContainerProps) {
+export default function AlgorithmSelectContainer({optimizers, setOptimizers, defaultOptimizer}: AlgorithmSelectContainerProps) {
     return (
         <div>
             <div>
-                {Object.keys(optimizers).map((id) => <AlgorithmSelectCard func ={func} key={id} id={id} optimizers={optimizers} setOptimizers={setOptimizers}></AlgorithmSelectCard>)}
+                {Object.keys(optimizers).map((id) => <AlgorithmSelectCard key={id} id={id} optimizers={optimizers} setOptimizers={setOptimizers}></AlgorithmSelectCard>)}
             </div>
             {Object.keys(optimizers).length < 5 && <button className="bg-blue-500" onClick={() => {
                 const id = crypto.randomUUID()

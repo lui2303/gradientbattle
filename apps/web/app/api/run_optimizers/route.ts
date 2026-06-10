@@ -14,6 +14,7 @@ export async function POST(request: Request) {
     }
 
     const { optimizers, steps, funcName  } = body;
+    console.log(optimizers)
 
     if (!optimizers) {
         return NextResponse.json({ error: "Missing fields" }, { status: 422 });
@@ -24,11 +25,9 @@ export async function POST(request: Request) {
     const sim_engine = new SimulationEngine(func, steps)
 
     Object.keys(optimizers).forEach((optiKey) => {
-                    sim_engine.addOptimizer(optimizerFactory(optimizers[optiKey].name, {...optimizers[optiKey].params,
-                        objective: func, 
-                        startingPoint: optimizers[optiKey].startingPoint,
-                        id: optiKey}))
-                })
+                    const opt = optimizers[optiKey]
+                    sim_engine.addOptimizer(optimizerFactory(opt.name, opt.params, opt.startingPoint.value, optiKey, func))
+        })
 
     const traces = Array.from(sim_engine)
 

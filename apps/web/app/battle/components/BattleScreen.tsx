@@ -1,6 +1,11 @@
 'use client'
 import { useRef, useState } from "react";
 import {BattleUser} from '@/server'
+import { FrontendOptimizer, rankedGame } from "@/app/types";
+import { Simulation } from "@/app/components/Simulation";
+import { SimulationMode } from "@/lib/simulationMode";
+import { Point } from "@gradientbattle/core";
+import { kMaxLength } from "buffer";
 
 const WS_URL = process.env.NEXT_PUBLIC_BATTLE_WS_URL ?? "ws://localhost:3001";
 
@@ -13,6 +18,7 @@ export default function BattleScreen({ username }: { username: string }) {
     const [status, setStatus] = useState("idle")
     const [opponent, setOpponent] = useState<(BattleUser& {elo: number}) | null>(null)
     const [state, setGameState] = useState<GAME_STATUS>(null)
+    const [game, setgame] = useState<rankedGame | null>(null)
 
     function findOpponent() {
         const ws = wsRef.current ?? new WebSocket(WS_URL);
@@ -30,7 +36,8 @@ export default function BattleScreen({ username }: { username: string }) {
                 case "abort": { // an abort always comes with a message property
                     setStatus(msg.message)
                     setOpponent(null)
-                    setGameState("ABORTED") 
+                    setGameState("ABORTED")
+                    setgame(null)
                     break;
                 }
                 case "enqueued": setStatus("Waiting in queue...");break;
@@ -44,6 +51,7 @@ export default function BattleScreen({ username }: { username: string }) {
                 case "PREP_PHASE":{
                     setStatus(JSON.stringify(msg))
                     setGameState("PREP_PHASE")
+                    setgame(msg)
                     break;
                 }
 
@@ -53,11 +61,36 @@ export default function BattleScreen({ username }: { username: string }) {
 
             }
         };
-        ws.onclose = () => {setStatus("idle"); wsRef.current = null}
+        ws.onclose = () => {setStatus("idle"); wsRef.current = null; setgame(null)}
+    }
+
+    function buildMode(): SimulationMode {
+        return {
+            async run(optimizer: Record<string, FrontendOptimizer>, funcName: string, steps: number) {
+                const res = await fetch(
+                    `/api/battle/${game?.battleID}/run`,
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ optimizers: optimizer}),
+                    }
+                );
+                const resp = await res.json();
+                console.log(resp);
+        
+                const { traces, id, createdAt }: { traces: Point[][]; id: string; createdAt: string; } = resp;
+        
+                return { traces, id, createdAt };
+            },
+            requiresAuth: true,
+            allowedFunctions: [game!.objective],
+            allowedOptimizer: game!.optimizers.map((k) => ({...k, color: "#000000"}))
+        }
     }
 
     return (
         <main className="min-h-screen p-8">
+
             <p>1v1 Battle Page. Logged in as {username}</p>
             {
                 (state == "ABORTED" || !state) ? <button className="bg-amber-600 px-3 py-1 rounded" onClick={findOpponent}>Find opponent</button> 
@@ -73,6 +106,10 @@ export default function BattleScreen({ username }: { username: string }) {
 
                     wsRef.current?.send(JSON.stringify({ type: "READY" }))
                 }}>Ready</button> : ""
+            }
+
+            {
+                game ? <Simulation mode={buildMode()}></Simulation>: ""
             }
 
         </main>
