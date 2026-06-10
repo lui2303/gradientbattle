@@ -15,7 +15,8 @@
       "Bash(grep -rln \"redis\" apps --include=*.ts --include=*.tsx)",
       "Bash(sed 's/=.*/=.../' apps/web/.env)",
       "Bash(chmod +x dev.sh)",
-      "Bash(bash -n dev.sh)"
+      "Bash(bash -n dev.sh)",
+      "Bash(npx prisma *)"
     ]
   }
 }

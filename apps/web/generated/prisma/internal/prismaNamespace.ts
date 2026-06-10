@@ -386,6 +386,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   Run: 'Run',
   Battle: 'Battle',
+  BattleRun: 'BattleRun',
   ChallengeRun: 'ChallengeRun',
   Challenge: 'Challenge',
   User: 'User',
@@ -407,7 +408,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "run" | "battle" | "challengeRun" | "challenge" | "user" | "account" | "session" | "verificationToken"
+    modelProps: "run" | "battle" | "battleRun" | "challengeRun" | "challenge" | "user" | "account" | "session" | "verificationToken"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -556,6 +557,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.BattleCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.BattleCountAggregateOutputType> | number
+        }
+      }
+    }
+    BattleRun: {
+      payload: Prisma.$BattleRunPayload<ExtArgs>
+      fields: Prisma.BattleRunFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BattleRunFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BattleRunPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BattleRunFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BattleRunPayload>
+        }
+        findFirst: {
+          args: Prisma.BattleRunFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BattleRunPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BattleRunFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BattleRunPayload>
+        }
+        findMany: {
+          args: Prisma.BattleRunFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BattleRunPayload>[]
+        }
+        create: {
+          args: Prisma.BattleRunCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BattleRunPayload>
+        }
+        createMany: {
+          args: Prisma.BattleRunCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BattleRunCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BattleRunPayload>[]
+        }
+        delete: {
+          args: Prisma.BattleRunDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BattleRunPayload>
+        }
+        update: {
+          args: Prisma.BattleRunUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BattleRunPayload>
+        }
+        deleteMany: {
+          args: Prisma.BattleRunDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BattleRunUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BattleRunUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BattleRunPayload>[]
+        }
+        upsert: {
+          args: Prisma.BattleRunUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BattleRunPayload>
+        }
+        aggregate: {
+          args: Prisma.BattleRunAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBattleRun>
+        }
+        groupBy: {
+          args: Prisma.BattleRunGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BattleRunGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BattleRunCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BattleRunCountAggregateOutputType> | number
         }
       }
     }
@@ -1065,6 +1140,19 @@ export const BattleScalarFieldEnum = {
 export type BattleScalarFieldEnum = (typeof BattleScalarFieldEnum)[keyof typeof BattleScalarFieldEnum]
 
 
+export const BattleRunScalarFieldEnum = {
+  id: 'id',
+  playerId: 'playerId',
+  battleID: 'battleID',
+  optimizers: 'optimizers',
+  lastIterate: 'lastIterate',
+  createdAt: 'createdAt',
+  iterations: 'iterations'
+} as const
+
+export type BattleRunScalarFieldEnum = (typeof BattleRunScalarFieldEnum)[keyof typeof BattleRunScalarFieldEnum]
+
+
 export const ChallengeRunScalarFieldEnum = {
   id: 'id',
   username: 'username',
@@ -1344,6 +1432,7 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   run?: Prisma.RunOmit
   battle?: Prisma.BattleOmit
+  battleRun?: Prisma.BattleRunOmit
   challengeRun?: Prisma.ChallengeRunOmit
   challenge?: Prisma.ChallengeOmit
   user?: Prisma.UserOmit

@@ -28,6 +28,11 @@ export type Run = Prisma.RunModel
  */
 export type Battle = Prisma.BattleModel
 /**
+ * Model BattleRun
+ * 
+ */
+export type BattleRun = Prisma.BattleRunModel
+/**
  * Model ChallengeRun
  * 
  */

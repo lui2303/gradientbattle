@@ -15,7 +15,7 @@ export function optimizerFactory(optimizerName: string, params: Record<string, {
         case RMSPROP_NAME:
             return new RMSProp(params.lr.value, objective, startingPoint, id, params.momentum.value)
         case ADAM_NAME:
-            return new Adam(params.lr.value, objective, startingPoint, id, params.beta1a.value, params.beta2.value)
+            return new Adam(params.lr.value, objective, startingPoint, id, params.beta1.value, params.beta2.value)
         }
 
     return new GradientDescent(params.lr.value, objective, startingPoint, id)

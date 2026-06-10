@@ -161,12 +161,12 @@ function generateRankedGame(): Omit<rankedGame, "battleID"> {
         }
 
         const optimizerParams: Record<string, {enabled: boolean, value: number}> = {}
-        Object.keys(config.params).map((key, value) => {
+        Object.keys(config.params).forEach((key) => {
             if(Math.random() > 0.5 && optimizerName != GD_NAME){
                 optimizerParams[key] = {enabled: false, value: config.params[key]}
                 return
             }
-            optimizerParams[key] = {enabled: true, value: value}
+            optimizerParams[key] = {enabled: true, value: config.params[key]}
         })
 
         rankedOptimizers.push({

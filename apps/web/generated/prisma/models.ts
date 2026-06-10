@@ -10,6 +10,7 @@
  */
 export type * from './models/Run'
 export type * from './models/Battle'
+export type * from './models/BattleRun'
 export type * from './models/ChallengeRun'
 export type * from './models/Challenge'
 export type * from './models/User'

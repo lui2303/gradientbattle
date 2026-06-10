@@ -1,4 +1,5 @@
 import { getCurrentChallenge } from "@/app/api/challenge";
+import { FrontendOptimizer, rankedGame } from "@/app/types";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { functionFactory } from "@gradientbattle/core/src/functions/function_factory";
@@ -20,39 +21,77 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
     }
 
-    const { optimizers } = body;
+    const optimizers = body.optimizers as Record<string, FrontendOptimizer>;
 
     if (!optimizers) {
         return NextResponse.json({ error: "Missing fields" }, { status: 422 });
     }
 
-    const currentChallenge = await getCurrentChallenge()
+    const cutoff = new Date(Date.now() - 130_000); // Prep Phase is about 10 seconds and game 2 minutes
+    const currentBattle = await prisma.battle.findUnique({where: {id: id, startedAt: { gte: cutoff }}})
 
-    if(Number(id) != currentChallenge.id) return NextResponse.json({error: "challenge for submitted ID is not the current daily challenge"}, { status: 409 })
+    if(!currentBattle) return NextResponse.json({ error: "Game does not exist or is completed" }, { status: 422 });
 
-    const func = functionFactory(currentChallenge.name)
+    if(currentBattle.player1Id !== session.user?.id && currentBattle.player2Id !== session.user?.id ) {
+        return NextResponse.json({ error: "You are not allowed to submit a run to this game" }, { status: 422 });
+    }
 
+    const game = JSON.parse(currentBattle.game as string) as rankedGame
+
+    const optimizersAreValid = () => {
+        return Object.entries(optimizers).every(([key, value]) => {
+            const targetOptimizer = game.optimizers.find((opt) => opt.name === value.name)
+            if(!targetOptimizer) return false
+
+            if(value.startingPoint.fixed !== targetOptimizer.startingPoint.fixed) return false
+
+            return Object.entries(value.params).every(([param, config]) => {
+                const targetParam = targetOptimizer.params[param]
+                return targetParam !== undefined && config.enabled === targetParam.enabled
+            })
+        })
+    }
+
+    if(!optimizersAreValid()) return NextResponse.json({ error: "You are not allowed to submit a run with different optimizer state then pined by the server" }, { status: 422 });
+
+    // Pinned fields are authoritative: overwrite client-supplied values for fixed starting
+    // points and disabled params so a player can't smuggle in values the server pinned.
+    for (const value of Object.values(optimizers)) {
+        const targetOptimizer = game.optimizers.find((opt) => opt.name === value.name)!
+        if (targetOptimizer.startingPoint.fixed) {
+            value.startingPoint.value = targetOptimizer.startingPoint.value
+        }
+        for (const [param, config] of Object.entries(value.params)) {
+            if (!targetOptimizer.params[param].enabled) {
+                config.value = targetOptimizer.params[param].value
+            }
+        }
+    }
+
+    const func = functionFactory(game.objective)
     const sim_engine = new SimulationEngine(func, 100)
 
     Object.keys(optimizers).forEach((optiKey) => {
-                    sim_engine.addOptimizer(optimizerFactory(optimizers[optiKey].name, {...optimizers[optiKey].params,
-                        objective: func, 
-                        startingPoint: optimizers[optiKey].startingPoint,
-                        id: optiKey}))
-                })
+                    sim_engine.addOptimizer(optimizerFactory(optimizers[optiKey].name, optimizers[optiKey].params,
+                    optimizers[optiKey].startingPoint.value,
+                    optiKey,
+                    func
+                ))
+    })
 
     const traces = Array.from(sim_engine)
 
-    const query = {
-            data: {
-                challengeID: Number(id),
-                username: username,
-                optimizers: optimizers,
-                iterations: sim_engine.bestRun ? sim_engine.bestRun.iterations : 101,
-                lastIterate: traces[traces.length - 1]
-            }
-        }
-    const entry = await prisma.challengeRun.create(query);
+    const entry = await prisma.battleRun.create({
+        data: {
+        player: { connect: { id: session.user.id } }, 
+        battle: { connect: { id: id } },
+        optimizers,
+        lastIterate: traces[traces.length - 1],
+        iterations: sim_engine.bestRun ? sim_engine.bestRun.iterations : 101,
+        },
+    });
+
+    console.log(traces)
 
     return NextResponse.json({id: entry.id, traces: traces, createdAt: entry.createdAt}, { status: 201 });
 } 

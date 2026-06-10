@@ -13,7 +13,7 @@ export default function AlgorithmSelectCard({allowedOptimizers, id, optimizers, 
                                         setOptimizers(prev => ({...prev, [id]: {
                                             name: option.target.value,
                                             params: Object.fromEntries(Object.entries(optimizationAlgorithms[option.target.value]["params"]).map(([key, value]) => {return [key, { enabled: selected?.params[key]?.enabled ?? true, value: value }]})),
-                                            startingPoint: optimizers[id].startingPoint,
+                                            startingPoint: selected ? {fixed: selected.startingPoint.fixed, value: {...selected.startingPoint.value}} : optimizers[id].startingPoint,
                                             color: optimizers[id].color}}))
                                         }}>
                 {allowedOptimizers.map((algo) => <option key={algo.name} value={algo.name}>{algo.name}</option>)}
@@ -34,25 +34,25 @@ export default function AlgorithmSelectCard({allowedOptimizers, id, optimizers, 
                 <br />
                 <label key={id + "1"}>
                     x:
-                    <input className={allowedOptimizer?.startingPoint.fixed ? "bg-green-600" : "bg-red-600"} value={optimizers[id].startingPoint.value.x} type="number" onChange={(event) => {
+                    <input disabled={allowedOptimizer?.startingPoint.fixed} className={!allowedOptimizer?.startingPoint.fixed ? "bg-green-600" : "bg-red-600"} value={optimizers[id].startingPoint.value.x} type="number" onChange={(event) => {
                         const newValue = parseFloat(event.target.value)
                         if (isNaN(newValue)) return
 
                         setOptimizers(prev => ({...prev, [id]: {
                             ...prev[id],
-                            startingPoint: { ...prev[id]["startingPoint"], "x": newValue}
+                            startingPoint: { ...prev[id]["startingPoint"], value: { ...prev[id]["startingPoint"].value, x: newValue } }
                         }}))
                     }}></input>                                                                                                                            
                 </label>
                 <label key={id + "2"}>
                     y:
-                    <input className={allowedOptimizer?.startingPoint.fixed ? "bg-green-600" : "bg-red-600"} value={optimizers[id].startingPoint.value.y} type="number" onChange={(event) => {
+                    <input disabled={allowedOptimizer?.startingPoint.fixed} className={!allowedOptimizer?.startingPoint.fixed ? "bg-green-600" : "bg-red-600"} value={optimizers[id].startingPoint.value.y} type="number" onChange={(event) => {
                         const newValue = parseFloat(event.target.value)
                         if (isNaN(newValue)) return
 
                         setOptimizers(prev => ({...prev, [id]: {
                             ...prev[id],
-                            startingPoint: { ...prev[id]["startingPoint"], "y": newValue}
+                            startingPoint: { ...prev[id]["startingPoint"], value: { ...prev[id]["startingPoint"].value, y: newValue } }
                         }}))
                     }}></input>
                 </label>

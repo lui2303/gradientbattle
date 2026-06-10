@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import {BattleUser} from '@/server'
 import { FrontendOptimizer, rankedGame } from "@/app/types";
 import { Simulation } from "@/app/components/Simulation";
+import { Countdown } from "@/app/components/Countdown";
 import { SimulationMode } from "@/lib/simulationMode";
 import { Point } from "@gradientbattle/core";
 import { kMaxLength } from "buffer";
@@ -106,6 +107,15 @@ export default function BattleScreen({ username }: { username: string }) {
 
                     wsRef.current?.send(JSON.stringify({ type: "READY" }))
                 }}>Ready</button> : ""
+            }
+
+            {
+                state === "PREP_PHASE" && (
+                    <Countdown
+                        seconds={120}
+                        className="text-2xl font-mono"
+                    />
+                )
             }
 
             {
