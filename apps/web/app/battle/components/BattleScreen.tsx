@@ -10,7 +10,7 @@ import { kMaxLength } from "buffer";
 
 const WS_URL = process.env.NEXT_PUBLIC_BATTLE_WS_URL ?? "ws://localhost:3001";
 
-type GAME_STATUS = "ABORTED" | null | "READY" | "WAITING_FOR_READY" | "PREP_PHASE"
+type GAME_STATUS = "ABORTED" | null | "READY" | "WAITING_FOR_READY" | "PREP_PHASE" | "FINISHED"
 
 
 
@@ -56,9 +56,17 @@ export default function BattleScreen({ username }: { username: string }) {
                     break;
                 }
 
+                case "battle_result": {
+                    setGameState("FINISHED")
+                    setStatus(JSON.stringify(msg))
+                    console.log("RECEIVED GAME RESULTS")
+                    break;
+                }
+
                 default:
                     console.warn("Unknown message type:", msg.type);
                     break;
+
 
             }
         };

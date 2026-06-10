@@ -37,7 +37,10 @@ model Battle {
   winner    User?  @relation("BattleWinner", fields: [winnerId], references: [id], onDelete: SetNull)
   game      Json
 
-  battleRuns BattleRun[]
+  battleRuns BattleRun[] @relation("BattleRuns")
+
+  winningRunId String?    @unique
+  winningRun   BattleRun? @relation("BattleWinningRun", fields: [winningRunId], references: [id], onDelete: SetNull)
 }
 
 model BattleRun {
@@ -47,13 +50,15 @@ model BattleRun {
   player   User   @relation("BattleRunPlayer", fields: [playerId], references: [id])
 
   battleID String
-  battle   Battle @relation(fields: [battleID], references: [id], onDelete: Cascade)
+  battle   Battle @relation("BattleRuns", fields: [battleID], references: [id], onDelete: Cascade)
 
   optimizers  Json
   lastIterate Json
   createdAt   DateTime @default(now())
 
-  iterations Int
+  bestRun     Json?
+
+  wonBattle   Battle? @relation("BattleWinningRun")
 }
 
 model ChallengeRun {

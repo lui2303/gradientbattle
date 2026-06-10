@@ -95,7 +95,8 @@ export const BattleScalarFieldEnum = {
   player1Id: 'player1Id',
   player2Id: 'player2Id',
   winnerId: 'winnerId',
-  game: 'game'
+  game: 'game',
+  winningRunId: 'winningRunId'
 } as const
 
 export type BattleScalarFieldEnum = (typeof BattleScalarFieldEnum)[keyof typeof BattleScalarFieldEnum]
@@ -108,7 +109,7 @@ export const BattleRunScalarFieldEnum = {
   optimizers: 'optimizers',
   lastIterate: 'lastIterate',
   createdAt: 'createdAt',
-  iterations: 'iterations'
+  bestRun: 'bestRun'
 } as const
 
 export type BattleRunScalarFieldEnum = (typeof BattleRunScalarFieldEnum)[keyof typeof BattleRunScalarFieldEnum]

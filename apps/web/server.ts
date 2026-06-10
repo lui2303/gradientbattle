@@ -12,6 +12,13 @@ import { quadraticFunction } from "@gradientbattle/core/src/functions/quadratic_
 const PORT = Number(process.env.BATTLE_PORT ?? 3001);
 const SECRET = process.env.AUTH_SECRET;
 const READY_TIME_MS = 20000
+const PREP_PHASE_TIME = 10_000
+const GAME_DURATION = 120_000
+
+const API_BASE_URL = process.env.API_BASE_URL ?? "http://localhost:3000";
+const INTERNAL_SERVICE_TOKEN = process.env.INTERNAL_SERVICE_TOKEN ?? "";
+const EVAL_BUFFER_MS = 2_000; // fire just after the endpoint's elapsed-time gate opens
+
 
 if (!SECRET) throw new Error("AUTH_SECRET is required (must match the Next.js app)");
 
@@ -212,6 +219,28 @@ async function onOpponentFound(ws: AuthedSocket, opponentWs: AuthedSocket) {
     }, READY_TIME_MS)
 }
 
+function scheduleEvaluation(battleID: string, playerIds: string[]) {
+    setTimeout(async () => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/battle/${battleID}/evaluate`, {
+                headers: { authorization: `Bearer ${INTERNAL_SERVICE_TOKEN}` },
+            })
+            if (!res.ok) {
+                console.error(`evaluate ${battleID} failed: ${res.status} ${await res.text()}`)
+                return
+            }
+            const result = await res.json() // { winnerId, winningRunId, status }
+
+            for (const id of playerIds) {
+                const sock = connections.get(id)
+                if (sock) send(sock, "battle_result", result)
+                    console.log(`NOTIFIED ${id} OF BATTLE RESULTS`)
+            }
+        } catch (err) {
+            console.error(`evaluate ${battleID} threw`, err)
+        }
+    }, PREP_PHASE_TIME + GAME_DURATION + EVAL_BUFFER_MS)
+}
 
 wss.on("connection", (raw) => {
     const ws = raw as AuthedSocket;
@@ -315,11 +344,14 @@ wss.on("connection", (raw) => {
                         battleID: entry.id
                     }
                     
-                    await redis.EXPIRE(ws.redisBattleID, 120_000) // expire redis key for this battle after 3 minutes. This allows reconnecting logic in the future but prevents database bugs that could arise from back to back games between the same players, because the game will have concluded by then
+                    await redis.EXPIRE(ws.redisBattleID, PREP_PHASE_TIME + GAME_DURATION) // expire redis key for this battle after PREP_PHASE_TIME + GAME_DURATION. This allows reconnecting logic in the future but prevents database bugs that could arise from back to back games between the same players, because the game will have concluded by then
                     
                     send(ws, "PREP_PHASE", game)
                     send(opponentWS, "PREP_PHASE", game)
-                    return 
+
+                    scheduleEvaluation(entry.id, [ws.user.id, opponentWS.user.id])
+
+                    return
                 }
 
                 await redis.HSET(ws.redisBattleID, {"state": "PLAYERS_READY_1"})

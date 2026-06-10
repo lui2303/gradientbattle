@@ -49,7 +49,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
                 username: username,
                 optimizers: optimizers,
                 iterations: sim_engine.bestRun ? sim_engine.bestRun.iterations : 101,
-                lastIterate: traces[traces.length - 1]
+                lastIterate: Object.fromEntries(sim_engine.optimizers.map((opt, k) => [opt.id, traces[traces.length - 1][k]]))
             }
         }
     const entry = await prisma.challengeRun.create(query);

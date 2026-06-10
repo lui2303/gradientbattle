@@ -11,3 +11,5 @@ export const defaultOptimizer: Optimizer = {
 }
 
 export const defaultFunc = new quadraticFunction([[1, 0], [0, 1]], { x: 0, y: 0 }, 0)
+
+export const treshhold = 0.001

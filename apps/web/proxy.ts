@@ -13,6 +13,6 @@ export default auth((req) => {
 
 export const config = {
     matcher: [
-        "/((?!api/auth|login|_next/static|_next/image|favicon.ico).*)",
+        "/((?!api/auth|api/battle/[^/]+/evaluate|login|_next/static|_next/image|favicon.ico).*)",
     ],
 };

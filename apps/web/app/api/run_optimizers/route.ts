@@ -37,7 +37,7 @@ export async function POST(request: Request) {
                 steps: steps,
                 funcName: funcName,
                 ...(sim_engine.bestRun && { bestRun: sim_engine.bestRun }),
-                lastIterate: traces[traces.length - 1]
+                lastIterate: Object.fromEntries(sim_engine.optimizers.map((opt, k) => [opt.id, traces[traces.length - 1][k]]))
             }
         }
     

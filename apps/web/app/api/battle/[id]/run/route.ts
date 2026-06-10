@@ -1,4 +1,3 @@
-import { getCurrentChallenge } from "@/app/api/challenge";
 import { FrontendOptimizer, rankedGame } from "@/app/types";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -86,12 +85,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         player: { connect: { id: session.user.id } }, 
         battle: { connect: { id: id } },
         optimizers,
-        lastIterate: traces[traces.length - 1],
-        iterations: sim_engine.bestRun ? sim_engine.bestRun.iterations : 101,
+        lastIterate: Object.fromEntries(sim_engine.optimizers.map((opt, k) => [opt.id, traces[traces.length - 1][k]])),
+        ...(sim_engine.bestRun && { bestRun: sim_engine.bestRun }),
         },
     });
-
-    console.log(traces)
 
     return NextResponse.json({id: entry.id, traces: traces, createdAt: entry.createdAt}, { status: 201 });
 } 
