@@ -39,5 +39,6 @@ export type rankedGame = {
     "startingPointsInequalities" : ((point: Point) => boolean)[], // inequalities that every non fixed starting point needs to satisfy
     "optimizers": RankedOptimizationAlgorithm[],
     "max_number_of_optimizers": number,
-    "battleID": string | null
+    "battleID": string | null,
+    "maxSubmissions": number
 }

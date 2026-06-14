@@ -8,6 +8,8 @@ import { ADAGRAD_NAME, ADAM_NAME, GD_MOMENTUM_NAME, GD_NAME, RMSPROP_NAME } from
 import { optimizationAlgorithms, optimizationAlgorithmsList } from "@gradientbattle/core/src/optimizers/optimizer_registry";
 import { start } from "node:repl";
 import { quadraticFunction } from "@gradientbattle/core/src/functions/quadratic_function";
+import { MAX_SUBMISSIONS } from "./app/constants";
+import { rankedGame } from "./app/types";
 
 const PORT = Number(process.env.BATTLE_PORT ?? 3001);
 const SECRET = process.env.AUTH_SECRET;
@@ -136,15 +138,6 @@ export const RANKED_OPTIMIZER_PROBABILTIES: Record<string, number> = {
     [ADAM_NAME]: 0.3
 }
 
-
-type rankedGame = {
-    "objective": string,
-    "startingPointsInequalities" : ((point: Point) => boolean)[], // inequalities that every non fixed starting point needs to satisfy
-    "optimizers": RankedOptimizationAlgorithm[],
-    "max_number_of_optimizers": number,
-    "battleID": string | null
-}
-
 function checkStartingPoint(startingPointsInequalities: ((point: Point) => boolean)[], point: Point): boolean {
     return startingPointsInequalities.some((inequality) => !inequality(point))
 }
@@ -179,7 +172,7 @@ function generateRankedGame(): Omit<rankedGame, "battleID"> {
         rankedOptimizers.push({
             name: optimizerName,
             params: optimizerParams,
-            startingPoint: startingPoint
+            startingPoint: startingPoint,
         })
     }
 
@@ -187,14 +180,16 @@ function generateRankedGame(): Omit<rankedGame, "battleID"> {
         max_number_of_optimizers: Math.floor(Math.random() * 5) + 1,
         startingPointsInequalities: STARTING_POINT_INEQUALITIES,
         optimizers: rankedOptimizers,
-        objective: quadraticFunction.name // TODO: randomize this
+        objective: quadraticFunction.name, // TODO: randomize this
+        maxSubmissions: MAX_SUBMISSIONS
     }
 }
 
 
 async function onOpponentFound(ws: AuthedSocket, opponentWs: AuthedSocket) {
     // create a battle inside the database, by deciding which function is optimized on
-    await redis.HSET(`games:${ws.user.id}#${opponentWs.user.id}`, {state: "WAITING_FOR_READY", player1: ws.user.id, player2: opponentWs.user.id})
+    await redis.HSET(`games:${ws.user.id}#${opponentWs.user.id}`, {state: "WAITING_FOR_READY", player1: ws.user.id, player2: opponentWs.user.id, maxSubmissions: MAX_SUBMISSIONS})
+    
     setTimeout(async () => {
         const currentGameState = await redis.HGET(`games:${ws.user.id}#${opponentWs.user.id}`, "state")
         

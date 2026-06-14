@@ -234,15 +234,20 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
         setRunning(true);
 
 
-        const { traces, id, createdAt }: { traces: Point[][], id: string, createdAt: string } = await mode.run(optimizers, func.name, 100)
-        console.log(traces)
+        const { traces }: { traces: Point[][]| null } = await mode.run(optimizers, func.name, 100)
+        
+        if(!traces) {
+            runningRef.current = false
+            setRunning(false)
+            return
+        }
+
         // Reset every trace back to its starting point so replays don't append onto the last run.
         const starts = ids.map((id) => optimizers[id].startingPoint)
         Plotly.restyle(c, { x: starts.map((p) => [p.value.x]), y: starts.map((p) => [p.value.y]) }, contourIdx)
         Plotly.restyle(d, { x: stepIdx.map(() => [0]), y: starts.map((p) => [norm(p.value)]) }, stepIdx)
         Plotly.restyle(o, { x: stepIdx.map(() => [0]), y: starts.map((p) => [func.objective(p.value)]) }, stepIdx)
 
-        mode.onRunComplete?.()
 
         // Append one simulation step per frame. Each `step` is one Point per optimizer, in id order.
         for (let s = 0; s < traces.length; s++) {
@@ -263,6 +268,9 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
             
             await new Promise((r) => setTimeout(r, animationSpeed));
         }
+
+        mode.onRunComplete?.()
+        
         
         runningRef.current = false;
         setRunning(false);

@@ -6,15 +6,14 @@ import { Simulation } from "@/app/components/Simulation";
 import { Countdown } from "@/app/components/Countdown";
 import { SimulationMode } from "@/lib/simulationMode";
 import { Point } from "@gradientbattle/core";
-import { kMaxLength } from "buffer";
 
 const WS_URL = process.env.NEXT_PUBLIC_BATTLE_WS_URL ?? "ws://localhost:3001";
 
 type GAME_STATUS = "ABORTED" | null | "READY" | "WAITING_FOR_READY" | "PREP_PHASE" | "FINISHED"
 
 
-
 export default function BattleScreen({ username }: { username: string }) {
+    const [submissions, setSubmissions] = useState<number>(0)
     const wsRef = useRef<WebSocket | null>(null)
     const [status, setStatus] = useState("idle")
     const [opponent, setOpponent] = useState<(BattleUser& {elo: number}) | null>(null)
@@ -76,6 +75,10 @@ export default function BattleScreen({ username }: { username: string }) {
     function buildMode(): SimulationMode {
         return {
             async run(optimizer: Record<string, FrontendOptimizer>, funcName: string, steps: number) {
+                if(submissions >= game!.maxSubmissions!) {
+                    console.warn("Max game submissions exceeded")
+                    return {traces: null}
+                }
                 const res = await fetch(
                     `/api/battle/${game?.battleID}/run`,
                     {
@@ -87,10 +90,14 @@ export default function BattleScreen({ username }: { username: string }) {
                 const resp = await res.json();
                 console.log(resp);
         
-                const { traces, id, createdAt }: { traces: Point[][]; id: string; createdAt: string; } = resp;
+                const { traces }: { traces: Point[][]; id: string; createdAt: string; } = resp;
         
-                return { traces, id, createdAt };
+                return { traces };
             },
+            onRunComplete() {
+                setSubmissions(prev => prev+1)
+            },
+
             requiresAuth: true,
             allowedFunctions: [game!.objective],
             allowedOptimizer: game!.optimizers.map((k) => ({...k, color: "#000000"}))
@@ -124,6 +131,10 @@ export default function BattleScreen({ username }: { username: string }) {
                         className="text-2xl font-mono"
                     />
                 )
+            }
+
+            {
+                game ? <p>{submissions}/{game.maxSubmissions} Submissions</p> : ""
             }
 
             {

@@ -1,6 +1,9 @@
+
+import { MAX_SUBMISSIONS } from "@/app/constants";
 import { FrontendOptimizer, rankedGame } from "@/app/types";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { getRedis } from "@/lib/redisClient";
 import { functionFactory } from "@gradientbattle/core/src/functions/function_factory";
 import { optimizerFactory } from "@gradientbattle/core/src/optimizers/optimizer_factory";
 import { SimulationEngine } from "@gradientbattle/core/src/simulation_engine";
@@ -33,6 +36,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     if(currentBattle.player1Id !== session.user?.id && currentBattle.player2Id !== session.user?.id ) {
         return NextResponse.json({ error: "You are not allowed to submit a run to this game" }, { status: 422 });
+    }
+
+    const redis = await getRedis()
+    const submissionKey = `battle:${id}:submissions:${session.user.id}`
+    const submissionCount = await redis.INCR(submissionKey)
+
+    if (submissionCount === 1) await redis.EXPIRE(submissionKey, 130)
+    if (submissionCount > MAX_SUBMISSIONS) {
+        return NextResponse.json({ error: `You can't exceed the maximum of ${MAX_SUBMISSIONS} submissions` }, { status: 429 });
     }
 
     const game = JSON.parse(currentBattle.game as string) as rankedGame
@@ -85,8 +97,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         player: { connect: { id: session.user.id } }, 
         battle: { connect: { id: id } },
         optimizers,
-        lastIterate: Object.fromEntries(sim_engine.optimizers.map((opt, k) => [opt.id, traces[traces.length - 1][k]])),
-        ...(sim_engine.bestRun && { bestRun: sim_engine.bestRun }),
+        lastIterate: traces[traces.length - 1],
+        bestRun: sim_engine.bestRun ? sim_engine.bestRun : undefined,
         },
     });
 

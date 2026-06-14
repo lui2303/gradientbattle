@@ -10,7 +10,7 @@ type RankedOptimizationAlgorithm = {name: string, params: Record<string, {enable
 type FrontendOptimizer = RankedOptimizationAlgorithm & {color: string}
 
 export interface SimulationMode {
-    run(optimizer: Record<string, FrontendOptimizer>, funcName: string, steps: number): Promise<{ traces: Point[][]; id: string; createdAt: string; }> // callback for sending request to right server endpoint to start the run
+    run(optimizer: Record<string, FrontendOptimizer>, funcName: string, steps: number): Promise<{ traces: Point[][] } | { traces: null }> // callback for sending request to right server endpoint to start the run
 
     onRunComplete?(): void // for example logic for saving the run to a notebook
     onStep?(step: Point[], stepNumber: number): void
@@ -37,9 +37,9 @@ export const FreeForAllSimulationMode: SimulationMode = {
         const resp = await res.json();
         console.log(resp);
 
-        const { traces, id, createdAt }: { traces: Point[][]; id: string; createdAt: string; } = resp;
+        const { traces }: { traces: Point[][]; id: string; createdAt: string; } = resp;
 
-        return { traces, id, createdAt };
+        return { traces };
     },
 
     allowedFunctions: functionList,

@@ -1,10 +1,11 @@
-import { FrontendOptimizer } from "@/app/types";
 import { prisma } from "@/lib/prisma";
 import { Point } from "@gradientbattle/core";
 import { norm } from "@gradientbattle/core/src/math_helper";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { timingSafeEqual } from "node:crypto";
+import { MaxSubmissionsExceededError } from "@/app/exceptions";
+import { MAX_SUBMISSIONS } from "@/app/constants";
 
 type BestRun = { iterations: number; distanceToOptimum: number; optimizerID: string; runID: string };
 
@@ -47,7 +48,8 @@ async function evaluateRuns(battleID: string, playerID: string): Promise<BestRun
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
     //TODO: pull time interval from a config file
     //TODO: remove hard coded iteration check because there could be battles in the future with more or less than 100 iterations, where 101 iterations does not indicate no convergence
-
+    //TODO: make user watch the whole animation before registering it or other solution, because otherwise once could bruteforce by starting and stopping really fast.
+    
     const { id } = await params;
 
     const currentBattle = await prisma.battle.findUnique({ where: { id: id } });
