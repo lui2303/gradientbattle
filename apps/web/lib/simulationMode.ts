@@ -1,5 +1,4 @@
-import { defaultOptimizer } from "@/app/constants";
-import { objectiveFunction, Optimizer, Point } from "@gradientbattle/core";
+import { Point } from "@gradientbattle/core";
 import { functionList } from "@gradientbattle/core/src/functions/function_registry";
 import { optimizationAlgorithms } from "@gradientbattle/core/src/optimizers/optimizer_registry";
 import { Session } from "next-auth";

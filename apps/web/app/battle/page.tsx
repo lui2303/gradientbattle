@@ -9,7 +9,7 @@ export default async function Page() {
 
     return (
         <main className="min-h-screen p-8">
-            <BattleScreen username={session.user.name}></BattleScreen>
+            <BattleScreen username={session.user.name} userID={session.user.id}></BattleScreen>
         </main>
     );
 }

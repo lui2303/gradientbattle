@@ -1,7 +1,7 @@
 'use client'
 import { useRef, useState } from "react";
 import {BattleUser} from '@/server'
-import { FrontendOptimizer, rankedGame } from "@/app/types";
+import { ClientMessageTypes, FrontendOptimizer, rankedGame, ServerMessageTypes, ServerResponse } from "@/app/types";
 import { Simulation } from "@/app/components/Simulation";
 import { Countdown } from "@/app/components/Countdown";
 import { SimulationMode } from "@/lib/simulationMode";
@@ -12,7 +12,7 @@ const WS_URL = process.env.NEXT_PUBLIC_BATTLE_WS_URL ?? "ws://localhost:3001";
 type GAME_STATUS = "ABORTED" | null | "READY" | "WAITING_FOR_READY" | "PREP_PHASE" | "FINISHED"
 
 
-export default function BattleScreen({ username }: { username: string }) {
+export default function BattleScreen({ username, userID }: { username: string, userID: string }) {
     const [submissions, setSubmissions] = useState<number>(0)
     const wsRef = useRef<WebSocket | null>(null)
     const [status, setStatus] = useState("idle")
@@ -24,46 +24,46 @@ export default function BattleScreen({ username }: { username: string }) {
         const ws = wsRef.current ?? new WebSocket(WS_URL);
         wsRef.current = ws;
 
-        const queue = () => ws.send(JSON.stringify({ type: "find_opponent" }));
+        const queue = () => ws.send(JSON.stringify({ type: ClientMessageTypes.FIND_OPPONENT }));
         if (ws.readyState === WebSocket.OPEN) queue();
         else ws.addEventListener("open", queue, { once: true });
 
         ws.onmessage = (e) => {
-            const msg = JSON.parse(e.data)
+            const message = JSON.parse(e.data) as ServerResponse
 
-            switch (msg.type) {
-                case "connected": break
-                case "abort": { // an abort always comes with a message property
-                    setStatus(msg.message)
+            switch (message.type) {
+                case ServerMessageTypes.CONNECTED: break
+                case ServerMessageTypes.ABORT: { // an abort always comes with a message property
+                    setStatus("ABORT")
                     setOpponent(null)
                     setGameState("ABORTED")
                     setgame(null)
                     break;
                 }
-                case "enqueued": setStatus("Waiting in queue...");break;
-                case "found_opponent": {
+                case ServerMessageTypes.ENQUEUED: setStatus("Waiting in queue...");break;
+                case ServerMessageTypes.FOUND_OPPONENT: {
                     setStatus("Found opponent")
-                    setOpponent({id: msg.id, name: msg.name, elo: msg.elo})
+                    setOpponent({id: message.payload.id, name: message.payload.name, elo: message.payload.elo})
                     setGameState("WAITING_FOR_READY")
                     break;
                 }
 
-                case "PREP_PHASE":{
-                    setStatus(JSON.stringify(msg))
+                case ServerMessageTypes.PREP_PHASE:{
+                    setStatus(JSON.stringify(message.payload))
                     setGameState("PREP_PHASE")
-                    setgame(msg)
+                    setgame(message.payload)
                     break;
                 }
 
-                case "battle_result": {
+                case ServerMessageTypes.BATTLE_RESULT: {
                     setGameState("FINISHED")
-                    setStatus(JSON.stringify(msg))
+                    setStatus(message.payload.winnerId == userID ? "YOU WON" : !userID ? "DRAW" : "YOU LOST")
                     console.log("RECEIVED GAME RESULTS")
                     break;
                 }
 
                 default:
-                    console.warn("Unknown message type:", msg.type);
+                    console.warn("Unknown message type:", message);
                     break;
 
 
@@ -120,7 +120,7 @@ export default function BattleScreen({ username }: { username: string }) {
                     
                     setGameState("READY")
 
-                    wsRef.current?.send(JSON.stringify({ type: "READY" }))
+                    wsRef.current?.send(JSON.stringify({ type: ClientMessageTypes.READY }))
                 }}>Ready</button> : ""
             }
 
@@ -136,10 +136,12 @@ export default function BattleScreen({ username }: { username: string }) {
             {
                 game ? <p>{submissions}/{game.maxSubmissions} Submissions</p> : ""
             }
-
-            {
-                game ? <Simulation mode={buildMode()}></Simulation>: ""
-            }
+            <div className={ (game && submissions < game.maxSubmissions) ? "" : "opacity-50"}>
+                {
+                    game ? <Simulation mode={buildMode()}></Simulation>: ""
+                }
+            </div>
+            
 
         </main>
     );

@@ -4,7 +4,6 @@ import { norm } from "@gradientbattle/core/src/math_helper";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { timingSafeEqual } from "node:crypto";
-import { MaxSubmissionsExceededError } from "@/app/exceptions";
 import { MAX_SUBMISSIONS } from "@/app/constants";
 
 type BestRun = { iterations: number; distanceToOptimum: number; optimizerID: string; runID: string };

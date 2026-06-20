@@ -42,3 +42,29 @@ export type rankedGame = {
     "battleID": string | null,
     "maxSubmissions": number
 }
+
+
+export enum ServerMessageTypes {
+  CONNECTED,
+  ABORT,
+  ENQUEUED,
+  FOUND_OPPONENT,
+  PREP_PHASE,
+  BATTLE_RESULT
+}
+export type ServerResponse = {type: ServerMessageTypes.CONNECTED} 
+                  | {type: ServerMessageTypes.ABORT, issue: string} 
+                  | {type: ServerMessageTypes.ENQUEUED} 
+                  | {type: ServerMessageTypes.FOUND_OPPONENT, payload: {id: string, name: string, elo: number}}
+                  | {type: ServerMessageTypes.PREP_PHASE, payload: rankedGame}
+                  | {type: ServerMessageTypes.BATTLE_RESULT, payload: { winnerId: string | null, winningRunId: string | null, status: string }}
+
+export enum ClientMessageTypes {
+  FIND_OPPONENT,
+  ABORT,
+  READY
+}
+
+export type ClientResponse = | {type: ClientMessageTypes.ABORT}
+                  | {type: ClientMessageTypes.FIND_OPPONENT}
+                  | {type: ClientMessageTypes.READY}

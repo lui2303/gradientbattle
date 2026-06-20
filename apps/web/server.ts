@@ -9,7 +9,7 @@ import { optimizationAlgorithms, optimizationAlgorithmsList } from "@gradientbat
 import { start } from "node:repl";
 import { quadraticFunction } from "@gradientbattle/core/src/functions/quadratic_function";
 import { MAX_SUBMISSIONS } from "./app/constants";
-import { rankedGame } from "./app/types";
+import { ClientMessageTypes, ClientResponse, rankedGame, ServerMessageTypes, ServerResponse } from "./app/types";
 
 const PORT = Number(process.env.BATTLE_PORT ?? 3001);
 const SECRET = process.env.AUTH_SECRET;
@@ -120,8 +120,8 @@ server.on("upgrade", async (req, socket, head) => {
     });
 });
 
-function send(ws: WebSocket, type: string, data: object = {}) {
-    ws.send(JSON.stringify({ type, ...data }));
+function send(ws: WebSocket, message: ServerResponse) {
+    ws.send(JSON.stringify(message));
 }
 
 const connections = new Map<string, AuthedSocket>()
@@ -203,8 +203,8 @@ async function onOpponentFound(ws: AuthedSocket, opponentWs: AuthedSocket) {
         console.log("STATUS AFTER 20 SECONDS: " + currentGameState)
 
         if(currentGameState === "WAITING_FOR_READY" || currentGameState === "PLAYERS_READY_1") {
-            send(ws, "abort", {message: "A player did not click ready -> Aborting game"})
-            send(opponentWs, "abort", {message: "A player did not click ready -> Aborting game"})
+            send(ws, {type: ServerMessageTypes.ABORT, issue: "A player did not click ready -> Aborting game"})
+            send(opponentWs, {type: ServerMessageTypes.ABORT, issue: "A player did not click ready -> Aborting game"})
             await redis.del(`games:${ws.user.id}#${opponentWs.user.id}`)
             return
         }
@@ -228,7 +228,7 @@ function scheduleEvaluation(battleID: string, playerIds: string[]) {
 
             for (const id of playerIds) {
                 const sock = connections.get(id)
-                if (sock) send(sock, "battle_result", result)
+                if (sock) send(sock, {type: ServerMessageTypes.BATTLE_RESULT, payload: result})
                     console.log(`NOTIFIED ${id} OF BATTLE RESULTS`)
             }
         } catch (err) {
@@ -240,22 +240,22 @@ function scheduleEvaluation(battleID: string, playerIds: string[]) {
 wss.on("connection", (raw) => {
     const ws = raw as AuthedSocket;
     
-    send(ws, "connected", { user: ws.user });
+    send(ws, {type: ServerMessageTypes.CONNECTED});
 
     connections.set(ws.user.id, ws)
 
     ws.on("message", async (buf) => {
-        let msg: { type?: string };
+        let message: ClientResponse
         try {
-            msg = JSON.parse(buf.toString());
+            message = JSON.parse(buf.toString()) as ClientResponse
         } catch {
             return;
         }
 
         let ready = false
 
-        switch (msg.type) {
-            case "find_opponent": {
+        switch (message.type) {
+            case ClientMessageTypes.FIND_OPPONENT: {
                 if (await redis.ZSCORE("queue", `user:${ws.user.id}`) !== null) return // already in queue
 
                 const user = await prisma.user.findUnique({where: {id: ws.user.id}, select: {elo: true}}) // makes sure that connections can be reused
@@ -266,7 +266,7 @@ wss.on("connection", (raw) => {
 
                 queue(ws.user.id, user.elo).then(async (opponent) => {
                     if(!opponent) {
-                        send(ws, "enqueued")
+                        send(ws, {type: ServerMessageTypes.ENQUEUED})
                         return
                     }
                     const sanitized_opponent = sanitize_opponent(opponent)
@@ -296,18 +296,20 @@ wss.on("connection", (raw) => {
                     ;(opponentWs as AuthedSocket).opponent = ws.user
                     ;(opponentWs as AuthedSocket).redisBattleID = redisBattleID
 
-                    send(ws, "found_opponent", {id: opponentWs.user.id, name: opponentWs.user.name, elo: opp.elo})
-                    send(connections.get(sanitized_opponent.value)!, "found_opponent", {...ws.user, elo: user.elo})
+                    send(ws, {type: ServerMessageTypes.FOUND_OPPONENT, payload: {id: opponentWs.user.id, name: opponentWs.user.name!, elo: opp.elo}})
+                    send(connections.get(sanitized_opponent.value)!, {type: ServerMessageTypes.FOUND_OPPONENT, payload:{id: ws.user.id, name: ws.user.name!, elo: user.elo}})
 
                     onOpponentFound(ws, opponentWs)
                 }) 
                 break;
             }
-            case "abort": {
+            case ClientMessageTypes.ABORT: {
+                console.log("Received abort message from client")
+                ws.close()
                 break;
             }
 
-            case "READY": {
+            case ClientMessageTypes.READY: {
                 if(!ws.opponent || ready) return
                 ready = true
 
@@ -341,8 +343,8 @@ wss.on("connection", (raw) => {
                     
                     await redis.EXPIRE(ws.redisBattleID, PREP_PHASE_TIME + GAME_DURATION) // expire redis key for this battle after PREP_PHASE_TIME + GAME_DURATION. This allows reconnecting logic in the future but prevents database bugs that could arise from back to back games between the same players, because the game will have concluded by then
                     
-                    send(ws, "PREP_PHASE", game)
-                    send(opponentWS, "PREP_PHASE", game)
+                    send(ws, {type: ServerMessageTypes.PREP_PHASE, payload: game})
+                    send(opponentWS, {type: ServerMessageTypes.PREP_PHASE, payload: game})
 
                     scheduleEvaluation(entry.id, [ws.user.id, opponentWS.user.id])
 
