@@ -269,6 +269,7 @@ wss.on("connection", (raw) => {
 
         switch (message.type) {
             case ClientMessageTypes.FIND_OPPONENT: {
+                //TODO: check if the user is already in a match and report that to the client via a abort
                 if (await redis.ZSCORE("queue", `user:${ws.user.id}`) !== null) return // already in queue
 
                 const user = await prisma.user.findUnique({where: {id: ws.user.id}, select: {elo: true}}) // makes sure that connections can be reused
@@ -357,8 +358,8 @@ wss.on("connection", (raw) => {
                         player2Id: opponentID,
                     }})
                     
-                    send(ws, {type: ServerMessageTypes.PREP_PHASE, payload: {...redisRawGame, battleID: battleID}})
-                    send(connections.get(opponentID)!, {type: ServerMessageTypes.PREP_PHASE, payload: {...redisRawGame, battleID: battleID}})
+                    send(ws, {type: ServerMessageTypes.PREP_PHASE, payload: {battleID}})
+                    send(connections.get(opponentID)!, {type: ServerMessageTypes.PREP_PHASE, payload: {battleID}})
 
                     scheduleEvaluation(battleID, [ws.user.id, opponentID])
 

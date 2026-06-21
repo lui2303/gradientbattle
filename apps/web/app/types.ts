@@ -56,7 +56,7 @@ export type ServerResponse = {type: ServerMessageTypes.CONNECTED}
                   | {type: ServerMessageTypes.ABORT, payload: string} 
                   | {type: ServerMessageTypes.ENQUEUED} 
                   | {type: ServerMessageTypes.FOUND_OPPONENT, payload: {id: string, name: string, elo: number}}
-                  | {type: ServerMessageTypes.PREP_PHASE, payload: redisBattleRaw & {battleID: string} }
+                  | {type: ServerMessageTypes.PREP_PHASE, payload: {battleID: string} }
                   | {type: ServerMessageTypes.BATTLE_RESULT, payload: { winnerId: string | null, winningRunId: string | null, status: string }}
                   | {type: ServerMessageTypes.SYNC, payload: redisBattleRaw & {battleID: string} | null}
 export enum ClientMessageTypes {
