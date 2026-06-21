@@ -23,7 +23,7 @@ model Run {
 }
 
 model Battle {
-  id        String   @id @default(uuid())
+  id        String   @id
   startedAt DateTime @default(now())
   status    String
 

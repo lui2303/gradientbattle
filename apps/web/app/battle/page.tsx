@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import BattleScreen from "./components/BattleScreen";
+import BattleScreen from "./BattleScreen";
 
 export default async function Page() {
     const session = await auth()

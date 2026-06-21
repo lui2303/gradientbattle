@@ -39,7 +39,6 @@ export type rankedGame = {
     "startingPointsInequalities" : ((point: Point) => boolean)[], // inequalities that every non fixed starting point needs to satisfy
     "optimizers": RankedOptimizationAlgorithm[],
     "max_number_of_optimizers": number,
-    "battleID": string | null,
     "maxSubmissions": number
 }
 
@@ -50,21 +49,46 @@ export enum ServerMessageTypes {
   ENQUEUED,
   FOUND_OPPONENT,
   PREP_PHASE,
-  BATTLE_RESULT
+  BATTLE_RESULT,
+  SYNC
 }
 export type ServerResponse = {type: ServerMessageTypes.CONNECTED} 
-                  | {type: ServerMessageTypes.ABORT, issue: string} 
+                  | {type: ServerMessageTypes.ABORT, payload: string} 
                   | {type: ServerMessageTypes.ENQUEUED} 
                   | {type: ServerMessageTypes.FOUND_OPPONENT, payload: {id: string, name: string, elo: number}}
-                  | {type: ServerMessageTypes.PREP_PHASE, payload: rankedGame}
+                  | {type: ServerMessageTypes.PREP_PHASE, payload: redisBattleRaw & {battleID: string} }
                   | {type: ServerMessageTypes.BATTLE_RESULT, payload: { winnerId: string | null, winningRunId: string | null, status: string }}
-
+                  | {type: ServerMessageTypes.SYNC, payload: redisBattleRaw & {battleID: string} | null}
 export enum ClientMessageTypes {
   FIND_OPPONENT,
   ABORT,
-  READY
+  READY,
+  SYNC
 }
 
 export type ClientResponse = | {type: ClientMessageTypes.ABORT}
                   | {type: ClientMessageTypes.FIND_OPPONENT}
                   | {type: ClientMessageTypes.READY}
+                  | {type: ClientMessageTypes.SYNC}
+
+export type BattleSocketValue = {
+      subscribe: (subscriber: (m: ServerResponse) => void) => void;
+      unsubscribe: (subscriber: (m: ServerResponse) => void) => void;
+      send: (m: ClientResponse) => void;
+      connect: () => void;
+      disconnect: () => void;
+  }
+
+export type GameStatus = "PLAYERS_READY_0" | "PLAYERS_READY_1" | "PREP_PHASE" | "BATTLE_ENDED"
+
+export type redisBattleRaw = {
+      state: string,
+      player1: string,
+      player2: string,
+      maxSubmissions: string,
+      prepEndsAt?: string,
+      readyEndsAt?: string,
+      gameEndsAt?: string,
+      game?: string,
+      winnerId?: string, // set once the battle ends ("" for a draw)
+} // TODO: merge redisBattle and rankedGame types
