@@ -47,9 +47,6 @@ export default function BattleScreen({ username, userID, battleID }: { username:
                     hydrate(message.payload)
                     break
                 }
-                case ServerMessageTypes.PREP_PHASE:
-                    hydrate(message.payload)
-                    break
                 case ServerMessageTypes.BATTLE_RESULT:
                     setPhase("BATTLE_ENDED")
                     setResultText(resultTextFor(message.payload.winnerId, userID))
@@ -99,11 +96,11 @@ export default function BattleScreen({ username, userID, battleID }: { username:
             {phase === "ABORTED" && <p className="opacity-70">Battle aborted.</p>}
             {phase === "BATTLE_ENDED" && <p className="text-2xl font-mono">{resultText}</p>}
 
-            {phase === "PREP_PHASE" && gameSeconds != null && (
+            {phase === "RUNNING" && gameSeconds != null && (
                 <Countdown seconds={gameSeconds} className="text-2xl font-mono" />
             )}
 
-            {phase === "PREP_PHASE" && game && (
+            {phase === "RUNNING" && game && (
                 <>
                     <p>{submissions}/{game.maxSubmissions} Submissions</p>
                     <div className={submissions < game.maxSubmissions ? "" : "opacity-50"}>

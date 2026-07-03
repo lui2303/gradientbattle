@@ -50,7 +50,7 @@ export default function BattleSocketProvider({children}: Readonly<{children: Rea
         const data = JSON.stringify(message)
         const ws = wsRef.current
         if (ws && ws.readyState === WebSocket.OPEN) ws.send(data)
-        else pendingRef.current.push(data) // not connected/open yet -> flushed on "open"
+        else pendingRef.current.push(data)
     }, [])
 
     useEffect(() => {

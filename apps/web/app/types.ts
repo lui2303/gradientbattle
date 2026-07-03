@@ -48,7 +48,7 @@ export enum ServerMessageTypes {
   ABORT,
   ENQUEUED,
   FOUND_OPPONENT,
-  PREP_PHASE,
+  RUNNING,
   BATTLE_RESULT,
   SYNC
 }
@@ -56,7 +56,7 @@ export type ServerResponse = {type: ServerMessageTypes.CONNECTED}
                   | {type: ServerMessageTypes.ABORT, payload: string} 
                   | {type: ServerMessageTypes.ENQUEUED} 
                   | {type: ServerMessageTypes.FOUND_OPPONENT, payload: {id: string, name: string, elo: number}}
-                  | {type: ServerMessageTypes.PREP_PHASE, payload: {battleID: string} }
+                  | {type: ServerMessageTypes.RUNNING, payload: {battleID: string} }
                   | {type: ServerMessageTypes.BATTLE_RESULT, payload: { winnerId: string | null, winningRunId: string | null, status: string }}
                   | {type: ServerMessageTypes.SYNC, payload: redisBattleRaw & {battleID: string} | null}
 export enum ClientMessageTypes {
@@ -79,16 +79,15 @@ export type BattleSocketValue = {
       disconnect: () => void;
   }
 
-export type GameStatus = "PLAYERS_READY_0" | "PLAYERS_READY_1" | "PREP_PHASE" | "BATTLE_ENDED"
+export type GameStatus = "PLAYERS_READY_0" | "PLAYERS_READY_1" | "RUNNING" | "BATTLE_ENDED"
 
 export type redisBattleRaw = {
       state: string,
       player1: string,
       player2: string,
       maxSubmissions: string,
-      prepEndsAt?: string,
       readyEndsAt?: string,
       gameEndsAt?: string,
       game?: string,
-      winnerId?: string, // set once the battle ends ("" for a draw)
+      winnerId?: string,
 } // TODO: merge redisBattle and rankedGame types

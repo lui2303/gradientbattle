@@ -165,9 +165,6 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
         const divs = [contourDiv.current, distanceDiv.current, objectiveDiv.current]
             .filter((el): el is HTMLDivElement => el !== null)
         const ro = new ResizeObserver(() => divs.forEach((el) => {
-            // Skip detached/hidden divs. When Simulation unmounts (e.g. the battle
-            // ends) the divs shrink/detach, firing the observer; Plotly throws if
-            // asked to resize a plot that isn't currently displayed.
             if (el.isConnected && el.offsetParent !== null) Plotly.Plots.resize(el)
         }))
         divs.forEach((el) => ro.observe(el))

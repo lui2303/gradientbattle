@@ -3,6 +3,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import { decode } from "next-auth/jwt";
 import { getRedis, redis } from "./lib/redisClient";
 import { prisma } from "./lib/prisma";
+import { logger } from "./lib/logger";
 import { objectiveFunction, Optimizer, Point } from "@gradientbattle/core";
 import { ADAGRAD_NAME, ADAM_NAME, GD_MOMENTUM_NAME, GD_NAME, RMSPROP_NAME } from "@gradientbattle/core/src/optimizers/constants";
 import { optimizationAlgorithms, optimizationAlgorithmsList } from "@gradientbattle/core/src/optimizers/optimizer_registry";
@@ -14,13 +15,12 @@ import { ClientMessageTypes, ClientResponse, GameStatus, rankedGame, redisBattle
 const PORT = Number(process.env.BATTLE_PORT ?? 3001);
 const SECRET = process.env.AUTH_SECRET;
 const READY_TIME_MS = 20000
-const PREP_PHASE_TIME = 10_000
 const GAME_DURATION = 120_000
 
 const API_BASE_URL = process.env.API_BASE_URL ?? "http://localhost:3000";
 const INTERNAL_SERVICE_TOKEN = process.env.INTERNAL_SERVICE_TOKEN ?? "";
 const EVAL_BUFFER_MS = 2_000; // fire just after the endpoint's elapsed-time gate opens
-const RESULT_GRACE_SECONDS = 120; // how long the ended battle stays in redis so a refresh can show the result
+const RESULT_GRACE_SECONDS = 120;
 
 
 if (!SECRET) throw new Error("AUTH_SECRET is required (must match the Next.js app)");
@@ -85,14 +85,16 @@ async function queue(userID: string, elo: number): Promise<{elo: number, id: str
     const redis = await getRedis();
 
     const possibleOpponents = await redis.ZRANGEBYSCORE_WITHSCORES("queue", Math.max(elo - ELO_TOLERANCE, 0), elo + ELO_TOLERANCE)
+    logger.debug({ userID, elo, candidates: possibleOpponents.length }, "searched queue for opponents in elo range")
     if(possibleOpponents.length != 0) {
         const opponent = possibleOpponents[0]
         await redis.ZREM("queue", opponent["value"])
-        console.log("REMOVED USER: " + userID + "FROM QUEUE")
+        logger.info({ userID, opponent: opponent.value }, "matched opponent, removed from queue")
         return sanitize_opponent(opponent)
     }
     
     await redis.ZADD("queue", [{score: elo, value: `user:${userID}`}]);
+    logger.info({ userID, elo }, "no opponent found, enqueued")
 
     return null
     // make this operation atomic in the future. can slow down if too many clients exist because ghost games can occur
@@ -110,10 +112,12 @@ function sanitize_opponent(opponent: {value: string, score: number}) {
 server.on("upgrade", async (req, socket, head) => {
     const user = await authenticate(req.headers.cookie);
     if (!user) {
+        logger.warn({ url: req.url }, "upgrade rejected: unauthenticated")
         socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
         socket.destroy();
         return;
     }
+    logger.debug({ userID: user.id, name: user.name }, "upgrade authenticated")
     wss.handleUpgrade(req, socket, head, (ws) => {
         (ws as AuthedSocket).user = user;
         wss.emit("connection", ws, req);
@@ -121,6 +125,7 @@ server.on("upgrade", async (req, socket, head) => {
 });
 
 function send(ws: WebSocket, message: ServerResponse) {
+    logger.debug({ userID: (ws as AuthedSocket).user?.id, type: ServerMessageTypes[message.type] }, "sending server message")
     ws.send(JSON.stringify(message));
 }
 
@@ -192,23 +197,26 @@ async function cleanUpRedis(battleID: string, user1ID: string, user2ID: string) 
     await redis.del(`battle:${battleID}`)
     cleanUpUserRedis(user1ID)
     cleanUpUserRedis(user2ID)
+    logger.debug({ battleID, players: [user1ID, user2ID] }, "cleaned up battle state in redis")
 }
 
 async function onOpponentFound(ws: AuthedSocket, opponentWs: AuthedSocket, battleID: string) {
+    logger.debug({ battleID, readyTimeMs: READY_TIME_MS }, "scheduled ready-up deadline check")
     // create a battle inside the database, by deciding which function is optimized on
     setTimeout(async () => {
         const currentGameState = await redis.HGET(`battle:${battleID}`, "state") as GameStatus
         
         if(!currentGameState) {
-            console.log(`games:${ws.user.id}#${opponentWs.user.id} was not found in redis after waiting for players to ready up -> aborting`)
+            logger.warn({ battleID, players: [ws.user.id, opponentWs.user.id] }, "battle not found in redis after ready window -> aborting")
             ws.close()
             opponentWs.close()
             return
         }
 
-        console.log("STATUS AFTER 20 SECONDS: " + currentGameState)
+        logger.debug({ battleID, state: currentGameState }, "battle state after ready window")
 
         if(currentGameState === "PLAYERS_READY_0" || currentGameState === "PLAYERS_READY_1") {
+            logger.info({ battleID, state: currentGameState, players: [ws.user.id, opponentWs.user.id] }, "ready-up deadline expired -> aborting battle")
             send(ws, {type: ServerMessageTypes.ABORT, payload: "A player did not click ready -> Aborting game"})
             send(opponentWs, {type: ServerMessageTypes.ABORT, payload: "A player did not click ready -> Aborting game"})
 
@@ -220,41 +228,45 @@ async function onOpponentFound(ws: AuthedSocket, opponentWs: AuthedSocket, battl
 }
 
 function scheduleEvaluation(battleID: string, playerIds: string[]) {
+    logger.debug({ battleID, playerIds, delayMs: GAME_DURATION + EVAL_BUFFER_MS }, "scheduled battle evaluation")
     setTimeout(async () => {
         try {
+            logger.debug({ battleID }, "requesting battle evaluation")
             const res = await fetch(`${API_BASE_URL}/api/battle/${battleID}/evaluate`, {
                 headers: { authorization: `Bearer ${INTERNAL_SERVICE_TOKEN}` },
             })
             if (!res.ok) {
-                console.error(`evaluate ${battleID} failed: ${res.status} ${await res.text()}`)
+                logger.error({ battleID, status: res.status, body: await res.text() }, "evaluate request failed")
                 return
             }
             const result = await res.json() // { winnerId, winningRunId, status }
+            logger.info({ battleID, winnerId: result.winnerId, status: result.status }, "battle evaluated")
 
-            // Persist the ended state + winner so a reconnecting/refreshing client
-            // can SYNC and render the result instead of replaying the simulation.
-            // Keep the keys for a short grace window, then let them expire (the
-            // permanent record lives in the DB).
             await redis.HSET(`battle:${battleID}`, { state: "BATTLE_ENDED", winnerId: result.winnerId ?? "" })
             await redis.expire(`battle:${battleID}`, RESULT_GRACE_SECONDS)
             for (const id of playerIds) await redis.expire(`user:${id}`, RESULT_GRACE_SECONDS)
 
             for (const id of playerIds) {
                 const sock = connections.get(id)
-                if (sock) send(sock, {type: ServerMessageTypes.BATTLE_RESULT, payload: result})
-                    console.log(`NOTIFIED ${id} OF BATTLE RESULTS`)
+                if (sock) {
+                    send(sock, {type: ServerMessageTypes.BATTLE_RESULT, payload: result})
+                    logger.info({ battleID, userID: id }, "notified player of battle result")
+                }
             }
         } catch (err) {
-            console.error(`evaluate ${battleID} threw`, err)
+            logger.error({ err, battleID }, "evaluate request threw")
         }
-    }, PREP_PHASE_TIME + GAME_DURATION + EVAL_BUFFER_MS)
+    }, GAME_DURATION + EVAL_BUFFER_MS)
 }
 
 wss.on("connection", (raw) => {
     const ws = raw as AuthedSocket;
-    
+    const log = logger.child({ userID: ws.user.id })
+
+    log.info({ name: ws.user.name }, "client connected")
     send(ws, {type: ServerMessageTypes.CONNECTED});
 
+    if (connections.has(ws.user.id)) log.info("existing connection for this user replaced by new socket")
     connections.set(ws.user.id, ws)
 
     //TODO: check if the client has a existing connection and process this case
@@ -264,17 +276,23 @@ wss.on("connection", (raw) => {
         try {
             message = JSON.parse(buf.toString()) as ClientResponse
         } catch {
+            log.warn({ raw: buf.toString().slice(0, 200) }, "received unparseable message, ignoring")
             return;
         }
+
+        log.debug({ type: ClientMessageTypes[message.type] }, "received client message")
 
         switch (message.type) {
             case ClientMessageTypes.FIND_OPPONENT: {
                 //TODO: check if the user is already in a match and report that to the client via a abort
-                if (await redis.ZSCORE("queue", `user:${ws.user.id}`) !== null) return // already in queue
+                if (await redis.ZSCORE("queue", `user:${ws.user.id}`) !== null) {
+                    log.debug("find_opponent ignored: user already in queue")
+                    return
+                }
 
                 const user = await prisma.user.findUnique({where: {id: ws.user.id}, select: {elo: true}}) // makes sure that connections can be reused
                 if(!user) {
-                    console.log("COULDN'T FIND USER IN DB")
+                    log.error("user not found in db")
                     return // send error message
                 }
 
@@ -287,7 +305,7 @@ wss.on("connection", (raw) => {
                     const opponentWs = connections.get(opponent.id)
                 
                     if(!opponentWs) {
-                        console.log("FATAL ERROR: OPPONENTS CONNECTION DOES NOT EXIST")
+                        log.error({ opponentID: opponent.id }, "opponent matched but has no live connection")
                         send(ws, {type: ServerMessageTypes.ABORT, payload: "Opponent disconnected"})
                         return
                     } // report errors to the client
@@ -301,13 +319,15 @@ wss.on("connection", (raw) => {
                         maxSubmissions: MAX_SUBMISSIONS
                     } as unknown as redisBattleRaw
                     
-                    const expiration = (READY_TIME_MS + GAME_DURATION + PREP_PHASE_TIME + EVAL_BUFFER_MS) / 1000
+                    const expiration = (READY_TIME_MS + GAME_DURATION + EVAL_BUFFER_MS) / 1000
                     await redis.multi()
                         .HSET(`battle:${battleID}`, battle)
                         .expire(`battle:${battleID}`, expiration)
                         .set(`user:${ws.user.id}`, battleID, { EX: expiration })
                         .set(`user:${opponentWs.user.id}`, battleID, { EX: expiration })
                         .exec()
+
+                    log.info({ battleID, opponentID: opponentWs.user.id }, "battle created in redis, waiting for ready-up")
 
                     send(ws, {type: ServerMessageTypes.FOUND_OPPONENT, payload: {id: opponentWs.user.id, name: opponentWs.user.name!, elo: opponent.elo}})
                     send(connections.get(opponent.id)!, {type: ServerMessageTypes.FOUND_OPPONENT, payload:{id: ws.user.id, name: ws.user.name!, elo: user.elo}})
@@ -317,18 +337,22 @@ wss.on("connection", (raw) => {
                 break;
             }
             case ClientMessageTypes.ABORT: {
-                console.log("Received abort message from client")
+                log.info("received abort message from client")
                 ws.close()
                 break;
             }
 
             case ClientMessageTypes.READY: {
-                if(await redis.get(`ready:${ws.user.id}`)) return
+                if(await redis.get(`ready:${ws.user.id}`)) {
+                    log.debug("ready ignored: user already marked ready")
+                    return
+                }
                 await redis.set(`ready:${ws.user.id}`, 1, { EX: READY_TIME_MS / 1000})
 
                 const battleID = await redis.GET(`user:${ws.user.id}`)
-                
+
                 if(!battleID) {
+                    log.warn("ready received but no battle found for this user -> aborting")
                     send(ws, {type: ServerMessageTypes.ABORT, payload: "no battle found for this user"})
                     return
                 }
@@ -337,13 +361,13 @@ wss.on("connection", (raw) => {
                 
                 if(battle.state == "PLAYERS_READY_1") {
                     const generatedGame = generateRankedGame()
+                    log.info({ battleID, objective: generatedGame.objective, optimizers: generatedGame.optimizers.map((o) => o.name), maxOptimizers: generatedGame.max_number_of_optimizers }, "both players ready, game generated")
 
                     const redisRawGame = {
                         ...battle,
-                        prepEndsAt: String(Date.now() + PREP_PHASE_TIME),
-                        gameEndsAt: String(Date.now() + PREP_PHASE_TIME + GAME_DURATION),
+                        gameEndsAt: String(Date.now() + GAME_DURATION),
                         game: JSON.stringify(generatedGame),
-                        state: "PREP_PHASE"
+                        state: "RUNNING"
                     }
 
                     await redis.HSET(`battle:${battleID}`, redisRawGame)
@@ -352,14 +376,16 @@ wss.on("connection", (raw) => {
 
                     await prisma.battle.create({data: {
                         id: battleID,
-                        status: "PREP_PHASE",
+                        status: "RUNNING",
                         game: redisRawGame.game,
                         player1Id: ws.user.id,
                         player2Id: opponentID,
                     }})
-                    
-                    send(ws, {type: ServerMessageTypes.PREP_PHASE, payload: {battleID}})
-                    send(connections.get(opponentID)!, {type: ServerMessageTypes.PREP_PHASE, payload: {battleID}})
+
+                    log.info({ battleID, opponentID }, "battle persisted to db, state -> RUNNING")
+
+                    send(ws, {type: ServerMessageTypes.RUNNING, payload: {battleID}})
+                    send(connections.get(opponentID)!, {type: ServerMessageTypes.RUNNING, payload: {battleID}})
 
                     scheduleEvaluation(battleID, [ws.user.id, opponentID])
 
@@ -368,36 +394,44 @@ wss.on("connection", (raw) => {
                 
                 if(battle.state == "PLAYERS_READY_0") {
                     await redis.HSET(`battle:${battleID}`, {"state": "PLAYERS_READY_1"})
+                    log.info({ battleID }, "first player ready, state -> PLAYERS_READY_1")
                 }
                 break
                 
             }
             case ClientMessageTypes.SYNC: {
                 const battleID = await redis.GET(`user:${ws.user.id}`)
-                
+
                 if(!battleID) {
+                    log.debug("sync requested: no active battle")
                     send(ws, {type: ServerMessageTypes.SYNC, payload: null})
                     return
                 }
 
                 const battle = await redis.HGETALL(`battle:${battleID}`) as redisBattleRaw
-                
+
+                log.debug({ battleID, state: battle.state }, "sync requested: sending battle state")
                 send(ws, {type: ServerMessageTypes.SYNC, payload: {...battle, battleID: battleID}})
+                break
+            }
+            default: {
+                log.warn({ type: (message as { type: number }).type }, "received unknown message type")
             }
         }
     })
 
-    ws.on("close", async () => {
+    ws.on("close", async (code) => {
+        log.info({ code }, "client disconnected")
         if (connections.get(ws.user.id) === ws) connections.delete(ws.user.id)  // fixes  accidentally closing reconnected sockets
 
         const rem = await redis.ZREM("queue", "user:" + ws.user.id)
-        if(rem) console.log("REMOVED user " + ws.user.name + "FROM QUEUE (connection closed)")
+        if(rem) log.info({ name: ws.user.name }, "removed user from queue (connection closed)")
     });
 });
 
 getRedis()
-    .then(() => server.listen(PORT, () => console.log(`battle server listening on :${PORT}`)))
-    .catch((e) => { console.error("failed to connect redis", e); process.exit(1); });
+    .then(() => server.listen(PORT, () => logger.info(`battle server listening on :${PORT}`)))
+    .catch((e) => { logger.fatal({ err: e }, "failed to connect redis"); process.exit(1); });
 
 
 //TODO: add submissions to the SYNC payload, otherwise the client will display 0/N after reconnecting

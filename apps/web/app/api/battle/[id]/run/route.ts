@@ -29,7 +29,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         return NextResponse.json({ error: "Missing fields" }, { status: 422 });
     }
 
-    const cutoff = new Date(Date.now() - 130_000); // Prep Phase is about 10 seconds and game 2 minutes
+    const cutoff = new Date(Date.now() - 122_000);
     const currentBattle = await prisma.battle.findUnique({where: {id: id, startedAt: { gte: cutoff }}})
 
     if(!currentBattle) return NextResponse.json({ error: "Game does not exist or is completed" }, { status: 422 });

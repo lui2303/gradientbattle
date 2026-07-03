@@ -37,7 +37,7 @@ export default function BattleScreen({ username }: { username: string, userID: s
                     break
 
                 // both players readied -> the battle now exists; hand off to /battle/[id]
-                case ServerMessageTypes.PREP_PHASE:
+                case ServerMessageTypes.RUNNING:
                     router.push(`/battle/${message.payload.battleID}`)
                     break
             }
