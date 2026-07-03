@@ -369,7 +369,7 @@ wss.on("connection", (raw) => {
                         ...battle,
                         gameEndsAt: String(gameEndsAt),
                         game: JSON.stringify(generatedGame),
-                        state: "RUNNING"
+                        state: "RUNNING",
                     }
 
                     await redis.HSET(`battle:${battleID}`, redisRawGame)
@@ -413,8 +413,9 @@ wss.on("connection", (raw) => {
 
                 const battle = await redis.HGETALL(`battle:${battleID}`) as redisBattleRaw
 
+                const submissionCount = await redis.GET(`battle:${battleID}:submissions:${ws.user.id}`)
                 log.debug({ battleID, state: battle.state }, "sync requested: sending battle state")
-                send(ws, {type: ServerMessageTypes.SYNC, payload: {...battle, battleID: battleID}})
+                send(ws, {type: ServerMessageTypes.SYNC, payload: {...battle, battleID: battleID, submissions: submissionCount ? Number(submissionCount) : 0 }})
                 break
             }
             default: {
@@ -435,6 +436,3 @@ wss.on("connection", (raw) => {
 getRedis()
     .then(() => server.listen(PORT, () => logger.info(`battle server listening on :${PORT}`)))
     .catch((e) => { logger.fatal({ err: e }, "failed to connect redis"); process.exit(1); });
-
-
-//TODO: add submissions to the SYNC payload, otherwise the client will display 0/N after reconnecting

@@ -27,13 +27,16 @@ export default function BattleScreen({ username, userID, battleID }: { username:
     const [resultText, setResultText] = useState("")
 
     useEffect(() => {
-        const hydrate = (battle: redisBattleRaw) => {
+        const hydrate = (battle: redisBattleRaw, submissions: number) => {
             setPhase(battle.state as GameStatus)
             if (battle.game) setGame(JSON.parse(battle.game) as rankedGame)
             if (battle.gameEndsAt) {
                 setGameSeconds(Math.max(0, Math.round((Number(battle.gameEndsAt) - Date.now()) / 1000)))
             }
-            if (battle.state === "BATTLE_ENDED") setResultText(resultTextFor(battle.winnerId, userID))
+            if (battle.state === "BATTLE_ENDED") {setResultText(resultTextFor(battle.winnerId, userID));return}
+            setSubmissions(submissions)
+            
+
         }
 
         const handler = (message: ServerResponse) => {
@@ -44,7 +47,7 @@ export default function BattleScreen({ username, userID, battleID }: { username:
                         router.replace("/battle")
                         return
                     }
-                    hydrate(message.payload)
+                    hydrate(message.payload, message.payload.submissions)
                     break
                 }
                 case ServerMessageTypes.BATTLE_RESULT:
@@ -76,11 +79,9 @@ export default function BattleScreen({ username, userID, battleID }: { username:
                     body: JSON.stringify({ optimizers: optimizer }),
                 });
                 const resp = await res.json();
+                if (typeof resp.submissionCount === "number") setSubmissions(resp.submissionCount)
                 const { traces }: { traces: Point[][] } = resp;
                 return { traces };
-            },
-            onRunComplete() {
-                setSubmissions(prev => prev + 1)
             },
             requiresAuth: true,
             allowedFunctions: [game!.objective],

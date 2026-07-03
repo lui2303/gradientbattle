@@ -29,22 +29,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         return NextResponse.json({ error: "Missing fields" }, { status: 422 });
     }
 
-    const cutoff = new Date(Date.now() - 122_000);
-    const currentBattle = await prisma.battle.findUnique({where: {id: id, startedAt: { gte: cutoff }}})
+    const currentBattle = await prisma.battle.findUnique({where: {id: id, endsAt: { gt: new Date() }}})
 
     if(!currentBattle) return NextResponse.json({ error: "Game does not exist or is completed" }, { status: 422 });
 
     if(currentBattle.player1Id !== session.user?.id && currentBattle.player2Id !== session.user?.id ) {
         return NextResponse.json({ error: "You are not allowed to submit a run to this game" }, { status: 422 });
-    }
-
-    const redis = await getRedis()
-    const submissionKey = `battle:${id}:submissions:${session.user.id}`
-    const submissionCount = await redis.INCR(submissionKey)
-
-    if (submissionCount === 1) await redis.EXPIRE(submissionKey, 130)
-    if (submissionCount > MAX_SUBMISSIONS) {
-        return NextResponse.json({ error: `You can't exceed the maximum of ${MAX_SUBMISSIONS} submissions` }, { status: 429 });
     }
 
     const game = JSON.parse(currentBattle.game as string) as rankedGame
@@ -64,6 +54,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     if(!optimizersAreValid()) return NextResponse.json({ error: "You are not allowed to submit a run with different optimizer state then pined by the server" }, { status: 422 });
+
+    const redis = await getRedis()
+    const submissionKey = `battle:${id}:submissions:${session.user.id}`
+    const submissionCount = await redis.INCR(submissionKey)
+
+    await redis.EXPIRE(submissionKey, 130)
+    if (submissionCount > MAX_SUBMISSIONS) {
+        return NextResponse.json({ error: `You can't exceed the maximum of ${MAX_SUBMISSIONS} submissions`, submissionCount: MAX_SUBMISSIONS }, { status: 429 });
+    }
 
     // Pinned fields are authoritative: overwrite client-supplied values for fixed starting
     // points and disabled params so a player can't smuggle in values the server pinned.
@@ -102,5 +101,5 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         },
     });
 
-    return NextResponse.json({id: entry.id, traces: traces, createdAt: entry.createdAt}, { status: 201 });
+    return NextResponse.json({id: entry.id, traces: traces, createdAt: entry.createdAt, submissionCount: submissionCount}, { status: 201 });
 } 

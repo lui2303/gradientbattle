@@ -205,8 +205,8 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
         })
         return () => {
             divs.forEach((gd) => {
-                gd.removeAllListeners('plotly_hover')
-                gd.removeAllListeners('plotly_unhover')
+                gd.removeAllListeners?.('plotly_hover')
+                gd.removeAllListeners?.('plotly_unhover')
             })
         }
     }, [ready])

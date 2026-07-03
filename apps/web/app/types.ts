@@ -58,7 +58,7 @@ export type ServerResponse = {type: ServerMessageTypes.CONNECTED}
                   | {type: ServerMessageTypes.FOUND_OPPONENT, payload: {id: string, name: string, elo: number}}
                   | {type: ServerMessageTypes.RUNNING, payload: {battleID: string} }
                   | {type: ServerMessageTypes.BATTLE_RESULT, payload: { winnerId: string | null, winningRunId: string | null, status: string }}
-                  | {type: ServerMessageTypes.SYNC, payload: redisBattleRaw & {battleID: string} | null}
+                  | {type: ServerMessageTypes.SYNC, payload: redisBattleRaw & {battleID: string} & {submissions: number} | null}
 export enum ClientMessageTypes {
   FIND_OPPONENT,
   ABORT,
@@ -90,4 +90,4 @@ export type redisBattleRaw = {
       gameEndsAt?: string,
       game?: string,
       winnerId?: string,
-} // TODO: merge redisBattle and rankedGame types
+}
