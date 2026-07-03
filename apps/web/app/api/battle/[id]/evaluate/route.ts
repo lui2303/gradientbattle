@@ -67,7 +67,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         return NextResponse.json({ winnerId: currentBattle.winnerId, winningRunId: currentBattle.winningRunId, status: 'evaluated' }, { status: 200 });
     }
 
-    if (Date.now() - currentBattle.startedAt.getTime() < 130_000) return NextResponse.json({ error: "Battle has not concluded yet" }, { status: 422 });
+    if (Date.now() <= currentBattle.endsAt.getTime()) return NextResponse.json({ error: "Battle has not concluded yet" }, { status: 422 });
 
     const firstPlayerBestRun = await evaluateRuns(currentBattle.id, currentBattle.player1Id);
     const secondPlayerBestRun = await evaluateRuns(currentBattle.id, currentBattle.player2Id);

@@ -363,9 +363,11 @@ wss.on("connection", (raw) => {
                     const generatedGame = generateRankedGame()
                     log.info({ battleID, objective: generatedGame.objective, optimizers: generatedGame.optimizers.map((o) => o.name), maxOptimizers: generatedGame.max_number_of_optimizers }, "both players ready, game generated")
 
+                    const gameEndsAt = Date.now() + GAME_DURATION
+
                     const redisRawGame = {
                         ...battle,
-                        gameEndsAt: String(Date.now() + GAME_DURATION),
+                        gameEndsAt: String(gameEndsAt),
                         game: JSON.stringify(generatedGame),
                         state: "RUNNING"
                     }
@@ -378,6 +380,7 @@ wss.on("connection", (raw) => {
                         id: battleID,
                         status: "RUNNING",
                         game: redisRawGame.game,
+                        endsAt: new Date(gameEndsAt),
                         player1Id: ws.user.id,
                         player2Id: opponentID,
                     }})

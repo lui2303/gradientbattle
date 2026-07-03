@@ -25,6 +25,7 @@ model Run {
 model Battle {
   id        String   @id
   startedAt DateTime @default(now())
+  endsAt    DateTime
   status    String
 
   player1Id String
