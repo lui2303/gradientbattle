@@ -99,7 +99,7 @@ export default function BattleScreen({ username, userID, battleID }: { username:
 
     return (
         <main className="min-h-screen p-8">
-            <p>1v1 Battle Page. Logged in as {username} with current elo of {elo}</p>
+            <p>1v1 Battle Page. Logged in as {username} with current elo of {elo + eloDelta}</p>
 
             {phase === "LOADING" && <p className="opacity-70">Loading battle…</p>}
             {phase === "ABORTED" && <p className="opacity-70">Battle aborted.</p>}
