@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { timingSafeEqual } from "node:crypto";
 import { MAX_SUBMISSIONS } from "@/app/constants";
+import { calculateEloUpdate } from "./elo";
 
 type BestRun = { iterations: number; distanceToOptimum: number; optimizerID: string; runID: string };
 
@@ -92,14 +93,47 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         winningRunId = secondPlayerBestRun.runID;
     } // neither submitted -> draw
 
-    await prisma.battle.update({
-        where: { id: currentBattle.id },
-        data: {
-            status: 'evaluated',
-            winnerId: winnerId,
-            winningRunId: winningRunId,
-        },
+    let deltaA: number | undefined
+    let deltaB: undefined | number
+
+    const result = await prisma.$transaction(async (tx) => {
+        const claimed = await tx.battle.updateMany({ // prevent race conditions
+            where: { id: currentBattle.id, status: { not: "evaluated" } },
+            data: { status: "evaluated", winnerId, winningRunId },
+        });
+        if (claimed.count === 0) return null
+
+        if(!firstPlayerBestRun && !secondPlayerBestRun) return //dont reward not playing
+
+        const users = await tx.user.findMany({ where: { id: { in: [currentBattle.player1Id, currentBattle.player2Id] } } });
+        const playerA = users.find(u => u.id === currentBattle.player1Id)!
+        const playerB = users.find(u => u.id === currentBattle.player2Id)!
+
+        const scoreA = winnerId == currentBattle.player1Id ? 1 : !winnerId ? 0.5 : 0
+
+        const eloDiff = calculateEloUpdate(playerA, playerB, scoreA)
+
+        deltaA = eloDiff[0]
+        deltaB = eloDiff[1]
+
+        await tx.user.update({
+            where: { id: currentBattle.player1Id },
+            data: {
+                elo: playerA.elo + deltaA,
+                peakElo: Math.max(playerA.peakElo, playerA.elo + deltaA),
+                gamesPlayed: { increment: 1 },
+            },
+        })
+        
+        await tx.user.update({
+            where: { id: currentBattle.player2Id },
+            data: {
+                elo: playerB.elo + deltaB,
+                peakElo: Math.max(playerB.peakElo, playerB.elo + deltaB),
+                gamesPlayed: { increment: 1 },
+            },
+        })
     });
 
-    return NextResponse.json({ winnerId, winningRunId, status: 'evaluated' }, { status: 200 });
+    return NextResponse.json({ winnerId, winningRunId, status: 'evaluated', eloDeltas: {[currentBattle.player1Id]: deltaA, [currentBattle.player2Id]: deltaB}  }, { status: 200 });
 }

@@ -1,4 +1,4 @@
-import { objectiveFunction, Point } from "@gradientbattle/core/src/types";
+import { Point } from "@gradientbattle/core/src/types";
 import { PlotData } from "plotly.js";
 
 export type Optimizer = {name: string, params: Record<string, number>, startingPoint: Point, color: string}
@@ -57,8 +57,9 @@ export type ServerResponse = {type: ServerMessageTypes.CONNECTED}
                   | {type: ServerMessageTypes.ENQUEUED} 
                   | {type: ServerMessageTypes.FOUND_OPPONENT, payload: {id: string, name: string, elo: number}}
                   | {type: ServerMessageTypes.RUNNING, payload: {battleID: string} }
-                  | {type: ServerMessageTypes.BATTLE_RESULT, payload: { winnerId: string | null, winningRunId: string | null, status: string }}
+                  | {type: ServerMessageTypes.BATTLE_RESULT, payload: { winnerId: string | null, winningRunId: string | null, status: string, eloDeltas: Record<string, number | undefined> }}
                   | {type: ServerMessageTypes.SYNC, payload: redisBattleRaw & {battleID: string} & {submissions: number} | null}
+
 export enum ClientMessageTypes {
   FIND_OPPONENT,
   ABORT,
@@ -85,9 +86,20 @@ export type redisBattleRaw = {
       state: string,
       player1: string,
       player2: string,
+      player1Elo: string,
+      player2Elo: string,
+      player1Name: string,
+      player2Name: string,
       maxSubmissions: string,
       readyEndsAt?: string,
       gameEndsAt?: string,
       game?: string,
       winnerId?: string,
+      
+}
+
+export type Player = {
+    elo: number,
+    peakElo: number,
+    gamesPlayed: number,
 }

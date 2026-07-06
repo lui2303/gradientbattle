@@ -14,7 +14,7 @@ import { useBattleSocket } from "../BattleSocketProvider";
 type Phase = GameStatus | "ABORTED" | "LOADING"
 
 const resultTextFor = (winnerId: string | null | undefined, userID: string) =>
-    !winnerId ? "DRAW" : winnerId === userID ? "YOU WON" : "YOU LOST"
+    (!winnerId ? "DRAW" : winnerId === userID ? "YOU WON" : "YOU LOST")
 
 export default function BattleScreen({ username, userID, battleID }: { username: string, userID: string, battleID: string }) {
     const { subscribe, unsubscribe, send } = useBattleSocket()!
@@ -25,6 +25,8 @@ export default function BattleScreen({ username, userID, battleID }: { username:
     const [submissions, setSubmissions] = useState(0)
     const [gameSeconds, setGameSeconds] = useState<number | null>(null) // snapshot for the Countdown
     const [resultText, setResultText] = useState("")
+    const [elo, setElo] = useState(0)
+    const [eloDelta, setEloDelta] = useState(0)
 
     useEffect(() => {
         const hydrate = (battle: redisBattleRaw, submissions: number) => {
@@ -33,10 +35,15 @@ export default function BattleScreen({ username, userID, battleID }: { username:
             if (battle.gameEndsAt) {
                 setGameSeconds(Math.max(0, Math.round((Number(battle.gameEndsAt) - Date.now()) / 1000)))
             }
+
+            if(userID == battle.player1) {
+                setElo(Number(battle.player1Elo))
+            } else {
+                setElo(Number(battle.player2Elo))
+            }
+
             if (battle.state === "BATTLE_ENDED") {setResultText(resultTextFor(battle.winnerId, userID));return}
             setSubmissions(submissions)
-            
-
         }
 
         const handler = (message: ServerResponse) => {
@@ -52,6 +59,7 @@ export default function BattleScreen({ username, userID, battleID }: { username:
                 }
                 case ServerMessageTypes.BATTLE_RESULT:
                     setPhase("BATTLE_ENDED")
+                    setEloDelta(message.payload.eloDeltas[userID] ? message.payload.eloDeltas[userID] : 0)
                     setResultText(resultTextFor(message.payload.winnerId, userID))
                     break
                 case ServerMessageTypes.ABORT:
@@ -64,7 +72,7 @@ export default function BattleScreen({ username, userID, battleID }: { username:
         subscribe(handler)
         send({ type: ClientMessageTypes.SYNC }) // hydrate state for this battle on (re)mount
         return () => unsubscribe(handler)
-    }, [subscribe, unsubscribe, send, router, userID])
+    }, [subscribe, unsubscribe, send, router, userID, elo])
 
     function buildMode(): SimulationMode {
         return {
@@ -91,11 +99,11 @@ export default function BattleScreen({ username, userID, battleID }: { username:
 
     return (
         <main className="min-h-screen p-8">
-            <p>1v1 Battle Page. Logged in as {username}</p>
+            <p>1v1 Battle Page. Logged in as {username} with current elo of {elo}</p>
 
             {phase === "LOADING" && <p className="opacity-70">Loading battle…</p>}
             {phase === "ABORTED" && <p className="opacity-70">Battle aborted.</p>}
-            {phase === "BATTLE_ENDED" && <p className="text-2xl font-mono">{resultText}</p>}
+            {phase === "BATTLE_ENDED" && <p className="text-2xl font-mono">{resultText + ". Elo changed: " + elo + "->" + (elo + eloDelta)}</p>}
 
             {phase === "RUNNING" && gameSeconds != null && (
                 <Countdown seconds={gameSeconds} className="text-2xl font-mono" />

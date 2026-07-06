@@ -239,8 +239,8 @@ function scheduleEvaluation(battleID: string, playerIds: string[]) {
                 logger.error({ battleID, status: res.status, body: await res.text() }, "evaluate request failed")
                 return
             }
-            const result = await res.json() // { winnerId, winningRunId, status }
-            logger.info({ battleID, winnerId: result.winnerId, status: result.status }, "battle evaluated")
+            const result = await res.json() // { winnerId, winningRunId, status, [id]: eloDiff, [id2]: eloDiff }
+            logger.info({ battleID, result }, "battle evaluated")
 
             await redis.HSET(`battle:${battleID}`, { state: "BATTLE_ENDED", winnerId: result.winnerId ?? "" })
             await redis.expire(`battle:${battleID}`, RESULT_GRACE_SECONDS)
@@ -284,7 +284,7 @@ wss.on("connection", (raw) => {
 
         switch (message.type) {
             case ClientMessageTypes.FIND_OPPONENT: {
-                //TODO: check if the user is already in a match and report that to the client via a abort
+                //TODO: check if the user is already in a match and report that to the client via a abort or SYNC
                 if (await redis.ZSCORE("queue", `user:${ws.user.id}`) !== null) {
                     log.debug("find_opponent ignored: user already in queue")
                     return
@@ -314,6 +314,10 @@ wss.on("connection", (raw) => {
                     const battle = {
                         player1: ws.user.id,
                         player2: opponentWs.user.id,
+                        player1Name: ws.user.name,
+                        player2Name: opponentWs.user.name,
+                        player1Elo: user.elo,
+                        player2Elo: opponent.elo,
                         readyEndsAt: Date.now() + READY_UP_TIME,
                         state: "PLAYERS_READY_0",
                         maxSubmissions: MAX_SUBMISSIONS
