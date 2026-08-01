@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(grep -n \"SYNC\\\\|redisBattleRaw\\\\|HSET\\(\\\\`battle\" /home/pc/Schreibtisch/Work/gradientbattle/apps/web/server.ts)"
+      "Bash(grep -n \"SYNC\\\\|redisBattleRaw\\\\|HSET\\(\\\\`battle\" /home/pc/Schreibtisch/Work/gradientbattle/apps/web/server.ts)",
+      "Bash(pnpm install *)"
     ]
   }
 }

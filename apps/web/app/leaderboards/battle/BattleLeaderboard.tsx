@@ -1,30 +1,36 @@
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
 
-export type Player = {id: string, name:string|null, elo:number}
+export type Player = {id: string, name:string|null, elo:number, gamesPlayed: number}
 
 export function BattleLeaderboard({players}: {players: Player[]}) {
     return (
-        <div>
-            <table>
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>name</th>
-                        <th>elo</th>
-                    </tr>
-                </thead>
+        <Table>
+            <TableHeader>
+                <TableRow>
+                    <TableHead className="w-12">#</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead className="text-right">Elo</TableHead>
+                    <TableHead className="text-right">Games Played</TableHead>
+                </TableRow>
+            </TableHeader>
 
-                <tbody>
-                        {players.map((elem, i) => {
-                            return (
-                                <tr key={i}>
-                                    <td>{i + 1}</td>
-                                    <td>{elem.name}</td>
-                                    <td>{elem.elo}</td>
-                                </tr>
-                            )
-                        })}
-                </tbody>
-            </table>
-        </div>
+            <TableBody>
+                {players.map((player, i) => (
+                    <TableRow key={player.id}>
+                        <TableCell className="text-muted-foreground">{i + 1}</TableCell>
+                        <TableCell>{player.name ?? "Anonymous"}</TableCell>
+                        <TableCell className="text-right font-mono">{player.elo}</TableCell>
+                        <TableCell className="text-right font-mono">{player.gamesPlayed}</TableCell>
+                    </TableRow>
+                ))}
+            </TableBody>
+        </Table>
     )
 }
