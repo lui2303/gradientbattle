@@ -1,6 +1,5 @@
 'use client'
 
-import { AlgoSimulation } from "./components/AlgoSimulation";
 import { LoadNotebookSidebar } from "./components/Sidebar";
 import { Optimizer } from "./types";
 import { useState } from "react";
