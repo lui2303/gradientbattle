@@ -1086,6 +1086,7 @@ export type RunCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * The data used to create many Runs.
    */
   data: Prisma.RunCreateManyInput | Prisma.RunCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1104,6 +1105,7 @@ export type RunCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.
    * The data used to create many Runs.
    */
   data: Prisma.RunCreateManyInput | Prisma.RunCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

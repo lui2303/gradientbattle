@@ -9,11 +9,11 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 
-export function FunctionSelector({allowedFunctions, func, setFuncCallback}: {allowedFunctions: string[],func: objectiveFunction, setFuncCallback: (func: objectiveFunction) => void}) {
+export function FunctionSelector({allowedFunctions, func, setFuncCallback, disabled = false}: {allowedFunctions: string[],func: objectiveFunction, setFuncCallback: (func: objectiveFunction) => void, disabled?: boolean}) {
     return (
         <div className="flex items-center gap-3">
             <Label htmlFor="objective-function" className="text-muted-foreground">Function</Label>
-            <Select value={func.name} onValueChange={(value) => setFuncCallback(functionFactory(value))}>
+            <Select disabled={disabled} value={func.name} onValueChange={(value) => setFuncCallback(functionFactory(value))}>
                 <SelectTrigger id="objective-function" className="w-44">
                     <SelectValue placeholder="Select a function" />
                 </SelectTrigger>

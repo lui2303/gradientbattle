@@ -13,6 +13,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatMetric } from "../helpers";
+import { LatexFormula } from "./LatexFormula";
 import { cn } from "@/lib/utils";
 
 export function Leaderboard({optimizers, currentIterates}: LeaderboardProps) {
@@ -29,12 +30,12 @@ export function Leaderboard({optimizers, currentIterates}: LeaderboardProps) {
 
     // This table doubles as the plot legend: the swatch pairs each optimizer's name with
     // its trace colour, so series identity is never carried by colour alone.
-    const sortHeader = (label: string, active: boolean, onSort: () => void) => (
+    const sortHeader = (label: React.ReactNode, active: boolean, onSort: () => void) => (
         <Button
             variant="ghost"
             size="sm"
             onClick={onSort}
-            className={cn("-mr-2.5 ml-auto flex", active ? "text-foreground" : "text-muted-foreground")}
+            className={cn("ml-auto flex", active ? "text-foreground" : "text-muted-foreground")}
         >
             {label}
             <ArrowDownIcon className={cn(active ? "opacity-100" : "opacity-0")} />
@@ -49,13 +50,13 @@ export function Leaderboard({optimizers, currentIterates}: LeaderboardProps) {
                         <TableRow>
                             <TableHead className="w-10">#</TableHead>
                             <TableHead>Optimizer</TableHead>
-                            {/* U+2016 (‖) isn't in Geist, so it renders as tofu — the plain
-                                axis label from the distance plot is used instead. */}
+                            {/* Typeset by MathJax rather than written as text: U+2016 (‖)
+                                isn't in Geist and would render as tofu. */}
                             <TableHead className="text-right">
-                                {sortHeader("Norm(x)", !sortByObjValue, () => setsortByObjValue(false))}
+                                {sortHeader(<LatexFormula latex="\|x\|_2" />, !sortByObjValue, () => setsortByObjValue(false))}
                             </TableHead>
                             <TableHead className="text-right">
-                                {sortHeader("f(x)", sortByObjValue, () => setsortByObjValue(true))}
+                                {sortHeader(<LatexFormula latex="f(x)" />, sortByObjValue, () => setsortByObjValue(true))}
                             </TableHead>
                         </TableRow>
                     </TableHeader>

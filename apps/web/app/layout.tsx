@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Gradient Battle",
+  title: "gradientbattle",
   description: "Tune gradient descent optimizers and race them to the minimum.",
 };
 
@@ -29,8 +29,17 @@ export default function RootLayout({
   return (
     // `dark` activates the `dark:` variants shadcn components ship with; the
     // palette itself lives on :root in globals.css.
-    <html lang="en" className="dark">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    // The font variables must sit on <html>, not <body>: globals.css applies
+    // `font-sans` to <html>, and a custom property defined on a child is invisible
+    // to its parent — which silently fell back to the browser serif everywhere.
+    <html lang="en" className={`dark ${geistSans.variable} ${geistMono.variable}`}>
+      <body className="antialiased">
+        {/* MathJax 2 reads window.MathJax if it exists before the library loads.
+            messageStyle "none" suppresses the "Processing math: n%" status bar, which
+            otherwise renders over the page while equations typeset. */}
+        <Script id="mathjax-config" strategy="beforeInteractive">
+          {`window.MathJax = { messageStyle: "none", showMathMenu: false };`}
+        </Script>
         <Script
           id="mathjax"
           src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML"

@@ -1,5 +1,5 @@
 
-import { MAX_SUBMISSIONS } from "@/app/constants";
+import { MAX_STEPS, MAX_SUBMISSIONS } from "@/app/constants";
 import { FrontendOptimizer, rankedGame } from "@/app/types";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -37,7 +37,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         return NextResponse.json({ error: "You are not allowed to submit a run to this game" }, { status: 422 });
     }
 
-    const game = JSON.parse(currentBattle.game as string) as rankedGame
+    // Postgres stores Json natively, so Prisma hands back a parsed value here
+    // (under SQLite this column was TEXT and needed JSON.parse).
+    const game = currentBattle.game as unknown as rankedGame
 
     const optimizersAreValid = () => {
         return Object.entries(optimizers).every(([key, value]) => {
@@ -79,7 +81,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     const func = functionFactory(game.objective)
-    const sim_engine = new SimulationEngine(func, 100)
+    const sim_engine = new SimulationEngine(func, MAX_STEPS)
 
     Object.keys(optimizers).forEach((optiKey) => {
                     sim_engine.addOptimizer(optimizerFactory(optimizers[optiKey].name, optimizers[optiKey].params,

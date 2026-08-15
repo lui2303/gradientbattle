@@ -1,4 +1,5 @@
 import { getCurrentChallenge } from "@/app/api/challenge";
+import { MAX_STEPS } from "@/app/constants";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { functionFactory } from "@gradientbattle/core/src/functions/function_factory";
@@ -32,7 +33,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     const func = functionFactory(currentChallenge.name)
 
-    const sim_engine = new SimulationEngine(func, 100)
+    const sim_engine = new SimulationEngine(func, MAX_STEPS)
 
     Object.keys(optimizers).forEach((optiKey) => {
                     sim_engine.addOptimizer(optimizerFactory(optimizers[optiKey].name, {...optimizers[optiKey].params,

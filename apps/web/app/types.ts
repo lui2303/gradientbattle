@@ -16,6 +16,8 @@ export type AlgorithmSelectCardProps = {
   optimizers: Record<string, FrontendOptimizer>;
   setOptimizers: React.Dispatch<React.SetStateAction<Record<string, FrontendOptimizer>>>,
   allowedOptimizers: FrontendOptimizer[]
+  /** Frozen while a simulation is animating — see AlgorithmSelectContainerProps. */
+  locked?: boolean
 };
 
 export type AlgorithmSelectContainerProps = {
@@ -23,6 +25,13 @@ export type AlgorithmSelectContainerProps = {
   setOptimizers: React.Dispatch<React.SetStateAction<Record<string, FrontendOptimizer>>>
   defaultOptimizer: FrontendOptimizer,
   allowedOptimizers: FrontendOptimizer[]
+  /**
+   * Set while a run is animating. The trajectory itself is already fixed by then —
+   * the server returns every step up front — but the animation loop addresses Plotly
+   * traces by index and reads each optimizer's colour per frame, so adding, removing
+   * or restyling one mid-run makes frames land on the wrong series.
+   */
+  locked?: boolean
 }
 
 export type PlotHandlerProps = {

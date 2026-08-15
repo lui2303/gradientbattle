@@ -20,7 +20,9 @@ import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+import { LatexFormula } from "./LatexFormula"
 import { contourLayout, contourStyle, getPlotTheme, metricLayout, SERIES_COLORS, traceLine } from "@/lib/plotTheme"
+import { MAX_STEPS } from "../constants"
 
 const loadPlotly = () => import('plotly.js-cartesian-dist-min').then((m) => m.default);
 
@@ -49,6 +51,7 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
     const runningRef = useRef(false);
 
     const [animationSpeed, setAnimationSpeed] = useState(50)
+    const [step, setStep] = useState(0)
 
     if (iterateSeed?.optimizers !== optimizers || iterateSeed?.func !== func) {
         setIterateSeed({ optimizers, func })
@@ -133,8 +136,8 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
             ...seedStyle(opt),
         }))
 
-        Plotly.react(c, [surfaceTrace, ...contourSeeds], contourLayout(theme, func.latex), config)
-        Plotly.react(d, distanceSeeds, metricLayout(theme, 'Norm(x)'), config)
+        Plotly.react(c, [surfaceTrace, ...contourSeeds], contourLayout(theme), config)
+        Plotly.react(d, distanceSeeds, metricLayout(theme, '$\\|x\\|_2$'), config)
         Plotly.react(o, objectiveSeeds, metricLayout(theme, 'f(x)'), config)
     }, [func, optimizers, ready, surfaceTrace])
 
@@ -214,9 +217,10 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
 
         runningRef.current = true;
         setRunning(true);
+        setStep(0)
 
 
-        const { traces }: { traces: Point[][]| null } = await mode.run(optimizers, func.name, 100)
+        const { traces }: { traces: Point[][]| null } = await mode.run(optimizers, func.name, MAX_STEPS)
 
         if(!traces) {
             runningRef.current = false
@@ -237,6 +241,7 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
             if (runningRef.current !== true) return
             const step = traces[s]
             const stepNumber = s + 1
+            setStep(stepNumber)
             Plotly.extendTraces(c, { x: step.map((p) => [p.x]), y: step.map((p) => [p.y]) }, contourIdx)
             Plotly.extendTraces(d, { x: stepIdx.map(() => [stepNumber]), y: step.map((p) => [norm(p)]) }, stepIdx)
             Plotly.extendTraces(o, { x: stepIdx.map(() => [stepNumber]), y: step.map((p) => [func.objective(p)]) }, stepIdx)
@@ -260,10 +265,35 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
 
     return (
         <div className="flex flex-col gap-4">
+            {/* Selection and the resulting formula sit side by side: pick the objective
+                on the left, read what it is on the right. The left card is deliberately
+                its own surface so it can grow into a richer function editor. */}
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,20rem)_1fr]">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-sm font-medium text-foreground">Objective function</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <FunctionSelector
+                            allowedFunctions={mode.allowedFunctions}
+                            func={func}
+                            setFuncCallback={(func) => { setFunc(func) }}
+                            disabled={running}
+                        />
+                    </CardContent>
+                </Card>
+
+                <Card className="justify-center">
+                    <CardContent>
+                        <LatexFormula latex={func.latex} className="text-center text-foreground" />
+                    </CardContent>
+                </Card>
+            </div>
+
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-sm font-normal text-muted-foreground">Trajectory</CardTitle>
+                        <CardTitle className="text-center text-sm font-medium text-foreground">Trajectory</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <ContourPlot divRef={contourDiv}></ContourPlot>
@@ -272,7 +302,7 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-sm font-normal text-muted-foreground">Distance to optimum</CardTitle>
+                        <CardTitle className="text-center text-sm font-medium text-foreground">Distance to optimum</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <DistancePlot divRef={distanceDiv}></DistancePlot>
@@ -281,7 +311,7 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-sm font-normal text-muted-foreground">Objective value</CardTitle>
+                        <CardTitle className="text-center text-sm font-medium text-foreground">Objective value</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <ObjectiveValuePlot divRef={objectiveDiv}></ObjectiveValuePlot>
@@ -298,8 +328,14 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
 
                     <Separator orientation="vertical" className="hidden data-vertical:h-6 data-vertical:self-center sm:block" />
 
+                    {/* Fixed min-width rather than zero-padding, so the row doesn't
+                        reflow as the digit count grows during a run. */}
+                    <span className="min-w-[5.5rem] font-mono text-xs tabular-nums text-muted-foreground">
+                        step <span className="text-foreground">{step}</span>/{MAX_STEPS}
+                    </span>
+
                     <div className="flex items-center gap-3">
-                        <Label htmlFor="animation-speed" className="text-muted-foreground">Speed</Label>
+                        <Label htmlFor="animation-speed" className="text-muted-foreground">Step Speed</Label>
                         <Slider
                             id="animation-speed"
                             className="w-32 sm:w-40"
@@ -314,19 +350,12 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
                         </span>
                     </div>
 
-                    <div className="ml-auto">
-                        <FunctionSelector
-                            allowedFunctions={mode.allowedFunctions}
-                            func={func}
-                            setFuncCallback={(func) => { setFunc(func) }}
-                        />
-                    </div>
                 </CardContent>
             </Card>
 
             <Leaderboard optimizers={optimizers} currentIterates={currentIterate}></Leaderboard>
 
-            <AlgorithmSelectContainer allowedOptimizers={mode.allowedOptimizer} defaultOptimizer={mode.allowedOptimizer[0]} optimizers={optimizers} setOptimizers={setOptimizers}>
+            <AlgorithmSelectContainer allowedOptimizers={mode.allowedOptimizer} defaultOptimizer={mode.allowedOptimizer[0]} optimizers={optimizers} setOptimizers={setOptimizers} locked={running}>
             </AlgorithmSelectContainer>
         </div>
     )

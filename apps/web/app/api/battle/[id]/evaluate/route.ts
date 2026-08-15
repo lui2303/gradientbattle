@@ -4,7 +4,7 @@ import { norm } from "@gradientbattle/core/src/math_helper";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { timingSafeEqual } from "node:crypto";
-import { MAX_SUBMISSIONS } from "@/app/constants";
+import { MAX_STEPS, MAX_SUBMISSIONS } from "@/app/constants";
 import { calculateEloUpdate } from "./elo";
 
 type BestRun = { iterations: number; distanceToOptimum: number; optimizerID: string; runID: string };
@@ -36,7 +36,7 @@ async function evaluateRuns(battleID: string, playerID: string): Promise<BestRun
             if (!bestRun || compareBestRun(candidate, bestRun) < 0) bestRun = candidate;
         } else {
             for (const [optimizerID, iterate] of Object.entries(run.lastIterate as Record<string, Point>)) {
-                const candidate: BestRun = { optimizerID, distanceToOptimum: norm(iterate), iterations: 100, runID: run.id };
+                const candidate: BestRun = { optimizerID, distanceToOptimum: norm(iterate), iterations: MAX_STEPS, runID: run.id };
                 if (!bestRun || compareBestRun(candidate, bestRun) < 0) bestRun = candidate;
             }
         }

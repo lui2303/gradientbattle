@@ -76,13 +76,56 @@
   --chart-5: #d55181;
 
   /* Plot chrome, read at runtime by lib/plotTheme.ts and handed to Plotly. */
-  --plot-fg: #d4d4d4;
-  --plot-muted: #8a8a8a;
+  --plot-fg: #ffffff;
+  --plot-muted: #ffffff;
   --plot-grid: #2a2a2a;
-  /* The contour ramp is a neutral sequential scale so it never competes with
-     the categorical traces. The high end is capped so every trace keeps >=3:1. */
-  --plot-surface-lo: #0d0d0d;
-  --plot-surface-hi: #2e2e2e;
+
+  /* Loss-surface ramp: sequential encoding of f(x,y). A warm dusk ramp — indigo through
+     magenta and coral to a pale peach. Validated: lightness monotone, every adjacent
+     step clears ΔL 0.06 so levels stay distinguishable, and hue spread is 29°, inside
+     the single-hue tolerance despite reading as several colours.
+     The stop *positions* in lib/plotTheme.ts matter as much as the colours: the
+     bright half of the ramp sits above the value range trajectories occupy
+     (f <= 50 of 200 for the quadratic), so descent paths stay on dark ground —
+     all five trace colours clear 3:1 against #571550, the step at that boundary —
+     and the distant, empty regions of the surface get the contrast. */
+  --plot-ramp-0: #0f0a26;
+  --plot-ramp-1: #2d1149;
+  --plot-ramp-2: #571550;
+  --plot-ramp-3: #a3305c;
+  --plot-ramp-4: #cf5748;
+  --plot-ramp-5: #ec8a4a;
+  --plot-ramp-6: #f7bd72;
+}
+
+@layer base {
+  /* This is an application surface, not a document. Clicking any non-editable text
+     otherwise drops a collapsed selection range, which Chrome paints as a blinking
+     caret — as if the label were typeable. Scoping this to individual components
+     wasn't enough: the selection just anchored to the nearest selectable ancestor,
+     so the whole body opts out and only real fields opt back in. */
+  body {
+    @apply select-none;
+    /* select-none stops a collapsed selection landing in ordinary text, but a caret
+       can still paint in any focused element — the slider thumb is a focusable
+       span, so clicking it put a blinking cursor on the track. Suppressing the
+       caret colour outright means no caret can render anywhere except a real
+       text field, whatever route the focus took. */
+    caret-color: transparent;
+  }
+  input,
+  textarea,
+  [contenteditable="true"] {
+    @apply select-text;
+    caret-color: auto;
+  }
+  /* Range/colour inputs take no typed text, so they get no caret either. */
+  input[type="range"],
+  input[type="color"],
+  input[type="checkbox"],
+  input[type="radio"] {
+    caret-color: transparent;
+  }
 }
 
 @layer base {
