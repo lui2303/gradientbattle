@@ -2,6 +2,7 @@ import { Point } from "@gradientbattle/core";
 import { functionList } from "@gradientbattle/core/src/functions/function_registry";
 import { optimizationAlgorithms } from "@gradientbattle/core/src/optimizers/optimizer_registry";
 import { Session } from "next-auth";
+import { SERIES_COLORS } from "./plotTheme";
 
 
 type RankedOptimizationAlgorithm = {name: string, params: Record<string, {enabled: boolean, value: number}>, startingPoint: {fixed: boolean, value: Point}}
@@ -52,7 +53,9 @@ export const FreeForAllSimulationMode: SimulationMode = {
                     return [key, { enabled: true, value: value }]
                 })
             ),
-            color: "#000000"
+            // Placeholder only — the live colour is claimed from a free palette slot when
+            // an optimizer is added (see nextFreeSeriesColor).
+            color: SERIES_COLORS[0]
         }
     })
 }

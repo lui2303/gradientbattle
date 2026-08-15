@@ -10,6 +10,14 @@ import { Countdown } from "@/app/components/Countdown";
 import { SimulationMode } from "@/lib/simulationMode";
 import { Point } from "@gradientbattle/core";
 import { useBattleSocket } from "../BattleSocketProvider";
+import { toast } from "sonner";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Separator } from "@/components/ui/separator";
+import { SERIES_COLORS } from "@/lib/plotTheme";
+import { TimerIcon } from "lucide-react";
 
 type Phase = GameStatus | "ABORTED" | "LOADING"
 
@@ -78,7 +86,9 @@ export default function BattleScreen({ username, userID, battleID }: { username:
         return {
             async run(optimizer: Record<string, FrontendOptimizer>) {
                 if (submissions >= game!.maxSubmissions) {
-                    console.warn("Max game submissions exceeded")
+                    toast.warning("Submission limit reached", {
+                        description: `You can only submit ${game!.maxSubmissions} runs in a battle.`,
+                    })
                     return { traces: null }
                 }
                 const res = await fetch(`/api/battle/${battleID}/run`, {
@@ -93,30 +103,73 @@ export default function BattleScreen({ username, userID, battleID }: { username:
             },
             requiresAuth: true,
             allowedFunctions: [game!.objective],
-            allowedOptimizer: game!.optimizers.map((k) => ({ ...k, color: "#000000" })),
+            allowedOptimizer: game!.optimizers.map((k) => ({ ...k, color: SERIES_COLORS[0] })),
         }
     }
 
+    const submissionsLeft = game ? game.maxSubmissions - submissions : 0
+
     return (
-        <main className="min-h-screen p-8">
-            <p>1v1 Battle Page. Logged in as {username} with current elo of {elo + eloDelta}</p>
+        <div className="flex flex-col gap-4">
+            <Card>
+                <CardContent className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <span className="text-sm text-muted-foreground">
+                        Signed in as <span className="font-mono text-foreground">{username}</span>
+                    </span>
 
-            {phase === "LOADING" && <p className="opacity-70">Loading battle…</p>}
-            {phase === "ABORTED" && <p className="opacity-70">Battle aborted.</p>}
-            {phase === "BATTLE_ENDED" && <p className="text-2xl font-mono">{resultText + ". Elo changed: " + elo + "->" + (elo + eloDelta)}</p>}
+                    <Separator orientation="vertical" className="hidden data-vertical:h-4 data-vertical:self-center sm:block" />
 
-            {phase === "RUNNING" && gameSeconds != null && (
-                <Countdown seconds={gameSeconds} className="text-2xl font-mono" />
+                    <span className="font-mono text-sm tabular-nums">
+                        {elo + eloDelta} <span className="text-muted-foreground">elo</span>
+                    </span>
+
+                    {phase === "RUNNING" && gameSeconds != null && (
+                        <span className="ml-auto flex items-center gap-3">
+                            {game && (
+                                <Badge variant={submissionsLeft > 0 ? "outline" : "destructive"}>
+                                    {submissions}/{game.maxSubmissions} submissions
+                                </Badge>
+                            )}
+                            <span className="flex items-center gap-1.5">
+                                <TimerIcon className="size-4 text-muted-foreground" />
+                                <Countdown seconds={gameSeconds} className="font-mono text-lg tabular-nums" />
+                            </span>
+                        </span>
+                    )}
+                </CardContent>
+            </Card>
+
+            {phase === "LOADING" && (
+                <Card>
+                    <CardContent className="flex flex-col gap-3">
+                        <Skeleton className="h-4 w-40" />
+                        <Skeleton className="h-64 w-full" />
+                    </CardContent>
+                </Card>
+            )}
+
+            {phase === "ABORTED" && (
+                <Alert variant="destructive">
+                    <AlertTitle>Battle aborted</AlertTitle>
+                    <AlertDescription>A player did not ready up in time.</AlertDescription>
+                </Alert>
+            )}
+
+            {phase === "BATTLE_ENDED" && (
+                <Alert>
+                    <AlertTitle className="font-mono text-xl tracking-wide">{resultText}</AlertTitle>
+                    <AlertDescription className="font-mono tabular-nums">
+                        Elo {elo} → {elo + eloDelta}
+                        {eloDelta !== 0 && ` (${eloDelta > 0 ? "+" : ""}${eloDelta})`}
+                    </AlertDescription>
+                </Alert>
             )}
 
             {phase === "RUNNING" && game && (
-                <>
-                    <p>{submissions}/{game.maxSubmissions} Submissions</p>
-                    <div className={submissions < game.maxSubmissions ? "" : "opacity-50"}>
-                        <Simulation mode={buildMode()} />
-                    </div>
-                </>
+                <div className={submissionsLeft > 0 ? "" : "opacity-50"}>
+                    <Simulation mode={buildMode()} />
+                </div>
             )}
-        </main>
+        </div>
     );
 }

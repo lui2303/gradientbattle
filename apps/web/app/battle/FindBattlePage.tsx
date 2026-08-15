@@ -4,8 +4,22 @@ import { useRouter } from "next/navigation";
 import { BattleUser } from '@/server'
 import { ClientMessageTypes, ServerMessageTypes, ServerResponse } from "@/app/types";
 import { useBattleSocket } from "./BattleSocketProvider";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Separator } from "@/components/ui/separator";
+import { SwordsIcon } from "lucide-react";
 
 type MatchPhase = "IDLE" | "QUEUED" | "FOUND" | "READY" | "ABORTED"
+
+const PHASE_LABEL: Record<MatchPhase, string> = {
+    IDLE: "Idle",
+    QUEUED: "In queue",
+    FOUND: "Opponent found",
+    READY: "Ready",
+    ABORTED: "Aborted",
+}
 
 export default function BattleScreen({ username }: { username: string, userID: string }) {
     const { subscribe, unsubscribe, send } = useBattleSocket()!
@@ -50,43 +64,71 @@ export default function BattleScreen({ username }: { username: string, userID: s
     const canFind = phase === "IDLE" || phase === "ABORTED"
 
     return (
-        <main className="min-h-screen p-8">
-            <p>1v1 Battle Page. Logged in as {username}</p>
+        <Card className="mx-auto max-w-lg">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <SwordsIcon className="size-4 text-muted-foreground" />
+                    Ranked battle
+                </CardTitle>
+                <CardDescription>
+                    Signed in as <span className="font-mono text-foreground">{username}</span>
+                </CardDescription>
+            </CardHeader>
 
-            {canFind && (
-                <button
-                    className="bg-amber-600 px-3 py-1 rounded"
-                    onClick={() => send({ type: ClientMessageTypes.FIND_OPPONENT })}
-                >
-                    Find opponent
-                </button>
-            )}
+            <CardContent className="flex flex-col gap-4">
+                <div className="flex items-center gap-2">
+                    <Badge variant={phase === "ABORTED" ? "destructive" : "outline"}>
+                        {PHASE_LABEL[phase]}
+                    </Badge>
+                    {/* The initial status string just repeats the badge; only show server detail. */}
+                    {phase !== "IDLE" && <span className="text-sm text-muted-foreground">{status}</span>}
+                </div>
 
-            {phase === "QUEUED" && (
-                <button
-                    className="bg-amber-600 px-3 py-1 rounded"
-                    onClick={() => send({ type: ClientMessageTypes.ABORT })}
-                >
-                    Abort
-                </button>
-            )}
+                {phase === "QUEUED" && (
+                    <div className="flex flex-col gap-2">
+                        <Skeleton className="h-4 w-2/3" />
+                        <Skeleton className="h-4 w-1/2" />
+                    </div>
+                )}
 
-            <p className="mt-2 text-sm opacity-70">{status}</p>
+                {opponent && (
+                    <>
+                        <Separator />
+                        <div className="flex items-baseline justify-between">
+                            <span className="text-sm">{opponent.name}</span>
+                            <span className="font-mono text-sm tabular-nums text-muted-foreground">
+                                {opponent.elo} elo
+                            </span>
+                        </div>
+                    </>
+                )}
 
-            {opponent && <p>Found opponent {opponent.name} with elo {opponent.elo}</p>}
+                <div className="flex gap-2">
+                    {canFind && (
+                        <Button onClick={() => send({ type: ClientMessageTypes.FIND_OPPONENT })}>
+                            Find opponent
+                        </Button>
+                    )}
 
-            {(phase === "FOUND" || phase === "READY") && (
-                <button
-                    className="bg-green-600 px-3 py-1 rounded"
-                    disabled={phase === "READY"}
-                    onClick={() => {
-                        setPhase("READY")
-                        send({ type: ClientMessageTypes.READY })
-                    }}
-                >
-                    Ready
-                </button>
-            )}
-        </main>
+                    {phase === "QUEUED" && (
+                        <Button variant="outline" onClick={() => send({ type: ClientMessageTypes.ABORT })}>
+                            Abort
+                        </Button>
+                    )}
+
+                    {(phase === "FOUND" || phase === "READY") && (
+                        <Button
+                            disabled={phase === "READY"}
+                            onClick={() => {
+                                setPhase("READY")
+                                send({ type: ClientMessageTypes.READY })
+                            }}
+                        >
+                            {phase === "READY" ? "Waiting for opponent…" : "Ready"}
+                        </Button>
+                    )}
+                </div>
+            </CardContent>
+        </Card>
     );
 }

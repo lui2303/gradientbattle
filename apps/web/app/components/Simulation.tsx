@@ -10,36 +10,24 @@ import { norm } from "@gradientbattle/core/src/math_helper"
 import { Point } from "@gradientbattle/core/src/types"
 import { DistancePlot } from "./DistancePlot"
 import { ObjectiveValuePlot } from "./ObjectiveValuePlot"
-import type { Config, Data, Layout, PlotHoverEvent, PlotlyHTMLElement } from "plotly.js"
+import type { Config, Data, PlotHoverEvent, PlotlyHTMLElement } from "plotly.js"
 import { Leaderboard } from "./Leaderboard"
 import { SimulationMode } from "@/lib/simulationMode"
 import { quadraticFunction } from "@gradientbattle/core/src/functions/quadratic_function"
+import { PlayIcon, SquareIcon } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Slider } from "@/components/ui/slider"
+import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/separator"
+import { contourLayout, contourStyle, getPlotTheme, metricLayout, SERIES_COLORS, traceLine } from "@/lib/plotTheme"
 
 const loadPlotly = () => import('plotly.js-cartesian-dist-min').then((m) => m.default);
 
 // Stable, non-reactive figure config/layouts.
 const config: Partial<Config> = { displayModeBar: false, typesetMath: true, responsive: true }
 
-const distanceLayout: Partial<Layout> = {
-    xaxis: { title: { text: 'steps' }, color: 'white', autorange: true },
-    yaxis: { title: { text: 'Norm(x)' }, color: 'white', autorange: true },
-    paper_bgcolor: 'rgba(0,0,0,0)',
-    plot_bgcolor: 'rgba(0,0,0,0)',
-    autosize: true,
-    showlegend: false,
-    legend: { itemclick: false, itemdoubleclick: false },
-}
-
-const objectiveLayout: Partial<Layout> = {
-    xaxis: { title: { text: 'steps' }, color: 'white', autorange: true },
-    yaxis: { title: { text: 'f(x)' }, color: 'white', autorange: true },
-    paper_bgcolor: 'rgba(0,0,0,0)',
-    plot_bgcolor: 'rgba(0,0,0,0)',
-    autosize: true,
-    showlegend: false,
-    legend: { itemclick: false, itemdoubleclick: false },
-}
-
+const MARKER_SIZE = 4
 
 export function Simulation({ mode }: { mode: SimulationMode }) {
     const contourDiv = useRef<HTMLDivElement | null>(null)
@@ -48,9 +36,11 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
 
     const plotlyRef = useRef<typeof import('plotly.js') | null>(null)
     const [ready, setReady] = useState(false)
-    
+
     const [func, setFunc] = useState<objectiveFunction>(new quadraticFunction([[1,0],[0,1]], {x: 0, y: 0}, 0))
-    const [optimizers, setOptimizers] = useState<Record<string, FrontendOptimizer>>({[crypto.randomUUID()]: mode.allowedOptimizer[0]})
+    const [optimizers, setOptimizers] = useState<Record<string, FrontendOptimizer>>(() => ({
+        [crypto.randomUUID()]: { ...mode.allowedOptimizer[0], color: SERIES_COLORS[0] },
+    }))
 
     const [currentIterate, setcurrentIterate] = useState<Record<string, Iterate>>({})
     const [iterateSeed, setIterateSeed] = useState<{ optimizers: typeof optimizers; func: typeof func } | null>(null)
@@ -69,8 +59,6 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
         setcurrentIterate(seed)
     }
 
-    
-
     // The loss surface is expensive (101x101 objective evaluations); recompute only when func changes.
     const surfaceTrace = useMemo<Data>(() => {
         const x = Array.from({ length: 101 }, (_, i) => i * 0.2 - 10)
@@ -80,7 +68,7 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
             type: 'contour' as const,
             x, y, z,
             name: 'Loss surface',
-            colorbar: { tickfont: { color: 'white' } },
+            ...contourStyle(getPlotTheme()),
         }
     }, [func])
 
@@ -113,49 +101,41 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
         const c = contourDiv.current, d = distanceDiv.current, o = objectiveDiv.current
         if (!c || !d || !o) return
 
+        const theme = getPlotTheme()
+
         // Contour plots position (x, y); the other two plot a metric against the step index, so
         // their seeds start at step 0 with the metric of the starting point.
         const entries = Object.entries(optimizers)
+        const seedStyle = (opt: FrontendOptimizer) => ({
+            type: 'scatter' as const,
+            mode: 'lines+markers' as const,
+            line: traceLine(opt.color),
+            marker: { size: MARKER_SIZE, color: opt.color },
+        })
+
         const contourSeeds: Data[] = entries.map(([id, opt]) => ({
             x: [opt.startingPoint.value.x],
             y: [opt.startingPoint.value.y],
-            type: 'scatter' as const,
-            mode: 'lines+markers' as const,
             name: id,
-            line: { color: opt.color },
+            ...seedStyle(opt),
         }))
         const distanceSeeds: Data[] = entries.map(([id, opt]) => ({
             x: [0],
             y: [norm(opt.startingPoint.value)],
-            type: 'scatter' as const,
-            mode: 'lines+markers' as const,
             name: id,
-            line: { color: opt.color },
+            ...seedStyle(opt),
         }))
-        
+
         const objectiveSeeds: Data[] = entries.map(([id, opt]) => ({
             x: [0],
             y: [func.objective(opt.startingPoint.value)],
-            type: 'scatter' as const,
-            mode: 'lines+markers' as const,
             name: id,
-            line: { color: opt.color },
+            ...seedStyle(opt),
         }))
 
-        const contourLayout: Partial<Layout> = {
-            title: { text: `$${func.latex}$`, font: { color: 'white' } },
-            xaxis: { title: { text: 'x' }, color: 'white', range: [-10, 10], autorange: false },
-            yaxis: { title: { text: 'y' }, color: 'white', range: [-10, 10], autorange: false },
-            paper_bgcolor: 'rgba(0,0,0,0)',
-            plot_bgcolor: 'rgba(0,0,0,0)',
-            autosize: true,
-            showlegend: false,
-            legend: { itemclick: false, itemdoubleclick: false },
-        }
-
-        Plotly.react(c, [surfaceTrace, ...contourSeeds], contourLayout, config)
-        Plotly.react(d, distanceSeeds, distanceLayout, config)
-        Plotly.react(o, objectiveSeeds, objectiveLayout, config)
+        Plotly.react(c, [surfaceTrace, ...contourSeeds], contourLayout(theme, func.latex), config)
+        Plotly.react(d, distanceSeeds, metricLayout(theme, 'Norm(x)'), config)
+        Plotly.react(o, objectiveSeeds, metricLayout(theme, 'f(x)'), config)
     }, [func, optimizers, ready, surfaceTrace])
 
     // Resizer
@@ -237,7 +217,7 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
 
 
         const { traces }: { traces: Point[][]| null } = await mode.run(optimizers, func.name, 100)
-        
+
         if(!traces) {
             runningRef.current = false
             setRunning(false)
@@ -253,7 +233,7 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
 
         // Append one simulation step per frame. Each `step` is one Point per optimizer, in id order.
         for (let s = 0; s < traces.length; s++) {
-            
+
             if (runningRef.current !== true) return
             const step = traces[s]
             const stepNumber = s + 1
@@ -267,48 +247,87 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
                 })
                 return next
             })
-            
+
             await new Promise((r) => setTimeout(r, animationSpeed));
         }
 
         mode.onRunComplete?.()
-        
-        
+
+
         runningRef.current = false;
         setRunning(false);
     };
 
     return (
-        <div>
-                <div className="grid grid-cols-3 gap-4">
-                    <ContourPlot divRef={contourDiv}></ContourPlot>
+        <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-sm font-normal text-muted-foreground">Trajectory</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ContourPlot divRef={contourDiv}></ContourPlot>
+                    </CardContent>
+                </Card>
 
-                    <DistancePlot divRef={distanceDiv}></DistancePlot>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-sm font-normal text-muted-foreground">Distance to optimum</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <DistancePlot divRef={distanceDiv}></DistancePlot>
+                    </CardContent>
+                </Card>
 
-                    <ObjectiveValuePlot divRef={objectiveDiv}></ObjectiveValuePlot>
-                </div>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-sm font-normal text-muted-foreground">Objective value</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ObjectiveValuePlot divRef={objectiveDiv}></ObjectiveValuePlot>
+                    </CardContent>
+                </Card>
+            </div>
 
-                <div className="flex flex-col gap-2 mt-2">
-                    <Leaderboard optimizers={optimizers} currentIterates={currentIterate}></Leaderboard>
+            <Card>
+                <CardContent className="flex flex-wrap items-center gap-x-4 gap-y-3">
+                    <Button onClick={playSimulation} variant={running ? "destructive" : "default"}>
+                        {running ? <SquareIcon /> : <PlayIcon />}
+                        {running ? "Stop" : "Start"}
+                    </Button>
 
-                    <button className="bg-cyan-800" onClick={playSimulation}>{running ? "Stop" : "Start"}</button>
-                    <br />
-                    <label>Animation Speed: {animationSpeed} ms</label>
-                    <input
-                        type="range"
-                        min="50"
-                        max="2000"
-                        value={animationSpeed}
-                        onChange={(e) => setAnimationSpeed(Number(e.target.value))}
+                    <Separator orientation="vertical" className="hidden data-vertical:h-6 data-vertical:self-center sm:block" />
 
-                    />
-                </div>
-                <FunctionSelector allowedFunctions={mode.allowedFunctions} func={func} setFuncCallback={(func) => { setFunc(func)}}></FunctionSelector>
+                    <div className="flex items-center gap-3">
+                        <Label htmlFor="animation-speed" className="text-muted-foreground">Speed</Label>
+                        <Slider
+                            id="animation-speed"
+                            className="w-32 sm:w-40"
+                            min={50}
+                            max={2000}
+                            step={50}
+                            value={[animationSpeed]}
+                            onValueChange={([value]) => setAnimationSpeed(value)}
+                        />
+                        <span className="w-16 font-mono text-xs tabular-nums text-muted-foreground">
+                            {animationSpeed} ms
+                        </span>
+                    </div>
 
-                <AlgorithmSelectContainer allowedOptimizers={mode.allowedOptimizer} defaultOptimizer={mode.allowedOptimizer[0]} optimizers={optimizers} setOptimizers={setOptimizers}>
-                </AlgorithmSelectContainer>
+                    <div className="ml-auto">
+                        <FunctionSelector
+                            allowedFunctions={mode.allowedFunctions}
+                            func={func}
+                            setFuncCallback={(func) => { setFunc(func) }}
+                        />
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Leaderboard optimizers={optimizers} currentIterates={currentIterate}></Leaderboard>
+
+            <AlgorithmSelectContainer allowedOptimizers={mode.allowedOptimizer} defaultOptimizer={mode.allowedOptimizer[0]} optimizers={optimizers} setOptimizers={setOptimizers}>
+            </AlgorithmSelectContainer>
         </div>
     )
 }
-
-//<FunctionSelector func={func} setFuncCallback={(func) => { setFunc(func); setchallengeMode(false) }}></FunctionSelector>  add the setchallengemode behind a conditional check if the selected function is the daily challenge function

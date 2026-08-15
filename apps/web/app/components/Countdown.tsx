@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 type CountdownProps = {
     seconds: number
@@ -11,7 +11,7 @@ export function Countdown({ seconds, className }: CountdownProps) {
     const [remaining, setRemaining] = useState(seconds);
 
 
-    useEffect(() => {0
+    useEffect(() => {
         const deadline = Date.now() + seconds * 1000;
         let fired = false;
 
