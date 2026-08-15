@@ -19,7 +19,10 @@ services:
       retries: 40
       start_period: 10s
     depends_on:
-      - redis
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
 
   battle:
     build:
@@ -42,6 +45,26 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: gradientbattle
+      POSTGRES_PASSWORD: gradientbattle
+      POSTGRES_DB: gradientbattle
+    ports:
+      # 5433 on the host: a system Postgres already owns 5432 on this machine.
+      # Inside the compose network other services still reach it as postgres:5432.
+      - "5433:5432"
+    volumes:
+      - gradientbattle-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gradientbattle -d gradientbattle"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   redis:
     image: redis:7-alpine
@@ -60,3 +83,4 @@ services:
 volumes:
   gradientbattle-pnpm-store:
   gradientbattle-redis:
+  gradientbattle-postgres:

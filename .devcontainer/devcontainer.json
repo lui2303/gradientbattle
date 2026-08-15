@@ -4,6 +4,11 @@
     "dockerfile": "Dockerfile"
   },
   "workspaceFolder": "/workspace",
+  // Host networking so the container's `localhost` is the host's. The app hardcodes
+  // localhost for its backing services (redis://localhost:6379 in lib/redisClient.ts,
+  // localhost:5433 for Postgres in .env); on the default bridge network neither is
+  // reachable from inside the container. Requires a container rebuild to take effect.
+  "runArgs": ["--network=host"],
   "mounts": [
     "source=${localWorkspaceFolder},target=/workspace,type=bind",
     "source=gradientbattle-pnpm-store,target=/pnpm-store,type=volume"

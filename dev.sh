@@ -25,6 +25,9 @@ start() {
     pids+=($!)
 }
 
+# Postgres is not started here — bring it up with `docker compose up -d postgres`
+# (host port 5433, matching DATABASE_URL in apps/web/.env).
+
 # Redis: ephemeral dev instance — no RDB/AOF files dumped into the repo.
 start redis-server --port 6379 --save "" --appendonly no
 # Next.js dev server (:3000)

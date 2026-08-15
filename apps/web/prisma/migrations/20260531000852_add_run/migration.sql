@@ -1,7 +1,0 @@
--- CreateTable
-CREATE TABLE "Run" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "traces" JSONB NOT NULL,
-    "iterations" INTEGER NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
