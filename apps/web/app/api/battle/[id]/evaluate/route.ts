@@ -103,7 +103,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         });
         if (claimed.count === 0) return null
 
-        if(!firstPlayerBestRun && !secondPlayerBestRun) return //dont reward not playing
+        if(!firstPlayerBestRun && !secondPlayerBestRun) { // no one submitted, remove battle from database
+            await tx.battle.delete({
+                where: {id: currentBattle.id}
+            })
+            return
+        }
 
         const users = await tx.user.findMany({ where: { id: { in: [currentBattle.player1Id, currentBattle.player2Id] } } });
         const playerA = users.find(u => u.id === currentBattle.player1Id)!
@@ -132,6 +137,14 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
                 peakElo: Math.max(playerB.peakElo, playerB.elo + deltaB),
                 gamesPlayed: { increment: 1 },
             },
+        })
+
+        await tx.battle.update({
+            where: {id: currentBattle.id},
+            data: {
+                player1EloDelta: deltaA,
+                player2EloDelta: deltaB
+            }
         })
     });
 

@@ -30,12 +30,15 @@ model Battle {
 
   player1Id String
   player1   User   @relation("BattlePlayer1", fields: [player1Id], references: [id])
+  player1EloDelta Int?
 
   player2Id String
   player2   User   @relation("BattlePlayer2", fields: [player2Id], references: [id])
-  winnerId  String?
+  player2EloDelta Int?
 
+  winnerId  String?
   winner    User?  @relation("BattleWinner", fields: [winnerId], references: [id], onDelete: SetNull)
+  
   game      Json
 
   battleRuns BattleRun[] @relation("BattleRuns")

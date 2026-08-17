@@ -1136,7 +1136,9 @@ export const BattleScalarFieldEnum = {
   endsAt: 'endsAt',
   status: 'status',
   player1Id: 'player1Id',
+  player1EloDelta: 'player1EloDelta',
   player2Id: 'player2Id',
+  player2EloDelta: 'player2EloDelta',
   winnerId: 'winnerId',
   game: 'game',
   winningRunId: 'winningRunId'
