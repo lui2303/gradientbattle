@@ -3,8 +3,39 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton"
 import { prisma } from "@/lib/prisma"
 import { MATCH_HISTORY_LENGTH } from "../constants"
-import { match } from "assert"
 
+const PLACEHOLDER_ROWS = 6
+
+export function MatchHistoryCardSkeleton() {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-sm font-medium text-foreground">
+                    <HistoryIcon className="size-4 text-muted-foreground" />
+                    Match history
+                </CardTitle>
+                <CardDescription>Your recent ranked battles.</CardDescription>
+            </CardHeader>
+
+            <CardContent>
+                <ul className="flex flex-col gap-3" aria-busy="true" aria-label="Match history loading">
+                    {Array.from({ length: PLACEHOLDER_ROWS }, (_, row) => (
+                        <li key={row} className="flex items-center gap-3">
+                            {/* outcome */}
+                            <Skeleton className="h-5 w-12 shrink-0 rounded-md" />
+                            {/* opponent — varied widths so the block doesn't read as a grid */}
+                            <Skeleton className={row % 2 === 0 ? "h-4 w-32" : "h-4 w-24"} />
+                            {/* elo delta */}
+                            <Skeleton className="ml-auto h-4 w-10 shrink-0" />
+                            {/* when */}
+                            <Skeleton className="hidden h-4 w-16 shrink-0 sm:block" />
+                        </li>
+                    ))}
+                </ul>
+            </CardContent>
+        </Card>
+    )
+}
 
 export async function MatchHistoryCard({userId}: {userId: string}) {
     const match_history = await prisma.battle.findMany({
@@ -37,8 +68,8 @@ export async function MatchHistoryCard({userId}: {userId: string}) {
             </CardHeader>
 
             <CardContent>
-                <ul className="flex flex-col gap-3" aria-busy="true" aria-label="Match history loading">
-                    {match_history.length == 0 ? <p>No matches found</p> : 
+                <ul className="flex flex-col gap-3">
+                    {match_history.length == 0 ? <p>No matches found</p> :
                         match_history.map((match,i) => {
                             const outcome = match.winnerId === null ? "Draw" : match.winnerId == userId ? "Win" : "Loose"
                             const isPlayer1 = match.player1Id == userId

@@ -1,6 +1,7 @@
+import { Suspense } from "react";
 import { auth } from "@/auth";
 import BattleScreen from "./FindBattlePage";
-import { MatchHistoryCard } from "./MatchHistoryCard";
+import { MatchHistoryCard, MatchHistoryCardSkeleton } from "./MatchHistoryCard";
 
 export default async function Page() {
     const session = await auth()
@@ -10,7 +11,11 @@ export default async function Page() {
     return (
         <BattleScreen
             username={session.user.name}
-            historyCard={<MatchHistoryCard userId={session.user.id} />}
+            historyCard={
+                <Suspense fallback={<MatchHistoryCardSkeleton />}>
+                    <MatchHistoryCard userId={session.user.id} />
+                </Suspense>
+            }
         />
     );
 }
