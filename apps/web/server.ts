@@ -380,12 +380,6 @@ wss.on("connection", (raw) => {
 
                     const opponentID = battle.player2 == ws.user.id ? battle.player1 : battle.player2
 
-                    // Redis needs the flat string; Postgres takes the object and stores real
-                    // jsonb, so /api/battle/[id]/run reads it back already parsed.
-                    // `startingPointsInequalities` holds predicate *functions* and has never
-                    // survived serialisation — JSON.stringify wrote [null] under SQLite, and
-                    // Postgres's typed Json input rejects it outright — so it is dropped
-                    // explicitly. Nothing reads it back off the persisted row.
                     const persistedGame = {
                         objective: generatedGame.objective,
                         optimizers: generatedGame.optimizers,

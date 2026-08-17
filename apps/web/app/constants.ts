@@ -10,3 +10,5 @@ export const MAX_SUBMISSIONS = 2
 export const WS_URL = process.env.NEXT_PUBLIC_BATTLE_WS_URL ?? "ws://localhost:3001"
 
 export const READY_UP_TIME = 20_000 // time for a player to ready up
+
+export const MATCH_HISTORY_LENGTH = 10

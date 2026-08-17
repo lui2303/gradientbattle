@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { SwordsIcon } from "lucide-react";
-import { MatchHistoryCard } from "./MatchHistoryCard";
+import type { ReactNode } from "react";
 
 type MatchPhase = "IDLE" | "QUEUED" | "FOUND" | "READY" | "ABORTED"
 
@@ -22,7 +22,7 @@ const PHASE_LABEL: Record<MatchPhase, string> = {
     ABORTED: "Aborted",
 }
 
-export default function BattleScreen({ username }: { username: string, userID: string }) {
+export default function BattleScreen({ username, historyCard }: { username: string, historyCard: ReactNode }) {
     const { subscribe, unsubscribe, send } = useBattleSocket()!
 
     const [phase, setPhase] = useState<MatchPhase>("IDLE")
@@ -133,7 +133,7 @@ export default function BattleScreen({ username }: { username: string, userID: s
                 </CardContent>
             </Card>
 
-            <MatchHistoryCard />
+            {historyCard}
         </div>
     );
 }

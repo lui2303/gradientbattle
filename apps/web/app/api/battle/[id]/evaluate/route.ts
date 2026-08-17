@@ -4,7 +4,7 @@ import { norm } from "@gradientbattle/core/src/math_helper";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { timingSafeEqual } from "node:crypto";
-import { MAX_STEPS, MAX_SUBMISSIONS } from "@/app/constants";
+import { MAX_STEPS } from "@/app/constants";
 import { calculateEloUpdate } from "./elo";
 
 type BestRun = { iterations: number; distanceToOptimum: number; optimizerID: string; runID: string };
@@ -96,7 +96,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     let deltaA: number | undefined
     let deltaB: undefined | number
 
-    const result = await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx) => {
         const claimed = await tx.battle.updateMany({ // prevent race conditions
             where: { id: currentBattle.id, status: { not: "evaluated" } },
             data: { status: "evaluated", winnerId, winningRunId },
