@@ -91,9 +91,16 @@ export function nextFreeSeriesColor(used: string[]): string {
     return palette.find((color) => !taken.has(color.toLowerCase())) ?? palette[0]
 }
 
+/**
+ * One size for every axis label, x and y alike. The y labels are annotations and the
+ * x labels are real axis titles, so without a shared constant the two drift apart —
+ * which is exactly what happened when the y side was enlarged for MathJax.
+ */
+const AXIS_LABEL_SIZE = 15
+
 function axis(theme: PlotTheme, title: string | null, fixedRange?: [number, number]) {
     return {
-        ...(title ? { title: { text: title, font: { color: theme.muted, size: 11 } } } : { title: { text: "" } }),
+        ...(title ? { title: { text: title, font: { color: theme.muted, size: AXIS_LABEL_SIZE } } } : { title: { text: "" } }),
         color: theme.fg,
         tickfont: { color: theme.muted, size: 10 },
         gridcolor: theme.grid,
@@ -106,13 +113,11 @@ function axis(theme: PlotTheme, title: string | null, fixedRange?: [number, numb
 /**
  * Plotly rotates a y-axis title to run vertically with no option to keep it upright,
  * so the label is emitted as a paper-anchored annotation instead: still beside the
- * axis on the left and vertically centred, but reading left-to-right. The xshift
- * clears the tick labels, and metricLayout/contourLayout widen the left margin to
- * make room for it.
+ * axis on the left and vertically centred, but reading left-to-right. `shift` clears
+ * the tick labels; each layout sets its own, because the caller's left margin has to
+ * cover the shift plus the label's own width or the text is clipped.
  */
-const Y_LABEL_SHIFT = -30
-
-function horizontalYLabel(theme: PlotTheme, text: string): Partial<Layout>["annotations"] {
+function horizontalYLabel(theme: PlotTheme, text: string, shift: number): Partial<Layout>["annotations"] {
     return [
         {
             text,
@@ -122,9 +127,9 @@ function horizontalYLabel(theme: PlotTheme, text: string): Partial<Layout>["anno
             y: 0.5,
             xanchor: "right",
             yanchor: "middle",
-            xshift: Y_LABEL_SHIFT,
+            xshift: shift,
             showarrow: false,
-            font: { color: theme.muted, size: 11 },
+            font: { color: theme.muted, size: AXIS_LABEL_SIZE },
         },
     ]
 }
@@ -137,7 +142,7 @@ export function baseLayout(theme: PlotTheme): Partial<Layout> {
         font: { color: theme.fg },
         autosize: true,
         showlegend: false, // the leaderboard table is the legend
-        margin: { l: 58, r: 8, t: 8, b: 36 },
+        margin: { l: 58, r: 8, t: 8, b: 42 },
     }
 }
 
@@ -146,8 +151,11 @@ export function metricLayout(theme: PlotTheme, yTitle: string): Partial<Layout> 
         ...baseLayout(theme),
         xaxis: axis(theme, "steps"),
         yaxis: axis(theme, null),
-        annotations: horizontalYLabel(theme, yTitle),
-        margin: { l: 58, r: 8, t: 8, b: 36 },
+        // Sized to measured content rather than guessed: the typeset label is ~35px
+        // wide and the widest tick ~20px, so shift 30 leaves a 10px gap to the ticks
+        // and the margin is that plus the label plus a few px — no dead strip.
+        annotations: horizontalYLabel(theme, yTitle, -30),
+        margin: { l: 68, r: 8, t: 8, b: 42 },
     }
 }
 
@@ -168,8 +176,11 @@ export function contourLayout(theme: PlotTheme): Partial<Layout> {
             scaleratio: 1,
             constrain: "domain",
         },
-        annotations: horizontalYLabel(theme, "y"),
-        margin: { l: 58, r: 8, t: 8, b: 36 },
+        // A bare "y" is only ~11px wide, so this margin is tighter still — which
+        // matters here because the contour is width-bound and every pixel reclaimed
+        // goes straight into the square data area.
+        annotations: horizontalYLabel(theme, "y", -26),
+        margin: { l: 44, r: 8, t: 8, b: 42 },
     }
 }
 

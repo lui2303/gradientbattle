@@ -138,7 +138,7 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
 
         Plotly.react(c, [surfaceTrace, ...contourSeeds], contourLayout(theme), config)
         Plotly.react(d, distanceSeeds, metricLayout(theme, '$\\|x\\|_2$'), config)
-        Plotly.react(o, objectiveSeeds, metricLayout(theme, 'f(x)'), config)
+        Plotly.react(o, objectiveSeeds, metricLayout(theme, '$f(x)$'), config)
     }, [func, optimizers, ready, surfaceTrace])
 
     // Resizer

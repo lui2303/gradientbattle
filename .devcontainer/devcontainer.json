@@ -23,10 +23,17 @@
         "ms-vscode.vscode-typescript-next"
       ],
       "settings": {
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
+        // Under host networking the container's ports already are the host's, so
+        // forwarding is pure downside: VS Code holds the forwarded socket open on the
+        // host, and the container is then refused when it tries to bind that same port.
+        // `restoreForwardedPorts` matters as much as `autoForwardPorts` — forwards are
+        // remembered per workspace and re-established on attach, so a reload alone
+        // brings them back.
+        "remote.autoForwardPorts": false,
+        "remote.restoreForwardedPorts": false
       }
     }
   },
-  "forwardPorts": [3000, 3001],
   "postCreateCommand": "corepack enable && pnpm install"
 }
