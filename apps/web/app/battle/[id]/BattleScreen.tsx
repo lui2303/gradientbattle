@@ -18,11 +18,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { SERIES_COLORS } from "@/lib/plotTheme";
 import { TimerIcon } from "lucide-react";
+import { BattleResult } from "./BattleResult";
 
 type Phase = GameStatus | "ABORTED" | "LOADING"
-
-const resultTextFor = (winnerId: string | null | undefined, userID: string) =>
-    (!winnerId ? "DRAW" : winnerId === userID ? "YOU WON" : "YOU LOST")
 
 export default function BattleScreen({ username, userID, battleID }: { username: string, userID: string, battleID: string }) {
     const { subscribe, unsubscribe, send } = useBattleSocket()!
@@ -32,7 +30,9 @@ export default function BattleScreen({ username, userID, battleID }: { username:
     const [game, setGame] = useState<rankedGame | null>(null)
     const [submissions, setSubmissions] = useState(0)
     const [gameSeconds, setGameSeconds] = useState<number | null>(null) // snapshot for the Countdown
-    const [resultText, setResultText] = useState("")
+    // Held raw rather than pre-formatted: BattleResult derives the outcome, so the
+    // result screen owns that mapping in one place.
+    const [winnerId, setWinnerId] = useState<string | null>(null)
     const [elo, setElo] = useState(0)
     const [eloDelta, setEloDelta] = useState(0)
 
@@ -50,7 +50,7 @@ export default function BattleScreen({ username, userID, battleID }: { username:
                 setElo(Number(battle.player2Elo))
             }
 
-            if (battle.state === "BATTLE_ENDED") {setResultText(resultTextFor(battle.winnerId, userID));return}
+            if (battle.state === "BATTLE_ENDED") {setWinnerId(battle.winnerId ?? null);return}
             setSubmissions(submissions)
         }
 
@@ -68,7 +68,7 @@ export default function BattleScreen({ username, userID, battleID }: { username:
                 case ServerMessageTypes.BATTLE_RESULT:
                     setPhase("BATTLE_ENDED")
                     setEloDelta(message.payload.eloDeltas[userID] ? message.payload.eloDeltas[userID] : 0)
-                    setResultText(resultTextFor(message.payload.winnerId, userID))
+                    setWinnerId(message.payload.winnerId)
                     break
                 case ServerMessageTypes.ABORT:
                     setPhase("ABORTED")
@@ -156,13 +156,7 @@ export default function BattleScreen({ username, userID, battleID }: { username:
             )}
 
             {phase === "BATTLE_ENDED" && (
-                <Alert>
-                    <AlertTitle className="font-mono text-xl tracking-wide">{resultText}</AlertTitle>
-                    <AlertDescription className="font-mono tabular-nums">
-                        Elo {elo} → {elo + eloDelta}
-                        {eloDelta !== 0 && ` (${eloDelta > 0 ? "+" : ""}${eloDelta})`}
-                    </AlertDescription>
-                </Alert>
+                <BattleResult winnerId={winnerId} userID={userID} elo={elo} eloDelta={eloDelta} />
             )}
 
             {phase === "RUNNING" && game && (

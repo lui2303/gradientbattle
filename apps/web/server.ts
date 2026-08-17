@@ -342,7 +342,9 @@ wss.on("connection", (raw) => {
             }
             case ClientMessageTypes.ABORT: {
                 log.info("received abort message from client")
-                ws.close()
+                const rem = await redis.ZREM("queue", "user:" + ws.user.id)
+                if (rem) log.info({ name: ws.user.name }, "removed user from queue (abort)")
+                send(ws, { type: ServerMessageTypes.ABORT, payload: "Search aborted" })
                 break;
             }
 

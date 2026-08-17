@@ -26,6 +26,10 @@ export default function BattleSocketProvider({children}: Readonly<{children: Rea
             const message = JSON.parse(e.data) as ServerResponse
             subscriberRef.current.forEach((subscriber) => subscriber(message))
         }
+
+        ws.onclose = () => {
+            if (wsRef.current === ws) wsRef.current = null
+        }
     }, [])
 
     const subscribe = useCallback((subscriber: (message: ServerResponse) => void) => {
