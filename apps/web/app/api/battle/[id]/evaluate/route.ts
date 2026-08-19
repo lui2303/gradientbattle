@@ -19,6 +19,14 @@ function hasValidServiceToken(request: Request): boolean {
     return a.length === b.length && timingSafeEqual(a, b);
 }
 
+type SettledBattle = { player1Id: string; player2Id: string; player1EloDelta: number; player2EloDelta: number };
+
+// The client reads eloDeltas[itsOwnUserId], so every 200 has to carry the same shape —
+// including the responses where this request was not the one that did the evaluating.
+function eloDeltasOf(battle: SettledBattle): Record<string, number> {
+    return { [battle.player1Id]: battle.player1EloDelta, [battle.player2Id]: battle.player2EloDelta };
+}
+
 function compareBestRun(a: BestRun, b: BestRun): number {
     if (a.iterations !== b.iterations) return a.iterations - b.iterations;
     return a.distanceToOptimum - b.distanceToOptimum;
@@ -65,7 +73,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     }
 
     if (currentBattle.status === 'evaluated') {
-        return NextResponse.json({ winnerId: currentBattle.winnerId, winningRunId: currentBattle.winningRunId, status: 'evaluated' }, { status: 200 });
+        return NextResponse.json({ winnerId: currentBattle.winnerId, winningRunId: currentBattle.winningRunId, status: 'evaluated', eloDeltas: eloDeltasOf(currentBattle) }, { status: 200 });
     }
 
     if (Date.now() <= currentBattle.endsAt.getTime()) return NextResponse.json({ error: "Battle has not concluded yet" }, { status: 422 });
@@ -93,15 +101,17 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         winningRunId = secondPlayerBestRun.runID;
     } // neither submitted -> draw
 
-    let deltaA: number | undefined
-    let deltaB: undefined | number
+    // 0 is the honest answer for the "nobody submitted" path below, which changes no elo.
+    let deltaA = 0
+    let deltaB = 0
+    let claimedByUs = true
 
     await prisma.$transaction(async (tx) => {
         const claimed = await tx.battle.updateMany({ // prevent race conditions
             where: { id: currentBattle.id, status: { not: "evaluated" } },
             data: { status: "evaluated", winnerId, winningRunId },
         });
-        if (claimed.count === 0) return null
+        if (claimed.count === 0) { claimedByUs = false; return null }
 
         if(!firstPlayerBestRun && !secondPlayerBestRun) { // no one submitted, remove battle from database
             await tx.battle.delete({
@@ -147,6 +157,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
             }
         })
     });
+
+    if (!claimedByUs) {
+        const settled = await prisma.battle.findUnique({ where: { id: currentBattle.id } });
+        if (!settled) return NextResponse.json({ error: "Battle does not exist in DB" }, { status: 422 });
+        return NextResponse.json({ winnerId: settled.winnerId, winningRunId: settled.winningRunId, status: 'evaluated', eloDeltas: eloDeltasOf(settled) }, { status: 200 });
+    }
 
     return NextResponse.json({ winnerId, winningRunId, status: 'evaluated', eloDeltas: {[currentBattle.player1Id]: deltaA, [currentBattle.player2Id]: deltaB}  }, { status: 200 });
 }
