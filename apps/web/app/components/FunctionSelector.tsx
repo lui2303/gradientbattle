@@ -10,6 +10,15 @@ import {
 } from "@/components/ui/select";
 
 export function FunctionSelector({allowedFunctions, func, setFuncCallback, disabled = false}: {allowedFunctions: string[],func: objectiveFunction, setFuncCallback: (func: objectiveFunction) => void, disabled?: boolean}) {
+    if (allowedFunctions.length === 1) {
+        return (
+            <div className="flex items-center gap-3">
+                <Label className="text-muted-foreground">Function</Label>
+                <span className="font-mono text-sm text-foreground">{allowedFunctions[0]}</span>
+            </div>
+        )
+    }
+
     return (
         <div className="flex items-center gap-3">
             <Label htmlFor="objective-function" className="text-muted-foreground">Function</Label>

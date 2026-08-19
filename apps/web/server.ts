@@ -6,10 +6,10 @@ import { prisma } from "./lib/prisma";
 import { logger } from "./lib/logger";
 import { objectiveFunction, Optimizer, Point } from "@gradientbattle/core";
 import { ADAGRAD_NAME, ADAM_NAME, GD_MOMENTUM_NAME, GD_NAME, RMSPROP_NAME } from "@gradientbattle/core/src/optimizers/constants";
-import { optimizationAlgorithms, optimizationAlgorithmsList } from "@gradientbattle/core/src/optimizers/optimizer_registry";
+import { optimizationAlgorithms } from "@gradientbattle/core/src/optimizers/optimizer_registry";
 import { start } from "node:repl";
 import { quadraticFunction } from "@gradientbattle/core/src/functions/quadratic_function";
-import { MAX_SUBMISSIONS, READY_UP_TIME } from "./app/constants";
+import { MAX_SUBMISSIONS, READY_UP_TIME, API_BASE_URL, INTERNAL_SERVICE_TOKEN } from "./app/constants";
 import { ClientMessageTypes, ClientResponse, GameStatus, rankedGame, redisBattleRaw, ServerMessageTypes, ServerResponse } from "./app/types";
 
 const PORT = Number(process.env.BATTLE_PORT ?? 3001);
@@ -17,8 +17,8 @@ const SECRET = process.env.AUTH_SECRET;
 const READY_TIME_MS = 20000
 const GAME_DURATION = 120_000
 
-const API_BASE_URL = process.env.API_BASE_URL ?? "http://localhost:3000";
-const INTERNAL_SERVICE_TOKEN = process.env.INTERNAL_SERVICE_TOKEN ?? "";
+
+
 const EVAL_BUFFER_MS = 2_000; // fire just after the endpoint's elapsed-time gate opens
 const RESULT_GRACE_SECONDS = 120;
 
