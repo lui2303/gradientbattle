@@ -1,15 +1,22 @@
 'use client'
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type CountdownProps = {
     seconds: number
+    onComplete: () => void
     className?: string
 };
 
-export function Countdown({ seconds, className }: CountdownProps) {
+export function Countdown({ seconds, onComplete, className }: CountdownProps) {
     const [remaining, setRemaining] = useState(seconds);
 
+    // Held in a ref so an inline callback prop doesn't restart the interval
+    // (and reset the deadline) on every render.
+    const onCompleteRef = useRef(onComplete);
+    useEffect(() => {
+        onCompleteRef.current = onComplete;
+    }, [onComplete]);
 
     useEffect(() => {
         const deadline = Date.now() + seconds * 1000;
@@ -20,6 +27,7 @@ export function Countdown({ seconds, className }: CountdownProps) {
             setRemaining(left);
             if (left === 0 && !fired) {
                 fired = true;
+                onCompleteRef.current();
             }
         };
 

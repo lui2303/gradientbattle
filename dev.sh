@@ -66,7 +66,10 @@ start pnpm --filter web dev
 # Battle WebSocket server (:3001) — reads AUTH_SECRET from apps/web/.env
 start pnpm --filter web battle
 
-echo "postgres :5433 | redis :6379 | web :3000 | battle :3001  (Ctrl-C to stop all)"
+SWEEP_INTERVAL_SECONDS="${SWEEP_INTERVAL_SECONDS:-10}"
+start bash -c "while sleep $SWEEP_INTERVAL_SECONDS; do pnpm --filter web sweep || true; done"
+
+echo "postgres :5433 | redis :6379 | web :3000 | battle :3001 | sweep every ${SWEEP_INTERVAL_SECONDS}s  (Ctrl-C to stop all)"
 
 # Exit (and tear everything down) as soon as any one of them dies.
 wait -n

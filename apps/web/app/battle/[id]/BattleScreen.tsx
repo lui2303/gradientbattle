@@ -2,8 +2,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-    ClientMessageTypes, FrontendOptimizer, GameStatus, rankedGame,
-    redisBattleRaw, ServerMessageTypes, ServerResponse,
+    battleSync, ClientMessageTypes, FrontendOptimizer, GameStatus, rankedGame,
+    ServerMessageTypes, ServerResponse,
 } from "@/app/types";
 import { Simulation } from "@/app/components/Simulation";
 import { Countdown } from "@/app/components/Countdown";
@@ -22,6 +22,9 @@ import { BattleResult } from "./BattleResult";
 
 type Phase = GameStatus | "ABORTED" | "LOADING"
 
+const EVAL_MAX_ATTEMPTS = 5
+const EVAL_BASE_MS = 500
+
 export default function BattleScreen({ username, userID, battleID }: { username: string, userID: string, battleID: string }) {
     const { subscribe, unsubscribe, send } = useBattleSocket()!
     const router = useRouter()
@@ -35,13 +38,24 @@ export default function BattleScreen({ username, userID, battleID }: { username:
     const [winnerId, setWinnerId] = useState<string | null>(null)
     const [elo, setElo] = useState(0)
     const [eloDelta, setEloDelta] = useState(0)
+    const [evaluating, setEvaluating] = useState(false)
+    const [attempt, setAttempt] = useState(0)
 
     useEffect(() => {
-        const hydrate = (battle: redisBattleRaw, submissions: number) => {
+        if (!evaluating || phase === "BATTLE_ENDED" || attempt >= EVAL_MAX_ATTEMPTS) return
+
+        send({ type: ClientMessageTypes.EVALUATE })
+
+        const id = setTimeout(() => setAttempt((a) => a + 1), EVAL_BASE_MS * 2 ** attempt)
+        return () => clearTimeout(id)
+    }, [evaluating, attempt, phase, send])
+
+    useEffect(() => {
+        const hydrate = (battle: battleSync, submissions: number) => {
             setPhase(battle.state as GameStatus)
             if (battle.game) setGame(JSON.parse(battle.game) as rankedGame)
-            if (battle.gameEndsAt) {
-                setGameSeconds(Math.max(0, Math.round((Number(battle.gameEndsAt) - Date.now()) / 1000)))
+            if (battle.remainingMs != null) {
+                setGameSeconds(Math.ceil(battle.remainingMs / 1000))
             }
 
             if(userID == battle.player1) {
@@ -132,7 +146,7 @@ export default function BattleScreen({ username, userID, battleID }: { username:
                             )}
                             <span className="flex items-center gap-1.5">
                                 <TimerIcon className="size-4 text-muted-foreground" />
-                                <Countdown seconds={gameSeconds} className="font-mono text-lg tabular-nums" />
+                                <Countdown seconds={gameSeconds} onComplete={() => setEvaluating(true)} className="font-mono text-lg tabular-nums" />
                             </span>
                         </span>
                     )}

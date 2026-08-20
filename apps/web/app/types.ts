@@ -67,19 +67,21 @@ export type ServerResponse = {type: ServerMessageTypes.CONNECTED}
                   | {type: ServerMessageTypes.FOUND_OPPONENT, payload: {id: string, name: string, elo: number}}
                   | {type: ServerMessageTypes.RUNNING, payload: {battleID: string} }
                   | {type: ServerMessageTypes.BATTLE_RESULT, payload: { winnerId: string | null, winningRunId: string | null, status: string, eloDeltas: Record<string, number | undefined> }}
-                  | {type: ServerMessageTypes.SYNC, payload: redisBattleRaw & {battleID: string} & {submissions: number} | null}
+                  | {type: ServerMessageTypes.SYNC, payload: battleSync | null}
 
 export enum ClientMessageTypes {
   FIND_OPPONENT,
   ABORT,
   READY,
-  SYNC
+  SYNC,
+  EVALUATE
 }
 
 export type ClientResponse = | {type: ClientMessageTypes.ABORT}
                   | {type: ClientMessageTypes.FIND_OPPONENT}
                   | {type: ClientMessageTypes.READY}
                   | {type: ClientMessageTypes.SYNC}
+                  | {type: ClientMessageTypes.EVALUATE}
 
 export type BattleSocketValue = {
       subscribe: (subscriber: (m: ServerResponse) => void) => void;
@@ -104,7 +106,13 @@ export type redisBattleRaw = {
       gameEndsAt?: string,
       game?: string,
       winnerId?: string,
-      
+
+}
+
+export type battleSync = Omit<redisBattleRaw, "gameEndsAt"> & {
+      battleID: string,
+      submissions: number,
+      remainingMs: number | null,
 }
 
 export type Player = {

@@ -4,22 +4,18 @@ import { decode } from "next-auth/jwt";
 import { getRedis, redis } from "./lib/redisClient";
 import { prisma } from "./lib/prisma";
 import { logger } from "./lib/logger";
-import { objectiveFunction, Optimizer, Point } from "@gradientbattle/core";
+import { Point } from "@gradientbattle/core";
 import { ADAGRAD_NAME, ADAM_NAME, GD_MOMENTUM_NAME, GD_NAME, RMSPROP_NAME } from "@gradientbattle/core/src/optimizers/constants";
 import { optimizationAlgorithms } from "@gradientbattle/core/src/optimizers/optimizer_registry";
-import { start } from "node:repl";
 import { quadraticFunction } from "@gradientbattle/core/src/functions/quadratic_function";
 import { MAX_SUBMISSIONS, READY_UP_TIME, API_BASE_URL, INTERNAL_SERVICE_TOKEN } from "./app/constants";
 import { ClientMessageTypes, ClientResponse, GameStatus, rankedGame, redisBattleRaw, ServerMessageTypes, ServerResponse } from "./app/types";
 
 const PORT = Number(process.env.BATTLE_PORT ?? 3001);
 const SECRET = process.env.AUTH_SECRET;
-const READY_TIME_MS = 20000
+const READY_TIME_MS = 20_000
 const GAME_DURATION = 120_000
 
-
-
-const EVAL_BUFFER_MS = 2_000; // fire just after the endpoint's elapsed-time gate opens
 const RESULT_GRACE_SECONDS = 120;
 
 
@@ -227,38 +223,6 @@ async function onOpponentFound(ws: AuthedSocket, opponentWs: AuthedSocket, battl
     }, READY_TIME_MS)
 }
 
-function scheduleEvaluation(battleID: string, playerIds: string[]) {
-    logger.debug({ battleID, playerIds, delayMs: GAME_DURATION + EVAL_BUFFER_MS }, "scheduled battle evaluation")
-    setTimeout(async () => {
-        try {
-            logger.debug({ battleID }, "requesting battle evaluation")
-            const res = await fetch(`${API_BASE_URL}/api/battle/${battleID}/evaluate`, {
-                headers: { authorization: `Bearer ${INTERNAL_SERVICE_TOKEN}` },
-            })
-            if (!res.ok) {
-                logger.error({ battleID, status: res.status, body: await res.text() }, "evaluate request failed")
-                return
-            }
-            const result = await res.json() // { winnerId, winningRunId, status, [id]: eloDiff, [id2]: eloDiff }
-            logger.info({ battleID, result }, "battle evaluated")
-
-            await redis.HSET(`battle:${battleID}`, { state: "BATTLE_ENDED", winnerId: result.winnerId ?? "" })
-            await redis.expire(`battle:${battleID}`, RESULT_GRACE_SECONDS)
-            for (const id of playerIds) await redis.expire(`user:${id}`, RESULT_GRACE_SECONDS)
-
-            for (const id of playerIds) {
-                const sock = connections.get(id)
-                if (sock) {
-                    send(sock, {type: ServerMessageTypes.BATTLE_RESULT, payload: result})
-                    logger.info({ battleID, userID: id }, "notified player of battle result")
-                }
-            }
-        } catch (err) {
-            logger.error({ err, battleID }, "evaluate request threw")
-        }
-    }, GAME_DURATION + EVAL_BUFFER_MS)
-}
-
 wss.on("connection", (raw) => {
     const ws = raw as AuthedSocket;
     const log = logger.child({ userID: ws.user.id })
@@ -270,7 +234,6 @@ wss.on("connection", (raw) => {
     connections.set(ws.user.id, ws)
 
     //TODO: check if the client has a existing connection and process this case
-
     ws.on("message", async (buf) => {
         let message: ClientResponse
         try {
@@ -323,7 +286,7 @@ wss.on("connection", (raw) => {
                         maxSubmissions: MAX_SUBMISSIONS
                     } as unknown as redisBattleRaw
                     
-                    const expiration = (READY_TIME_MS + GAME_DURATION + EVAL_BUFFER_MS) / 1000
+                    const expiration = (READY_TIME_MS + GAME_DURATION + 3_000) / 1000
                     await redis.multi()
                         .HSET(`battle:${battleID}`, battle)
                         .expire(`battle:${battleID}`, expiration)
@@ -402,9 +365,6 @@ wss.on("connection", (raw) => {
 
                     send(ws, {type: ServerMessageTypes.RUNNING, payload: {battleID}})
                     send(connections.get(opponentID)!, {type: ServerMessageTypes.RUNNING, payload: {battleID}})
-
-                    scheduleEvaluation(battleID, [ws.user.id, opponentID])
-
                     break
                 } //TODO CRITICAL: Make redis operations atomic with a lua script to prevent race conditions readying and matchmaking
                 
@@ -424,12 +384,67 @@ wss.on("connection", (raw) => {
                     return
                 }
 
-                const battle = await redis.HGETALL(`battle:${battleID}`) as redisBattleRaw
+                const { gameEndsAt, ...battle } = await redis.HGETALL(`battle:${battleID}`) as redisBattleRaw
+
+                const remainingMs = gameEndsAt ? Math.max(0, Number(gameEndsAt) - Date.now()) : null
 
                 const submissionCount = await redis.GET(`battle:${battleID}:submissions:${ws.user.id}`)
-                log.debug({ battleID, state: battle.state }, "sync requested: sending battle state")
-                send(ws, {type: ServerMessageTypes.SYNC, payload: {...battle, battleID: battleID, submissions: submissionCount ? Number(submissionCount) : 0 }})
+                log.debug({ battleID, state: battle.state, remainingMs }, "sync requested: sending battle state")
+                send(ws, {type: ServerMessageTypes.SYNC, payload: {...battle, battleID: battleID, remainingMs, submissions: submissionCount ? Number(submissionCount) : 0 }})
                 break
+            }
+
+            case ClientMessageTypes.EVALUATE: {
+                const battleID = await redis.GET(`user:${ws.user.id}`)
+
+                if(!battleID) return
+                
+                const raw = await redis.HGET(`battle:${battleID}`, "gameEndsAt")
+
+                if (!raw) {
+                    logger.debug({ battleID }, "gameEndsAt key does not exist in redis")
+                    return
+                }
+
+                const gameEndsAt = new Date(Number(raw))
+
+                if (gameEndsAt.getTime() > Date.now()) {
+                    logger.debug({ battleID }, "game has not concluded yet -> evaluation not possible yet")
+                    return
+                }
+
+                const playerIds = [await redis.HGET(`battle:${battleID}`, "player1"), await redis.HGET(`battle:${battleID}`, "player2")]
+                    .filter((id): id is string => Boolean(id))
+
+                try {
+                    logger.debug({ battleID }, "requesting battle evaluation")
+                    const res = await fetch(`${API_BASE_URL}/api/battle/${battleID}/evaluate`, {
+                        headers: { authorization: `Bearer ${INTERNAL_SERVICE_TOKEN}` },
+                    })
+                    if (!res.ok) {
+                        logger.error({ battleID, status: res.status, body: await res.text() }, "evaluate request failed")
+                        return
+                    }
+                    const result = await res.json() // { winnerId, winningRunId, status, [id]: eloDiff, [id2]: eloDiff }
+                    logger.info({ battleID, result }, "battle evaluated")
+
+                    await redis.HSET(`battle:${battleID}`, { state: "BATTLE_ENDED", winnerId: result.winnerId ?? "" })
+                    await redis.expire(`battle:${battleID}`, RESULT_GRACE_SECONDS)
+                    for (const id of playerIds) await redis.expire(`user:${id}`, RESULT_GRACE_SECONDS)
+
+                    const recipients = new Set<WebSocket>([ws])
+                    for (const id of playerIds) {
+                        const sock = connections.get(id)
+                        if (sock) recipients.add(sock)
+                    }
+
+                    for (const sock of recipients) send(sock, {type: ServerMessageTypes.BATTLE_RESULT, payload: result})
+                    logger.info({ battleID, recipients: recipients.size }, "notified players of battle result")
+
+                } catch (err) {
+                    logger.error({ err, battleID }, "evaluate request threw")
+                }
+                break;
             }
             default: {
                 log.warn({ type: (message as { type: number }).type }, "received unknown message type")
@@ -439,7 +454,7 @@ wss.on("connection", (raw) => {
 
     ws.on("close", async (code) => {
         log.info({ code }, "client disconnected")
-        if (connections.get(ws.user.id) === ws) connections.delete(ws.user.id)  // fixes  accidentally closing reconnected sockets
+        if (connections.get(ws.user.id) === ws) connections.delete(ws.user.id)  // fixes accidentally closing reconnected sockets
 
         const rem = await redis.ZREM("queue", "user:" + ws.user.id)
         if(rem) log.info({ name: ws.user.name }, "removed user from queue (connection closed)")
