@@ -127,6 +127,17 @@ function send(ws: WebSocket, message: ServerResponse) {
 
 const connections = new Map<string, AuthedSocket>()
 
+const ACTIVE_BATTLE_STATES: GameStatus[] = ["PLAYERS_READY_0", "PLAYERS_READY_1", "RUNNING"]
+
+async function sendBattleSync(ws: AuthedSocket, battleID: string) {
+    const { gameEndsAt, ...battle } = await redis.HGETALL(`battle:${battleID}`) as redisBattleRaw
+
+    const remainingMs = gameEndsAt ? Math.max(0, Number(gameEndsAt) - Date.now()) : null
+
+    const submissionCount = await redis.GET(`battle:${battleID}:submissions:${ws.user.id}`)
+    send(ws, {type: ServerMessageTypes.SYNC, payload: {...battle, battleID: battleID, remainingMs, submissions: submissionCount ? Number(submissionCount) : 0 }})
+}
+
 type RankedOptimizationAlgorithm = {name: string, params: Record<string, {enabled: boolean, value: number}>, startingPoint: {fixed: boolean, value: Point}}
 
 export const RANKED_OPTIMIZER_PROBABILTIES: Record<string, number> = {
@@ -247,7 +258,18 @@ wss.on("connection", (raw) => {
 
         switch (message.type) {
             case ClientMessageTypes.FIND_OPPONENT: {
-                //TODO: check if the user is already in a match and report that to the client via a abort or SYNC
+                const activeBattleID = await redis.GET(`user:${ws.user.id}`)
+
+                if (activeBattleID) {
+                    const state = await redis.HGET(`battle:${activeBattleID}`, "state") as GameStatus | null
+
+                    if (state && ACTIVE_BATTLE_STATES.includes(state)) {
+                        log.info({ battleID: activeBattleID, state }, "find_opponent while already in a battle -> syncing client back")
+                        await sendBattleSync(ws, activeBattleID)
+                        return
+                    }
+                }
+
                 if (await redis.ZSCORE("queue", `user:${ws.user.id}`) !== null) {
                     log.debug("find_opponent ignored: user already in queue")
                     return
@@ -384,13 +406,8 @@ wss.on("connection", (raw) => {
                     return
                 }
 
-                const { gameEndsAt, ...battle } = await redis.HGETALL(`battle:${battleID}`) as redisBattleRaw
-
-                const remainingMs = gameEndsAt ? Math.max(0, Number(gameEndsAt) - Date.now()) : null
-
-                const submissionCount = await redis.GET(`battle:${battleID}:submissions:${ws.user.id}`)
-                log.debug({ battleID, state: battle.state, remainingMs }, "sync requested: sending battle state")
-                send(ws, {type: ServerMessageTypes.SYNC, payload: {...battle, battleID: battleID, remainingMs, submissions: submissionCount ? Number(submissionCount) : 0 }})
+                log.debug({ battleID }, "sync requested: sending battle state")
+                await sendBattleSync(ws, battleID)
                 break
             }
 

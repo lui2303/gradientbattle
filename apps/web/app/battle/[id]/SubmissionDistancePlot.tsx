@@ -43,7 +43,8 @@ export function SubmissionDistancePlot({ series }: { series: DistanceSeries[] })
         const submissions = Math.max(1, ...series.map((s) => s.distances.length))
         const values = series.flatMap((s) => s.distances)
         const highest = values.length ? Math.max(...values) : 0
-        const span: [number, number] = [0, highest > 0 ? highest * 1.15 : 1]
+        const top = highest > 0 ? highest * 1.12 : 1
+        const span: [number, number] = [-top * 0.07, top]
 
         const data: Data[] = series.map((s, i) => {
             const color = SERIES_COLORS[i % SERIES_COLORS.length]
@@ -54,7 +55,7 @@ export function SubmissionDistancePlot({ series }: { series: DistanceSeries[] })
                 x: s.distances.map((_, k) => k + 1),
                 y: s.distances,
                 line: { color, width: 2 },
-                marker: { size: 8, color },
+                marker: { size: 9, color },
             }
         })
 
@@ -66,9 +67,9 @@ export function SubmissionDistancePlot({ series }: { series: DistanceSeries[] })
                 tickmode: 'linear' as const,
                 tick0: 1,
                 dtick: 1,
-                range: [1, submissions + 0.5],
+                range: [0.65, submissions + 0.35],
             },
-            yaxis: { ...base.yaxis, range: span, autorange: false },
+            yaxis: { ...base.yaxis, range: span, autorange: false, zeroline: true, zerolinecolor: theme.muted },
             margin: { ...base.margin, t: 34, b: 48 },
             showlegend: true,
             legend: { font: { color: theme.muted, size: 11 }, orientation: 'h' as const, y: 1.18 },

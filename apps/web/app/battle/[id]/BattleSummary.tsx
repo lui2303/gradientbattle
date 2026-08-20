@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils"
 import { prisma } from "@/lib/prisma"
 import { FrontendOptimizer, rankedGame } from "@/app/types"
 import { displayDistance, formatMetric, timeAgo } from "@/app/helpers"
+import { MAX_STEPS } from "@/app/constants"
 import { LatexFormula } from "@/app/components/LatexFormula"
 import { functionFactory } from "@gradientbattle/core/src/functions/function_factory"
 import { norm } from "@gradientbattle/core/src/math_helper"
@@ -36,7 +37,7 @@ type SubmissionRow = {
     id: string
     index: number
     optimizers: SubmissionOptimizer[]
-    iterations: number | null
+    iterations: number
     bestDistance: number | null
     won: boolean
 }
@@ -92,7 +93,7 @@ function SubmissionsTable({ rows }: { rows: SubmissionRow[] }) {
                             </div>
                         </TableCell>
                         <TableCell className="align-top text-right font-mono text-xs tabular-nums">
-                            {row.iterations ?? "—"}
+                            {row.iterations}
                         </TableCell>
                         <TableCell className="align-top text-right font-mono text-xs tabular-nums">
                             {row.bestDistance == null ? "—" : formatMetric(row.bestDistance)}
@@ -155,7 +156,7 @@ export async function BattleSummary({ battleID, userID }: { battleID: string; us
                     name: optimizer.name,
                     params: describeOptimizer(optimizer),
                 })),
-                iterations: best ? best.iterations : null,
+                iterations: best ? best.iterations : MAX_STEPS,
                 bestDistance: distances.length ? displayDistance(Math.min(...distances)) : null,
                 won: run.id === battle.winningRunId,
             }

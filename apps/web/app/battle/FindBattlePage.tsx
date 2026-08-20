@@ -55,6 +55,11 @@ export default function BattleScreen({ username, historyCard }: { username: stri
                 case ServerMessageTypes.RUNNING:
                     router.push(`/battle/${message.payload.battleID}`)
                     break
+
+                // queued while a battle of ours is still live -> back into it
+                case ServerMessageTypes.SYNC:
+                    if (message.payload) router.replace(`/battle/${message.payload.battleID}`)
+                    break
             }
         }
 
