@@ -98,8 +98,10 @@ export const BattleScalarFieldEnum = {
   status: 'status',
   player1Id: 'player1Id',
   player1EloDelta: 'player1EloDelta',
+  player1EloBefore: 'player1EloBefore',
   player2Id: 'player2Id',
   player2EloDelta: 'player2EloDelta',
+  player2EloBefore: 'player2EloBefore',
   winnerId: 'winnerId',
   game: 'game',
   winningRunId: 'winningRunId'

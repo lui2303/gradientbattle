@@ -18,7 +18,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { SERIES_COLORS } from "@/lib/plotTheme";
 import { TimerIcon } from "lucide-react";
-import { BattleResult } from "./BattleResult";
 
 type Phase = GameStatus | "ABORTED" | "LOADING"
 
@@ -33,9 +32,6 @@ export default function BattleScreen({ username, userID, battleID }: { username:
     const [game, setGame] = useState<rankedGame | null>(null)
     const [submissions, setSubmissions] = useState(0)
     const [gameSeconds, setGameSeconds] = useState<number | null>(null) // snapshot for the Countdown
-    // Held raw rather than pre-formatted: BattleResult derives the outcome, so the
-    // result screen owns that mapping in one place.
-    const [winnerId, setWinnerId] = useState<string | null>(null)
     const [elo, setElo] = useState(0)
     const [eloDelta, setEloDelta] = useState(0)
     const [evaluating, setEvaluating] = useState(false)
@@ -64,7 +60,10 @@ export default function BattleScreen({ username, userID, battleID }: { username:
                 setElo(Number(battle.player2Elo))
             }
 
-            if (battle.state === "BATTLE_ENDED") {setWinnerId(battle.winnerId ?? null);return}
+            if (battle.state === "BATTLE_ENDED") {
+                router.refresh()
+                return
+            }
             setSubmissions(submissions)
         }
 
@@ -82,7 +81,7 @@ export default function BattleScreen({ username, userID, battleID }: { username:
                 case ServerMessageTypes.BATTLE_RESULT:
                     setPhase("BATTLE_ENDED")
                     setEloDelta(message.payload.eloDeltas[userID] ? message.payload.eloDeltas[userID] : 0)
-                    setWinnerId(message.payload.winnerId)
+                    router.refresh()
                     break
                 case ServerMessageTypes.ABORT:
                     setPhase("ABORTED")
@@ -170,7 +169,13 @@ export default function BattleScreen({ username, userID, battleID }: { username:
             )}
 
             {phase === "BATTLE_ENDED" && (
-                <BattleResult winnerId={winnerId} userID={userID} elo={elo} eloDelta={eloDelta} />
+                <Card>
+                    <CardContent className="flex flex-col gap-3">
+                        <span className="text-sm text-muted-foreground">Evaluating battle…</span>
+                        <Skeleton className="h-4 w-40" />
+                        <Skeleton className="h-48 w-full" />
+                    </CardContent>
+                </Card>
             )}
 
             {phase === "RUNNING" && game && (

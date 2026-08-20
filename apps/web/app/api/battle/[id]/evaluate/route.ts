@@ -153,7 +153,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
             where: {id: currentBattle.id},
             data: {
                 player1EloDelta: deltaA,
-                player2EloDelta: deltaB
+                player2EloDelta: deltaB,
+                player1EloBefore: playerA.elo,
+                player2EloBefore: playerB.elo
             }
         })
     });

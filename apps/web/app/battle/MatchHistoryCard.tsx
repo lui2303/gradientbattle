@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { HistoryIcon } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -141,8 +142,11 @@ export async function MatchHistoryCard({ userId }: { userId: string }) {
                 <HistoryHead />
                 <TableBody>
                     {rows.map((row) => (
-                        <TableRow key={row.id}>
+                        <TableRow key={row.id} className="relative hover:bg-muted/50">
                             <TableCell>
+                                <Link href={`/battle/${row.id}`} className="absolute inset-0">
+                                    <span className="sr-only">View battle against {row.opponent}</span>
+                                </Link>
                                 <Badge variant="secondary" className={OUTCOME[row.outcome].className}>
                                     {OUTCOME[row.outcome].label}
                                 </Badge>
