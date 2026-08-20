@@ -12,11 +12,11 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { formatMetric } from "../helpers";
+import { displayDistance, distanceSatisfiesTreshhold, formatMetric } from "../helpers";
 import { LatexFormula } from "./LatexFormula";
 import { cn } from "@/lib/utils";
 
-export function Leaderboard({optimizers, currentIterates}: LeaderboardProps) {
+export function Leaderboard({optimizers, currentIterates, optimumObjectiveValue}: LeaderboardProps) {
     // currentIterates[optiKey][0]: norm of current optimizer point
     // currentIterates[optiKey][1]: objective value of current optimizer point
     const [sortByObjValue, setsortByObjValue] = useState<boolean>(true)
@@ -75,8 +75,8 @@ export function Leaderboard({optimizers, currentIterates}: LeaderboardProps) {
                                             {optimizers[elem.key].name}
                                         </span>
                                     </TableCell>
-                                    <TableCell className="text-right font-mono tabular-nums">{formatMetric(currentIterates[elem.key][0])}</TableCell>
-                                    <TableCell className="text-right font-mono tabular-nums">{formatMetric(currentIterates[elem.key][1])}</TableCell>
+                                    <TableCell className="text-right font-mono tabular-nums">{formatMetric(displayDistance(currentIterates[elem.key][0]))}</TableCell>
+                                    <TableCell className="text-right font-mono tabular-nums">{formatMetric(distanceSatisfiesTreshhold(currentIterates[elem.key][0]) ? optimumObjectiveValue : currentIterates[elem.key][1])}</TableCell>
                                 </TableRow>)
                         })}
                     </TableBody>

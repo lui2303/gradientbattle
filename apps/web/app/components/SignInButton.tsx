@@ -6,8 +6,8 @@ import { GitHubMark } from "./GitHubMark"
 
 export function SignInButton() {
     return (
-        <Button variant="outline" size="sm" onClick={() => signIn("github")}>
-            <GitHubMark className="size-3.5" />
+        <Button variant="outline" size="lg" onClick={() => signIn("github")}>
+            <GitHubMark className="size-4" />
             Sign in
         </Button>
     )

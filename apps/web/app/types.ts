@@ -41,7 +41,7 @@ export type PlotHandlerProps = {
 export type PlotMountProps = {
   divRef: React.RefObject<HTMLDivElement | null>
 }
-export type LeaderboardProps = {optimizers: Record<string, FrontendOptimizer>, currentIterates: Record<string, Iterate>}
+export type LeaderboardProps = {optimizers: Record<string, FrontendOptimizer>, currentIterates: Record<string, Iterate>, optimumObjectiveValue: number}
 
 export type rankedGame = {
     "objective": string,

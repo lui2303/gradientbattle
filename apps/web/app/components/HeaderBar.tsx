@@ -20,15 +20,15 @@ export function HeaderBar({ userName }: { userName: string | null }) {
 
     return (
         <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
-            <div className="mx-auto flex h-12 w-full max-w-[1400px] items-center gap-4 px-4 md:px-6">
-                <Link href="/" className="flex items-center gap-2">
-                    <Logo className="size-6 text-foreground" />
-                    <span className="font-mono text-sm font-medium tracking-tight text-foreground">
+            <div className="mx-auto flex h-20 w-full max-w-[1400px] items-center gap-5 px-4 md:px-6">
+                <Link href="/" className="flex items-center gap-2.5">
+                    <Logo className="size-9 text-foreground" />
+                    <span className="font-mono text-lg font-medium tracking-tight text-foreground">
                         gradient<span className="text-muted-foreground">battle</span>
                     </span>
                 </Link>
 
-                <Separator orientation="vertical" className="data-vertical:h-4 data-vertical:self-center" />
+                <Separator orientation="vertical" className="data-vertical:h-8 data-vertical:self-center" />
 
                 <NavLinks />
 
@@ -36,8 +36,8 @@ export function HeaderBar({ userName }: { userName: string | null }) {
                     {userName ? (
                         <>
                             {/* Sign-in is GitHub-only, so the mark labels whose account this is. */}
-                            <span className="hidden items-center gap-1.5 font-mono text-xs text-muted-foreground sm:inline-flex">
-                                <GitHubMark className="size-3.5" />
+                            <span className="hidden items-center gap-2 font-mono text-base text-muted-foreground sm:inline-flex">
+                                <GitHubMark className="size-5" />
                                 {userName}
                             </span>
                             <SignOutButton />

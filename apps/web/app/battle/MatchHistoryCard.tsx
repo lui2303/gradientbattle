@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils"
 import { prisma } from "@/lib/prisma"
 import { MATCH_HISTORY_LENGTH } from "../constants"
+import { timeAgo } from "../helpers"
 
 const PLACEHOLDER_ROWS = 6
 
@@ -23,25 +24,6 @@ const OUTCOME: Record<Outcome, { label: string; className: string }> = {
     win: { label: "Win", className: "bg-emerald-500/10 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400" },
     loss: { label: "Loss", className: "bg-destructive/10 text-destructive" },
     draw: { label: "Draw", className: "bg-muted text-muted-foreground" },
-}
-
-const RELATIVE = new Intl.RelativeTimeFormat("en", { numeric: "auto" })
-const DIVISIONS = [
-    { amount: 60, unit: "second" },
-    { amount: 60, unit: "minute" },
-    { amount: 24, unit: "hour" },
-    { amount: 7, unit: "day" },
-    { amount: 4.34524, unit: "week" },
-    { amount: 12, unit: "month" },
-    { amount: Infinity, unit: "year" },
-] as const
-
-function timeAgo(date: Date) {
-    let duration = (date.getTime() - Date.now()) / 1000
-    for (const { amount, unit } of DIVISIONS) {
-        if (Math.abs(duration) < amount) return RELATIVE.format(Math.round(duration), unit)
-        duration /= amount
-    }
 }
 
 function CardShell({ children }: { children: React.ReactNode }) {

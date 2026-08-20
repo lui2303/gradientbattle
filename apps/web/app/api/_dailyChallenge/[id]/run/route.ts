@@ -1,4 +1,4 @@
-import { getCurrentChallenge } from "@/app/api/challenge";
+import { getCurrentChallenge } from "../../challenge";
 import { MAX_STEPS } from "@/app/constants";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";

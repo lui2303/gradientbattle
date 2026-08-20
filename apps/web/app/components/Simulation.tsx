@@ -353,7 +353,7 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
                 </CardContent>
             </Card>
 
-            <Leaderboard optimizers={optimizers} currentIterates={currentIterate}></Leaderboard>
+            <Leaderboard optimizers={optimizers} currentIterates={currentIterate} optimumObjectiveValue={func.objective({x: 0, y: 0})}></Leaderboard>
 
             <AlgorithmSelectContainer allowedOptimizers={mode.allowedOptimizer} defaultOptimizer={mode.allowedOptimizer[0]} optimizers={optimizers} setOptimizers={setOptimizers} locked={running}>
             </AlgorithmSelectContainer>

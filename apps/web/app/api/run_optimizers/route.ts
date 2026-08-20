@@ -2,7 +2,6 @@ import { optimizerFactory } from "@gradientbattle/core/src/optimizers/optimizer_
 import { SimulationEngine } from "@gradientbattle/core/src/simulation_engine";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentChallenge } from "../challenge";
 import { functionFactory } from "@gradientbattle/core/src/functions/function_factory";
 
 export async function POST(request: Request) {

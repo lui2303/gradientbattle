@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCurrentChallenge } from "../challenge";
+import { getCurrentChallenge } from "./challenge";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
