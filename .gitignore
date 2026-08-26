@@ -6,3 +6,5 @@ coverage
 .env.local
 .pnpm-store/
 *.db
+.env.production
+security-report.pdf

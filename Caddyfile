@@ -1,0 +1,15 @@
+gradientbattle.com {
+	encode zstd gzip
+
+	handle /ws {
+		reverse_proxy battle:3001
+	}
+
+	handle {
+		reverse_proxy web:3000
+	}
+}
+
+www.gradientbattle.com {
+	redir https://gradientbattle.com{uri} permanent
+}

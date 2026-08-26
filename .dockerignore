@@ -1,0 +1,19 @@
+**/node_modules
+**/.next
+**/.next.*
+apps/web/generated
+.git
+.github
+.devcontainer
+.claude
+.vscode
+.pnpm-store
+# `*.env` only matches names ENDING in .env — .env.production would slip through.
+**/.env
+**/.env.*
+!**/.env.*.example
+**/*.db
+**/coverage
+docker-compose*.yaml
+Caddyfile
+dev.sh

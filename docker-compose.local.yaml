@@ -1,0 +1,6 @@
+services:
+  caddy:
+    volumes:
+      - ./Caddyfile.local:/etc/caddy/Caddyfile:ro
+    ports: !override
+      - "80:80"
