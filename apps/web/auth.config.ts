@@ -4,11 +4,12 @@ import type { NextAuthConfig } from "next-auth";
 // Edge-safe config: providers, pages, session strategy + callbacks.
 // NO Prisma adapter here. Imported by both auth.ts (Node) and proxy.ts (Edge).
 export const authConfig = {
-    // `prompt: "login"` forces GitHub to show the login/consent screen on every
-    // sign-in instead of silently re-authenticating an already-authorized user.
-    // Useful for testing the auth flow; remove for production if you want the
-    // seamless re-login UX.
-    providers: [GitHub({ authorization: { params: { prompt: "login" } } })],
+    // GitHub's authorize endpoint only honours `prompt=select_account` — any other
+    // value (e.g. the OIDC-standard "login") is ignored, so an already-authorized
+    // user is silently re-authenticated from their github.com session and lands
+    // back in the app under the same account right after signing out.
+    // `select_account` forces the account picker so a different account can be used.
+    providers: [GitHub({ authorization: { params: { prompt: "select_account" } } })],
     pages: {
         signIn: "/login",
     },
