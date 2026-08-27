@@ -54,6 +54,27 @@ services:
       retries: 6
       start_period: 10s
 
+  # Backstop for battle evaluation: the client normally triggers /evaluate, this
+  # catches battles whose client never did. Same image and TAG as web/battle, so
+  # it can never sweep against a different schema than the one serving traffic.
+  sweep:
+    image: ghcr.io/lui2303/gradientbattle:${TAG:-latest}
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    # Not `pnpm --filter web sweep`: that dev entry point passes --env-file=.env,
+    # which is dockerignored and absent from the image — env comes from env_file.
+    # The script is one-shot by design, so the loop lives here. `$$` keeps compose
+    # from interpolating the variable itself; the container shell expands it.
+    command:
+      - sh
+      - -c
+      - "while :; do pnpm --filter web exec tsx scripts/battle_sweeper.ts || true; sleep $${SWEEP_INTERVAL_SECONDS:-30}; done"
+    depends_on:
+      # It calls the web app's /api/battle/:id/evaluate, so it must not start first.
+      web:
+        condition: service_healthy
+
   # Runs to completion before `web` starts, so new code never serves traffic
   # against an unmigrated schema.
   migrate:
