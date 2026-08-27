@@ -15,15 +15,8 @@ services:
       battle:
         condition: service_healthy
 
-  # The only service with `build:` — everything else reuses the tag, so the web
-  # app and the battle server can never run different code.
   web:
-    image: gradientbattle:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_BATTLE_WS_URL: ${NEXT_PUBLIC_BATTLE_WS_URL}
+    image: ghcr.io/lui2303/gradientbattle:${TAG:-latest}
     restart: unless-stopped
     env_file:
       - .env.production
@@ -41,7 +34,7 @@ services:
       start_period: 20s
 
   battle:
-    image: gradientbattle:latest
+    image: ghcr.io/lui2303/gradientbattle:${TAG:-latest}
     restart: unless-stopped
     env_file:
       - .env.production
@@ -64,7 +57,7 @@ services:
   # Runs to completion before `web` starts, so new code never serves traffic
   # against an unmigrated schema.
   migrate:
-    image: gradientbattle:latest
+    image: ghcr.io/lui2303/gradientbattle:${TAG:-latest}
     restart: "no"
     env_file:
       - .env.production

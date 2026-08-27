@@ -13,6 +13,10 @@ import { ClientMessageTypes, ClientResponse, GameStatus, rankedGame, redisBattle
 
 const PORT = Number(process.env.BATTLE_PORT ?? 3001);
 const SECRET = process.env.AUTH_SECRET;
+// Baked into the image at build time (see Dockerfile). Reported by /health so a
+// deploy can be verified from outside the box — a registry tag can say one thing
+// while the container still runs the previous build.
+const REVISION = process.env.GIT_SHA ?? "unknown";
 const READY_TIME_MS = 20_000
 const GAME_DURATION = 120_000
 
@@ -61,8 +65,8 @@ async function authenticate(cookieHeader: string | undefined): Promise<BattleUse
 
 const server = createServer((req, res) => {
     if (req.url === "/health") {
-        res.writeHead(200);
-        res.end("ok");
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ status: "ok", revision: REVISION }));
         return;
     }
     res.writeHead(426);

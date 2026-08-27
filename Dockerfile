@@ -44,5 +44,9 @@ ENV NODE_ENV=production
 # Not pruned to production deps on purpose: the battle server runs through `tsx`
 # and the migrate step through the `prisma` CLI, both devDependencies.
 COPY --from=build --chown=node:node /app /app
+# Declared after the COPY on purpose: GIT_SHA changes every commit, and an ENV
+# above the copy would invalidate that ~950MB layer on every single build.
+ARG GIT_SHA=unknown
+ENV GIT_SHA=$GIT_SHA
 USER node
 CMD ["pnpm", "--filter", "web", "start"]

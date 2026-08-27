@@ -8,3 +8,11 @@ coverage
 *.db
 .env.production
 security-report.pdf
+administration/
+
+# Private keys must never live in the repo — real ones belong in ~/.ssh.
+# These patterns are a safety net, not a place to put them.
+id_*
+!id_*.pub
+*.pem
+*.key
