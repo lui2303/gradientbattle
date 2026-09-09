@@ -37,9 +37,16 @@ export interface BattleUser {
 function parseCookies(header: string | undefined): Record<string, string> {
     const out: Record<string, string> = {};
     for (const part of header?.split(";") ?? []) {
-        const i = part.indexOf("=")
+        const i = part.indexOf("=");
         if (i === -1) continue;
-        out[part.slice(0, i).trim()] = decodeURIComponent(part.slice(i + 1).trim());
+        const raw = part.slice(i + 1).trim();
+        let value: string;
+        try {
+            value = decodeURIComponent(raw);
+        } catch {
+          value = raw; // URIError   
+        }
+        out[part.slice(0, i).trim()] = value;
     }
     return out;
 }
@@ -57,7 +64,7 @@ async function authenticate(cookieHeader: string | undefined): Promise<BattleUse
             // `id` was put on the token by the jwt() callback in auth.config.ts.
             if (payload?.id) return { id: payload.id as string, name: (payload.name as string) ?? null };
         } catch {
-            /* wrong secret / expired / tampered — try the next cookie name */
+            /* wrong secret / expired / tampered — */
         }
     }
     return null;
@@ -331,7 +338,9 @@ wss.on("connection", (raw) => {
                     send(connections.get(opponent.id), {type: ServerMessageTypes.FOUND_OPPONENT, payload:{id: ws.user.id, name: ws.user.name!, elo: user.elo}})
                     
                     onOpponentFound(ws, opponentWs, battleID)
-                }) 
+                }).catch(error => {
+                    log.error({ userID: ws.user.id }, 'An error occured while trying to queue:'+ error);
+                })
                 break;
             }
             case ClientMessageTypes.ABORT: {
