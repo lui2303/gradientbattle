@@ -203,7 +203,6 @@ function generateRankedGame(): Omit<rankedGame, "battleID"> {
     }
 
     return {
-        max_number_of_optimizers: Math.floor(Math.random() * 5) + 1,
         startingPointsInequalities: STARTING_POINT_INEQUALITIES,
         optimizers: rankedOptimizers,
         objective: quadraticFunction.name, // TODO: randomize this
@@ -370,7 +369,7 @@ wss.on("connection", (raw) => {
                 
                 if(battle.state == "PLAYERS_READY_1") {
                     const generatedGame = generateRankedGame()
-                    log.info({ battleID, objective: generatedGame.objective, optimizers: generatedGame.optimizers.map((o) => o.name), maxOptimizers: generatedGame.max_number_of_optimizers }, "both players ready, game generated")
+                    log.info({ battleID, objective: generatedGame.objective, optimizers: generatedGame.optimizers.map((o) => o.name) }, "both players ready, game generated")
 
                     const gameEndsAt = Date.now() + GAME_DURATION
 
@@ -388,7 +387,6 @@ wss.on("connection", (raw) => {
                     const persistedGame = {
                         objective: generatedGame.objective,
                         optimizers: generatedGame.optimizers,
-                        max_number_of_optimizers: generatedGame.max_number_of_optimizers,
                         maxSubmissions: generatedGame.maxSubmissions,
                     }
 

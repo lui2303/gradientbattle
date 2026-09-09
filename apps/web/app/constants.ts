@@ -17,3 +17,5 @@ export const API_BASE_URL = process.env.API_BASE_URL ?? "http://localhost:3000"
 export const INTERNAL_SERVICE_TOKEN = process.env.INTERNAL_SERVICE_TOKEN ?? ""
 
 export const STALE_GRACE_MS = 2000 // time after endsAt before the sweeper can detect the run
+
+export const MAX_OPTIMIZERS = 5 // max number of optimizers allowed for submission in free for all mode

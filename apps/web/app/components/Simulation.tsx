@@ -330,7 +330,7 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
 
                     {/* Fixed min-width rather than zero-padding, so the row doesn't
                         reflow as the digit count grows during a run. */}
-                    <span className="min-w-[5.5rem] font-mono text-xs tabular-nums text-muted-foreground">
+                    <span className="min-w-22 font-mono text-xs tabular-nums text-muted-foreground">
                         step <span className="text-foreground">{step}</span>/{MAX_STEPS}
                     </span>
 
@@ -355,7 +355,7 @@ export function Simulation({ mode }: { mode: SimulationMode }) {
 
             <Leaderboard optimizers={optimizers} currentIterates={currentIterate} optimumObjectiveValue={func.objective({x: 0, y: 0})}></Leaderboard>
 
-            <AlgorithmSelectContainer allowedOptimizers={mode.allowedOptimizer} defaultOptimizer={mode.allowedOptimizer[0]} optimizers={optimizers} setOptimizers={setOptimizers} locked={running}>
+            <AlgorithmSelectContainer maxOptimizers={mode.maxOptimizers} allowedOptimizers={mode.allowedOptimizer} defaultOptimizer={mode.allowedOptimizer[0]} optimizers={optimizers} setOptimizers={setOptimizers} locked={running}>
             </AlgorithmSelectContainer>
         </div>
     )

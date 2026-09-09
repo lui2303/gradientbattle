@@ -117,6 +117,7 @@ export default function BattleScreen({ username, userID, battleID }: { username:
             requiresAuth: true,
             allowedFunctions: [game!.objective],
             allowedOptimizer: game!.optimizers.map((k) => ({ ...k, color: SERIES_COLORS[0] })),
+            maxOptimizers: 1
         }
     }
 

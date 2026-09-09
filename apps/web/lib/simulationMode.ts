@@ -3,6 +3,7 @@ import { functionList } from "@gradientbattle/core/src/functions/function_regist
 import { optimizationAlgorithms } from "@gradientbattle/core/src/optimizers/optimizer_registry";
 import { Session } from "next-auth";
 import { SERIES_COLORS } from "./plotTheme";
+import { MAX_OPTIMIZERS } from "@/app/constants";
 
 
 type RankedOptimizationAlgorithm = {name: string, params: Record<string, {enabled: boolean, value: number}>, startingPoint: {fixed: boolean, value: Point}}
@@ -17,7 +18,7 @@ export interface SimulationMode {
 
     allowedOptimizer: FrontendOptimizer[]
     allowedFunctions: string[] //objectiveFunction[]
-
+    maxOptimizers: number
     
     requiresAuth: boolean
     session?: Session | null // for authenticated use cases the parent needs to do the auth, because auth cant be conditional.
@@ -35,13 +36,13 @@ export const FreeForAllSimulationMode: SimulationMode = {
             }
         );
         const resp = await res.json();
-        console.log(resp);
 
         const { traces }: { traces: Point[][]; id: string; createdAt: string; } = resp;
 
         return { traces };
     },
 
+    maxOptimizers: MAX_OPTIMIZERS,
     allowedFunctions: functionList,
     requiresAuth: false,
     allowedOptimizer: Object.entries(optimizationAlgorithms).map(([k,v]) => { // convert the optimizer definitions inside the optimizer registry to the right frontend type

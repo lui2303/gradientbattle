@@ -25,6 +25,7 @@ export type AlgorithmSelectContainerProps = {
   setOptimizers: React.Dispatch<React.SetStateAction<Record<string, FrontendOptimizer>>>
   defaultOptimizer: FrontendOptimizer,
   allowedOptimizers: FrontendOptimizer[]
+  maxOptimizers: number
   /**
    * Set while a run is animating. The trajectory itself is already fixed by then —
    * the server returns every step up front — but the animation loop addresses Plotly
@@ -47,7 +48,6 @@ export type rankedGame = {
     "objective": string,
     "startingPointsInequalities" : ((point: Point) => boolean)[], // inequalities that every non fixed starting point needs to satisfy
     "optimizers": RankedOptimizationAlgorithm[],
-    "max_number_of_optimizers": number,
     "maxSubmissions": number
 }
 

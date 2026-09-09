@@ -24,6 +24,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     const optimizers = body.optimizers as Record<string, FrontendOptimizer>;
+    if (Object.keys(optimizers).length > 1) return NextResponse.json({ error: "Only allowed to submit one optimizer per submission in a battle" }, { status: 422 });
 
     if (!optimizers) {
         return NextResponse.json({ error: "Missing fields" }, { status: 422 });
@@ -38,7 +39,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     // Postgres stores Json natively, so Prisma hands back a parsed value here
-    // (under SQLite this column was TEXT and needed JSON.parse).
     const game = currentBattle.game as unknown as rankedGame
 
     const optimizersAreValid = () => {
