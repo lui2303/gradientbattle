@@ -117,6 +117,10 @@ function sanitize_opponent(opponent: {value: string, score: number}) {
 
 // Authenticate during the HTTP upgrade, before accepting the socket.
 server.on("upgrade", async (req, socket, head) => {
+    // Node hands the socket over with no "error" listener. A reset during the await
+    // below would be an unhandled "error" event, which ends the process.
+    socket.on("error", (err) => logger.warn({ err }, "socket error during upgrade"))
+
     const user = await authenticate(req.headers.cookie);
     if (!user) {
         logger.warn({ url: req.url }, "upgrade rejected: unauthenticated")
@@ -253,6 +257,15 @@ wss.on("connection", (raw) => {
     const ws = raw as AuthedSocket;
     const log = logger.child({ userID: ws.user.id })
 
+    // ws emits "error" for any framing fault (bad opcode, unmasked frame, invalid UTF-8).
+    ws.on("error", (err) => log.warn({ err }, "socket error"))
+
+    // EventEmitter discards the promise an async listener returns, so a rejection in one
+    // would go unhandled. Every async listener below is registered through this.
+    const guard = <A extends unknown[]>(fn: (...args: A) => Promise<void>) => (...args: A) => {
+        fn(...args).catch((err) => log.error({ err }, "async socket handler failed"))
+    }
+
     log.info({ name: ws.user.name }, "client connected")
     send(ws, {type: ServerMessageTypes.CONNECTED});
 
@@ -260,12 +273,18 @@ wss.on("connection", (raw) => {
     connections.set(ws.user.id, ws)
 
     //TODO: check if the client has a existing connection and process this case
-    ws.on("message", async (buf) => {
+    ws.on("message", guard(async (buf) => {
         let message: ClientResponse
         try {
             message = JSON.parse(buf.toString()) as ClientResponse
         } catch {
             log.warn({ raw: buf.toString().slice(0, 200) }, "received unparseable message, ignoring")
+            return;
+        }
+
+        // JSON.parse accepts "null" and bare scalars, which have no .type to switch on.
+        if (typeof message !== "object" || message === null || typeof message.type !== "number") {
+            log.warn({ raw: buf.toString().slice(0, 200) }, "received malformed message, ignoring")
             return;
         }
 
@@ -351,11 +370,13 @@ wss.on("connection", (raw) => {
             }
 
             case ClientMessageTypes.READY: {
-                if(await redis.get(`ready:${ws.user.id}`)) {
+                // NX makes the check and the set one operation. Two READY frames in a single
+                // write are delivered back to back, and both used to reach battle.create.
+                const claimedReady = await redis.set(`ready:${ws.user.id}`, 1, { EX: READY_TIME_MS / 1000, NX: true })
+                if(!claimedReady) {
                     log.debug("ready ignored: user already marked ready")
                     return
                 }
-                await redis.set(`ready:${ws.user.id}`, 1, { EX: READY_TIME_MS / 1000})
 
                 const battleID = await redis.GET(`user:${ws.user.id}`)
 
@@ -483,15 +504,15 @@ wss.on("connection", (raw) => {
                 log.warn({ type: (message as { type: number }).type }, "received unknown message type")
             }
         }
-    })
+    }))
 
-    ws.on("close", async (code) => {
+    ws.on("close", guard(async (code) => {
         log.info({ code }, "client disconnected")
         if (connections.get(ws.user.id) === ws) connections.delete(ws.user.id)  // fixes accidentally closing reconnected sockets
 
         const rem = await redis.ZREM("queue", "user:" + ws.user.id)
         if(rem) log.info({ name: ws.user.name }, "removed user from queue (connection closed)")
-    });
+    }));
 });
 
 async function clearStaleQueue() {
@@ -500,6 +521,10 @@ async function clearStaleQueue() {
     await redis.del("queue")
     logger.warn({ stale }, "cleared stale matchmaking queue left by a previous run")
 }
+
+// Last resort: connections is in-process, so an exit drops every live battle.
+process.on("unhandledRejection", (reason) => logger.error({ err: reason }, "unhandled rejection"))
+process.on("uncaughtException", (err) => logger.error({ err }, "uncaught exception"))
 
 getRedis()
     .then(clearStaleQueue)
