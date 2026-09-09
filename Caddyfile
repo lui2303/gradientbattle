@@ -6,6 +6,14 @@ gradientbattle.com {
 	}
 
 	handle {
+		# Caps the request body a client can push into the Next.js app. Every POST
+		# here is small JSON (optimizer configs, auth callbacks); the large payloads
+		# are responses, which this does not touch. Without it an unauthenticated
+		# body streams into the route handler unbounded.
+		request_body {
+			max_size 1MB
+		}
+
 		reverse_proxy web:3000
 	}
 }
