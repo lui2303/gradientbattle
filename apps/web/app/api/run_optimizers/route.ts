@@ -3,7 +3,7 @@ import { SimulationEngine } from "@gradientbattle/core/src/simulation_engine";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { functionFactory } from "@gradientbattle/core/src/functions/function_factory";
-import { MAX_STEPS } from "@/app/constants";
+import { MAX_OPTIMIZERS, MAX_STEPS } from "@/app/constants";
 
 export async function POST(request: Request) {
     let body;
@@ -18,6 +18,8 @@ export async function POST(request: Request) {
     if (!optimizers || !steps) {
         return NextResponse.json({ error: "Missing fields" }, { status: 422 });
     }
+
+    if (Object.keys(optimizers).length > MAX_OPTIMIZERS) return NextResponse.json({ error: "Only allowed to submit  " + MAX_OPTIMIZERS + "optimizers" }, { status: 422 })
 
     if (steps > MAX_STEPS) {
         return NextResponse.json({ error: "Steps exceed the maximum of allowed steps of " + MAX_STEPS }, { status: 422 })
