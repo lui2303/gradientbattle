@@ -124,7 +124,12 @@ server.on("upgrade", async (req, socket, head) => {
     });
 });
 
-function send(ws: WebSocket, message: ServerResponse) {
+function send(ws: WebSocket | undefined, message: ServerResponse) {
+    if (!ws) {
+        logger.info({ type: ServerMessageTypes[message.type] }, "Failed to send message, client disconnected")
+        return
+    }
+
     logger.debug({ userID: (ws as AuthedSocket).user?.id, type: ServerMessageTypes[message.type] }, "sending server message")
     ws.send(JSON.stringify(message));
 }
@@ -323,7 +328,7 @@ wss.on("connection", (raw) => {
                     log.info({ battleID, opponentID: opponentWs.user.id }, "battle created in redis, waiting for ready-up")
 
                     send(ws, {type: ServerMessageTypes.FOUND_OPPONENT, payload: {id: opponentWs.user.id, name: opponentWs.user.name!, elo: opponent.elo}})
-                    send(connections.get(opponent.id)!, {type: ServerMessageTypes.FOUND_OPPONENT, payload:{id: ws.user.id, name: ws.user.name!, elo: user.elo}})
+                    send(connections.get(opponent.id), {type: ServerMessageTypes.FOUND_OPPONENT, payload:{id: ws.user.id, name: ws.user.name!, elo: user.elo}})
                     
                     onOpponentFound(ws, opponentWs, battleID)
                 }) 
@@ -390,7 +395,7 @@ wss.on("connection", (raw) => {
                     log.info({ battleID, opponentID }, "battle persisted to db, state -> RUNNING")
 
                     send(ws, {type: ServerMessageTypes.RUNNING, payload: {battleID}})
-                    send(connections.get(opponentID)!, {type: ServerMessageTypes.RUNNING, payload: {battleID}})
+                    send(connections.get(opponentID), {type: ServerMessageTypes.RUNNING, payload: {battleID}})
                     break
                 } //TODO CRITICAL: Make redis operations atomic with a lua script to prevent race conditions readying and matchmaking
                 
