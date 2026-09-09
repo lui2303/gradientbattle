@@ -19,3 +19,10 @@ export const INTERNAL_SERVICE_TOKEN = process.env.INTERNAL_SERVICE_TOKEN ?? ""
 export const STALE_GRACE_MS = 2000 // time after endsAt before the sweeper can detect the run
 
 export const MAX_OPTIMIZERS = 5 // max number of optimizers allowed for submission in free for all mode
+
+// Shared budget for every API route: 80 requests per client per 5 minutes. The window
+// is a fixed one, so a client can spend two full budgets across a window boundary —
+// the point is to bound sustained abuse of the simulation endpoints, not to police bursts.
+export const RATE_LIMIT_MAX_REQUESTS = 80
+
+export const RATE_LIMIT_WINDOW_SECONDS = 300

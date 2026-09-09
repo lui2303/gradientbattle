@@ -4,6 +4,7 @@ import { FrontendOptimizer, rankedGame } from "@/app/types";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getRedis } from "@/lib/redisClient";
+import { enforceRateLimit } from "@/lib/rateLimit";
 import { functionFactory } from "@gradientbattle/core/src/functions/function_factory";
 import { optimizerFactory } from "@gradientbattle/core/src/optimizers/optimizer_factory";
 import { SimulationEngine } from "@gradientbattle/core/src/simulation_engine";
@@ -13,6 +14,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const session = await auth()
     const username = session?.user?.name
     if(!session || !username) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const limited = await enforceRateLimit("battle_run", session.user!.id!);
+    if (limited) return limited;
 
     let body;
     const { id } = await params

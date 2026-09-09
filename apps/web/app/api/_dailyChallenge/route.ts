@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import { getCurrentChallenge } from "./challenge";
 import { prisma } from "@/lib/prisma";
+import { clientIp, enforceRateLimit } from "@/lib/rateLimit";
 
 export async function GET(request: Request) {
     // returns daily challenge with daily leaderboard, does not need auth
+
+    const limited = await enforceRateLimit("daily_challenge", clientIp(request));
+    if (limited) return limited;
 
     const currentChallenge = await getCurrentChallenge()
     

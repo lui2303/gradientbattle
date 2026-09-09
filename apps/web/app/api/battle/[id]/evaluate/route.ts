@@ -6,6 +6,7 @@ import { auth } from "@/auth";
 import { timingSafeEqual } from "node:crypto";
 import { MAX_STEPS } from "@/app/constants";
 import { calculateEloUpdate } from "./elo";
+import { clientIp, enforceRateLimit } from "@/lib/rateLimit";
 
 type BestRun = { iterations: number; distanceToOptimum: number; optimizerID: string; runID: string };
 
@@ -58,6 +59,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     //TODO: remove hard coded iteration check because there could be battles in the future with more or less than 100 iterations, where 101 iterations does not indicate no convergence
     //TODO: make user watch the whole animation before registering it or other solution, because otherwise once could bruteforce by starting and stopping really fast.
     
+   
+    if (!hasValidServiceToken(request)) {
+        const limited = await enforceRateLimit("battle_evaluate", clientIp(request));
+        if (limited) return limited;
+    }
+
     const { id } = await params;
 
     const currentBattle = await prisma.battle.findUnique({ where: { id: id } });

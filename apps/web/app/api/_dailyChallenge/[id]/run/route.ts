@@ -6,11 +6,15 @@ import { functionFactory } from "@gradientbattle/core/src/functions/function_fac
 import { optimizerFactory } from "@gradientbattle/core/src/optimizers/optimizer_factory";
 import { SimulationEngine } from "@gradientbattle/core/src/simulation_engine";
 import { NextResponse } from "next/server";
+import { enforceRateLimit } from "@/lib/rateLimit";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> },) {
     const session = await auth()
     const username = session?.user?.name
     if(!session || !username) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const limited = await enforceRateLimit("daily_challenge_run", session.user!.id!);
+    if (limited) return limited;
 
     let body;
     const { id } = await params

@@ -4,8 +4,13 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { functionFactory } from "@gradientbattle/core/src/functions/function_factory";
 import { MAX_OPTIMIZERS, MAX_STEPS } from "@/app/constants";
+import { clientIp, enforceRateLimit } from "@/lib/rateLimit";
 
 export async function POST(request: Request) {
+
+    const limited = await enforceRateLimit("run_optimizers", clientIp(request));
+    if (limited) return limited;
+
     let body;
     try {
         body = await request.json();
