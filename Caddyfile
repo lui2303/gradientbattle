@@ -1,6 +1,19 @@
 gradientbattle.com {
 	encode zstd gzip
 
+	# Security headers. frame-ancestors is the clickjacking control; X-Frame-Options
+	# repeats it for browsers that predate CSP. A full CSP is not set here — Next.js
+	# needs per-request nonces for its inline bootstrap scripts.
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		Content-Security-Policy "frame-ancestors 'none'"
+		X-Frame-Options "DENY"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		-Server
+	}
+
 	handle /ws {
 		reverse_proxy battle:3001
 	}
