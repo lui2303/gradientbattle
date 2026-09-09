@@ -482,6 +482,14 @@ wss.on("connection", (raw) => {
     });
 });
 
+async function clearStaleQueue() {
+    const stale = await redis.ZCARD("queue")
+    if (!stale) return
+    await redis.del("queue")
+    logger.warn({ stale }, "cleared stale matchmaking queue left by a previous run")
+}
+
 getRedis()
+    .then(clearStaleQueue)
     .then(() => server.listen(PORT, () => logger.info(`battle server listening on :${PORT}`)))
-    .catch((e) => { logger.fatal({ err: e }, "failed to connect redis"); process.exit(1); });
+    .catch((e) => { logger.fatal({ err: e }, "failed to start battle server"); process.exit(1); });

@@ -62,6 +62,11 @@ services:
     restart: unless-stopped
     env_file:
       - .env.production
+    # Overrides LOG_LEVEL from env_file above (service `environment` wins). The
+    # idle path logs at debug, so at info a healthy sweeper prints nothing at all
+    # and is indistinguishable from a dead one.
+    environment:
+      LOG_LEVEL: debug
     # Not `pnpm --filter web sweep`: that dev entry point passes --env-file=.env,
     # which is dockerignored and absent from the image — env comes from env_file.
     # The script is one-shot by design, so the loop lives here. `$$` keeps compose
