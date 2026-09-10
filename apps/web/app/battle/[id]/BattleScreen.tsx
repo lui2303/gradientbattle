@@ -11,6 +11,7 @@ import { SimulationMode } from "@/lib/simulationMode";
 import { Point } from "@gradientbattle/core";
 import { useBattleSocket } from "../BattleSocketProvider";
 import { toast } from "sonner";
+import { postJson } from "@/lib/api";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -104,15 +105,10 @@ export default function BattleScreen({ username, userID, battleID }: { username:
                     })
                     return { traces: null }
                 }
-                const res = await fetch(`/api/battle/${battleID}/run`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ optimizers: optimizer }),
-                });
-                const resp = await res.json();
-                if (typeof resp.submissionCount === "number") setSubmissions(resp.submissionCount)
-                const { traces }: { traces: Point[][] } = resp;
-                return { traces };
+                const result = await postJson<{ traces: Point[][] }>(`/api/battle/${battleID}/run`, { optimizers: optimizer })
+                const submissionCount = (result.data as { submissionCount?: unknown } | null)?.submissionCount
+                if (typeof submissionCount === "number") setSubmissions(submissionCount)
+                return { traces: result.ok ? result.data.traces : null };
             },
             requiresAuth: true,
             allowedFunctions: [game!.objective],

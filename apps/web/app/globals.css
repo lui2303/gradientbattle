@@ -139,3 +139,32 @@
     @apply font-sans;
   }
 }
+
+@keyframes toast-countdown {
+  from {
+    background-size: 100% 2px;
+  }
+  to {
+    background-size: 0% 2px;
+  }
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-styled="true"][data-swipe-out="false"] {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  background-size: 100% 2px;
+  animation: toast-countdown var(--toast-duration) linear forwards;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-styled="true"][data-swipe-out="false"][data-expanded="true"],
+[data-sonner-toaster]:active [data-sonner-toast][data-styled="true"][data-swipe-out="false"],
+[data-sonner-toaster].toaster-paused [data-sonner-toast][data-styled="true"][data-swipe-out="false"] {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-sonner-toaster] [data-sonner-toast][data-styled="true"][data-swipe-out="false"] {
+    background-image: none;
+  }
+}

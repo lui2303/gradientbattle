@@ -4,6 +4,7 @@ import { optimizationAlgorithms } from "@gradientbattle/core/src/optimizers/opti
 import { Session } from "next-auth";
 import { SERIES_COLORS } from "./plotTheme";
 import { MAX_OPTIMIZERS } from "@/app/constants";
+import { postJson } from "./api";
 
 
 type RankedOptimizationAlgorithm = {name: string, params: Record<string, {enabled: boolean, value: number}>, startingPoint: {fixed: boolean, value: Point}}
@@ -26,20 +27,9 @@ export interface SimulationMode {
 
 export const FreeForAllSimulationMode: SimulationMode = {
     async run(optimizer: Record<string, FrontendOptimizer>, funcName: string, steps: number) {
-        const res = await fetch(
-            "/api/run_optimizers",
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ optimizers: optimizer, steps: steps, funcName: funcName }
-                ),
-            }
-        );
-        const resp = await res.json();
+        const result = await postJson<{ traces: Point[][] }>("/api/run_optimizers", { optimizers: optimizer, steps: steps, funcName: funcName })
 
-        const { traces }: { traces: Point[][]; id: string; createdAt: string; } = resp;
-
-        return { traces };
+        return { traces: result.ok ? result.data.traces : null };
     },
 
     maxOptimizers: MAX_OPTIMIZERS,

@@ -26,6 +26,7 @@ export function NumberField({
     disabled = false,
     adornment,
     onValueChange,
+    onClamp,
 }: {
     id: string
     /** Rendered label — may be typeset math rather than plain text. */
@@ -39,6 +40,7 @@ export function NumberField({
     disabled?: boolean
     adornment?: React.ReactNode
     onValueChange: (value: number) => void
+    onClamp?: (clamped: number) => void
 }) {
     // While the field is focused the raw keystrokes are shown, so intermediate states
     // like "0." or "-" survive instead of being rewritten mid-typing.
@@ -46,20 +48,25 @@ export function NumberField({
 
     const clamp = (n: number) => Math.min(max ?? Infinity, Math.max(min ?? -Infinity, n))
 
-    // Stepping in floating point drifts (0.05 + 0.01 = 0.060000000000000005), so the
-    // result is rounded back to the step's own precision.
-    const decimals = (String(step).split(".")[1] ?? "").length
-    const nudge = (direction: 1 | -1) => {
-        const next = clamp(Number((value + direction * step).toFixed(decimals)))
-        setDraft(null)
-        onValueChange(next)
-    }
-
     const shown = draft === null ? value : parseFloat(draft)
     const belowMin = !disabled && min !== undefined && shown < min
     const aboveMax = !disabled && max !== undefined && shown > max
     const hasRange = min !== undefined || max !== undefined
     const rangeId = `${id}-range`
+
+    const commitDraft = () => {
+        if (draft !== null && (belowMin || aboveMax)) onClamp?.(clamp(shown))
+        setDraft(null)
+    }
+
+    // Stepping in floating point drifts (0.05 + 0.01 = 0.060000000000000005), so the
+    // result is rounded back to the step's own precision.
+    const decimals = (String(step).split(".")[1] ?? "").length
+    const nudge = (direction: 1 | -1) => {
+        const next = clamp(Number((value + direction * step).toFixed(decimals)))
+        commitDraft()
+        onValueChange(next)
+    }
 
     return (
         <div className="grid gap-1.5">
@@ -83,7 +90,7 @@ export function NumberField({
                         if (isNaN(next)) return
                         onValueChange(clamp(next))
                     }}
-                    onBlur={() => setDraft(null)}
+                    onBlur={commitDraft}
                     onKeyDown={(event) => {
                         if (event.key === "ArrowUp") {
                             event.preventDefault()

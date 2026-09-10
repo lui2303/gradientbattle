@@ -9,6 +9,7 @@ import { Card, CardAction, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { NumberField } from "./NumberField";
+import { notifyError } from "@/lib/notify";
 import {
     Select,
     SelectContent,
@@ -210,6 +211,7 @@ export default function AlgorithmSelectCard({allowedOptimizers, id, optimizers, 
                                 disabled={!enabled || locked}
                                 min={range?.min ?? 0}
                                 max={range?.max}
+                                onClamp={range && ((clamped) => notifyError(`${optimizers[id].name}: ${param} must be between ${range.min} and ${range.max}, so it was set to ${clamped}.`))}
                                 step={0.01}
                                 value={optimizers[id]["params"][param].value}
                                 onValueChange={(newValue) => {
