@@ -9,6 +9,8 @@ coverage
 .env.production
 security-report.pdf
 security-report.html
+security-fixes.pdf
+security-fixes.html
 administration/
 
 # Private keys must never live in the repo — real ones belong in ~/.ssh.
