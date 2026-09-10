@@ -7,6 +7,7 @@ import { getRedis } from "@/lib/redisClient";
 import { enforceRateLimit } from "@/lib/rateLimit";
 import { functionFactory } from "@gradientbattle/core/src/functions/function_factory";
 import { optimizerFactory } from "@gradientbattle/core/src/optimizers/optimizer_factory";
+import { paramRangeError } from "@gradientbattle/core/src/optimizers/optimizer_registry";
 import { SimulationEngine } from "@gradientbattle/core/src/simulation_engine";
 import { NextResponse } from "next/server";
 
@@ -59,6 +60,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     if(!optimizersAreValid()) return NextResponse.json({ error: "You are not allowed to submit a run with different optimizer state then pined by the server" }, { status: 422 });
+
+    for (const value of Object.values(optimizers)) {
+        const rangeError = paramRangeError(value.name, value.params)
+        if (rangeError) return NextResponse.json({ error: rangeError }, { status: 422 })
+    }
 
     const redis = await getRedis()
     const submissionKey = `battle:${id}:submissions:${session.user.id}`

@@ -22,6 +22,7 @@ export function NumberField({
     value,
     step = 1,
     min,
+    max,
     disabled = false,
     adornment,
     onValueChange,
@@ -34,6 +35,7 @@ export function NumberField({
     value: number
     step?: number
     min?: number
+    max?: number
     disabled?: boolean
     adornment?: React.ReactNode
     onValueChange: (value: number) => void
@@ -42,15 +44,22 @@ export function NumberField({
     // like "0." or "-" survive instead of being rewritten mid-typing.
     const [draft, setDraft] = useState<string | null>(null)
 
+    const clamp = (n: number) => Math.min(max ?? Infinity, Math.max(min ?? -Infinity, n))
+
     // Stepping in floating point drifts (0.05 + 0.01 = 0.060000000000000005), so the
     // result is rounded back to the step's own precision.
     const decimals = (String(step).split(".")[1] ?? "").length
     const nudge = (direction: 1 | -1) => {
-        const next = Number((value + direction * step).toFixed(decimals))
-        if (min !== undefined && next < min) return
+        const next = clamp(Number((value + direction * step).toFixed(decimals)))
         setDraft(null)
         onValueChange(next)
     }
+
+    const shown = draft === null ? value : parseFloat(draft)
+    const belowMin = !disabled && min !== undefined && shown < min
+    const aboveMax = !disabled && max !== undefined && shown > max
+    const hasRange = min !== undefined || max !== undefined
+    const rangeId = `${id}-range`
 
     return (
         <div className="grid gap-1.5">
@@ -72,7 +81,7 @@ export function NumberField({
                         setDraft(raw)
                         const next = parseFloat(raw)
                         if (isNaN(next)) return
-                        onValueChange(next)
+                        onValueChange(clamp(next))
                     }}
                     onBlur={() => setDraft(null)}
                     onKeyDown={(event) => {
@@ -85,6 +94,8 @@ export function NumberField({
                         }
                     }}
                     aria-label={name}
+                    aria-invalid={belowMin || aboveMax || undefined}
+                    aria-describedby={hasRange ? rangeId : undefined}
                     className="pr-7 font-mono tabular-nums"
                 />
                 {!disabled && (
@@ -93,6 +104,7 @@ export function NumberField({
                             <button
                                 key={direction}
                                 type="button"
+                                disabled={direction === 1 ? max !== undefined && value >= max : min !== undefined && value <= min}
                                 // The field handles ArrowUp/ArrowDown itself, so these
                                 // stay out of the tab order.
                                 tabIndex={-1}
@@ -101,6 +113,7 @@ export function NumberField({
                                 className={cn(
                                     "flex flex-1 items-center justify-center text-muted-foreground transition-colors",
                                     "hover:bg-muted hover:text-foreground",
+                                    "disabled:pointer-events-none disabled:opacity-40",
                                 )}
                             >
                                 {direction === 1 ? (
@@ -113,6 +126,12 @@ export function NumberField({
                     </div>
                 )}
             </div>
+            {hasRange && (
+                <div id={rangeId} className="-mt-0.5 flex justify-between font-mono text-[10px] tabular-nums text-muted-foreground">
+                    <span className={cn(belowMin && "text-destructive")}>{min !== undefined && `min ${min}`}</span>
+                    <span className={cn(aboveMax && "text-destructive")}>{max !== undefined && `max ${max}`}</span>
+                </div>
+            )}
         </div>
     )
 }

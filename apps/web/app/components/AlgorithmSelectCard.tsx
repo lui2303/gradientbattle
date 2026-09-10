@@ -157,7 +157,7 @@ export default function AlgorithmSelectCard({allowedOptimizers, id, optimizers, 
                         const selected = allowedOptimizers.find((opt) => opt.name === value)
                         setOptimizers(prev => ({...prev, [id]: {
                             name: value,
-                            params: Object.fromEntries(Object.entries(optimizationAlgorithms[value]["params"]).map(([key, paramValue]) => {return [key, { enabled: selected?.params[key]?.enabled ?? true, value: paramValue }]})),
+                            params: Object.fromEntries(Object.entries(optimizationAlgorithms[value]["params"]).map(([key, param]) => {return [key, { enabled: selected?.params[key]?.enabled ?? true, value: param.value }]})),
                             startingPoint: selected ? {fixed: selected.startingPoint.fixed, value: {...selected.startingPoint.value}} : prev[id].startingPoint,
                             color: prev[id].color}}))
                     }}
@@ -199,6 +199,7 @@ export default function AlgorithmSelectCard({allowedOptimizers, id, optimizers, 
                     {Object.keys(optimizers[id]["params"]).map((param: string) => {
                         const enabled = allowedOptimizer?.params[param]?.enabled ?? true
                         const symbol = definition?.paramLatex[param]
+                        const range = definition?.params[param]
                         return (
                             <NumberField
                                 key={param}
@@ -207,7 +208,8 @@ export default function AlgorithmSelectCard({allowedOptimizers, id, optimizers, 
                                 name={param}
                                 adornment={!enabled ? <PinnedLock label={param} /> : undefined}
                                 disabled={!enabled || locked}
-                                min={0}
+                                min={range?.min ?? 0}
+                                max={range?.max}
                                 step={0.01}
                                 value={optimizers[id]["params"][param].value}
                                 onValueChange={(newValue) => {

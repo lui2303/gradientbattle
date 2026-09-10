@@ -1,10 +1,12 @@
 import { optimizerFactory } from "@gradientbattle/core/src/optimizers/optimizer_factory";
+import { paramRangeError } from "@gradientbattle/core/src/optimizers/optimizer_registry";
 import { SimulationEngine } from "@gradientbattle/core/src/simulation_engine";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { functionFactory } from "@gradientbattle/core/src/functions/function_factory";
 import { MAX_OPTIMIZERS, MAX_STEPS } from "@/app/constants";
 import { clientIp, enforceRateLimit } from "@/lib/rateLimit";
+import { FrontendOptimizer } from "@/app/types";
 
 export async function POST(request: Request) {
 
@@ -29,6 +31,12 @@ export async function POST(request: Request) {
     if (steps > MAX_STEPS) {
         return NextResponse.json({ error: "Steps exceed the maximum of allowed steps of " + MAX_STEPS }, { status: 422 })
     }
+
+    for (const opt of Object.values(optimizers as Record<string, FrontendOptimizer>)) {
+        const rangeError = paramRangeError(opt?.name, opt?.params)
+        if (rangeError) return NextResponse.json({ error: rangeError }, { status: 422 })
+    }
+
     const func = functionFactory(funcName)
 
     const sim_engine = new SimulationEngine(func, steps)

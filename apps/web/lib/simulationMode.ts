@@ -50,8 +50,8 @@ export const FreeForAllSimulationMode: SimulationMode = {
             name: k,
             startingPoint: {fixed: false, value: {x: 5, y: 5}},
             params: Object.fromEntries(
-                Object.entries(v.params).map(([key, value]) => {
-                    return [key, { enabled: true, value: value }]
+                Object.entries(v.params).map(([key, param]) => {
+                    return [key, { enabled: true, value: param.value }]
                 })
             ),
             // Placeholder only — the live colour is claimed from a free palette slot when
