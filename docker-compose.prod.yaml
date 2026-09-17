@@ -1,6 +1,13 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   caddy:
     image: caddy:2-alpine
+    logging: *default-logging
     restart: unless-stopped
     ports:
       - "80:80"
@@ -17,6 +24,7 @@ services:
 
   web:
     image: ghcr.io/lui2303/gradientbattle:${TAG:-latest}
+    logging: *default-logging
     restart: unless-stopped
     env_file:
       - .env.production
@@ -35,6 +43,7 @@ services:
 
   battle:
     image: ghcr.io/lui2303/gradientbattle:${TAG:-latest}
+    logging: *default-logging
     restart: unless-stopped
     env_file:
       - .env.production
@@ -59,6 +68,7 @@ services:
   # it can never sweep against a different schema than the one serving traffic.
   sweep:
     image: ghcr.io/lui2303/gradientbattle:${TAG:-latest}
+    logging: *default-logging
     restart: unless-stopped
     env_file:
       - .env.production
@@ -84,6 +94,7 @@ services:
   # against an unmigrated schema.
   migrate:
     image: ghcr.io/lui2303/gradientbattle:${TAG:-latest}
+    logging: *default-logging
     restart: "no"
     env_file:
       - .env.production
@@ -94,6 +105,7 @@ services:
 
   postgres:
     image: postgres:17-alpine
+    logging: *default-logging
     restart: unless-stopped
     # env_file rather than `environment:` with ${...}: interpolation reads the shell
     # or a .env in the project dir, not this file, and would silently blank them out.
@@ -109,6 +121,7 @@ services:
 
   redis:
     image: redis:7-alpine
+    logging: *default-logging
     restart: unless-stopped
     command: ["redis-server", "--appendonly", "yes"]
     volumes:

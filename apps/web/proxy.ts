@@ -3,14 +3,8 @@ import { authConfig } from "./auth.config";
 
 const { auth } = NextAuth(authConfig);
 
-/**
- * Routes that work signed out. Everything else stays deny-by-default via the matcher
- * below, so a new route is protected unless it is added here deliberately.
- *
- * Free play is public, which means the endpoint it posts runs to has to be public as
- * well — it only records an anonymous Run row and carries no user identity.
- */
-const PUBLIC_PATHS = new Set(["/", "/api/run_optimizers"]);
+
+const PUBLIC_PATHS = new Set(["/", "/api/run_optimizers", "/leaderboards/battle"]);
 
 export default auth((req) => {
     if (PUBLIC_PATHS.has(req.nextUrl.pathname)) return;
