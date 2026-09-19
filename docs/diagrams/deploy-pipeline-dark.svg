@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 530" width="1000" height="530" role="img" aria-label="Build, ship, run">
+<defs><marker id="arrow-768390" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#768390"/></marker><marker id="arrow-bc8cff" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#bc8cff"/></marker><marker id="arrow-d29922" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d29922"/></marker></defs>
+<rect width="1000" height="530" fill="#0d1117"/>
+<text x="30" y="36" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" fill="#e6edf3">Build, ship, run</text>
+<text x="30" y="56" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="11.5" fill="#8b949e">One image per commit. The server never builds; it pulls a SHA-tagged image and lets compose health checks order the start-up.</text>
+<rect x="30" y="80" width="470" height="400" rx="14" fill="none" stroke="#8b949e" stroke-opacity="0.55" stroke-dasharray="6 5"/>
+<rect x="45" y="90" width="258.56000000000006" height="16" fill="#0d1117" rx="2"/>
+<text x="48" y="102" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="11" font-weight="400" fill="#8b949e" text-anchor="start" fill-opacity="1">GitHub Actions · .github/workflows/ci.yml</text>
+<rect x="45" y="120" width="120" height="56" rx="10" fill="#161b22" stroke="#30363d"/>
+<rect x="45" y="120" width="120" height="56" rx="10" fill="#8b949e" fill-opacity="0.09" stroke="#8b949e" stroke-opacity="0.75"/>
+<rect x="61" y="135" width="8" height="8" rx="2" fill="#8b949e"/>
+<text x="75" y="143" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#e6edf3" text-anchor="start" fill-opacity="1">push / PR</text>
+<text x="61" y="163" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#8b949e" text-anchor="start" fill-opacity="1">branch main</text>
+<rect x="195" y="110" width="290" height="118" rx="10" fill="#161b22" stroke="#30363d"/>
+<rect x="195" y="110" width="290" height="118" rx="10" fill="#58a6ff" fill-opacity="0.09" stroke="#58a6ff" stroke-opacity="0.75"/>
+<rect x="211" y="125" width="8" height="8" rx="2" fill="#58a6ff"/>
+<text x="225" y="133" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#e6edf3" text-anchor="start" fill-opacity="1">build job</text>
+<text x="211" y="153" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#8b949e" text-anchor="start" fill-opacity="1">pnpm install --frozen-lockfile</text>
+<text x="211" y="168" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#8b949e" text-anchor="start" fill-opacity="1">prisma generate · eslint · tsc --noEmit</text>
+<text x="211" y="183" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#8b949e" text-anchor="start" fill-opacity="1">vitest · next build</text>
+<rect x="195" y="290" width="290" height="132" rx="10" fill="#161b22" stroke="#30363d"/>
+<rect x="195" y="290" width="290" height="132" rx="10" fill="#58a6ff" fill-opacity="0.09" stroke="#58a6ff" stroke-opacity="0.75"/>
+<rect x="211" y="305" width="8" height="8" rx="2" fill="#58a6ff"/>
+<text x="225" y="313" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#e6edf3" text-anchor="start" fill-opacity="1">image job · main only</text>
+<text x="211" y="333" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#8b949e" text-anchor="start" fill-opacity="1">docker buildx + GHA layer cache</text>
+<text x="211" y="348" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#8b949e" text-anchor="start" fill-opacity="1">build-args: GIT_SHA and the public</text>
+<text x="211" y="363" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#8b949e" text-anchor="start" fill-opacity="1">WS URL (inlined into the client bundle)</text>
+<text x="211" y="378" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#8b949e" text-anchor="start" fill-opacity="1">tags: sha-&lt;short&gt; + latest</text>
+<rect x="40" y="310" width="130" height="92" rx="10" fill="#161b22" stroke="#30363d"/>
+<rect x="40" y="310" width="130" height="92" rx="10" fill="#bc8cff" fill-opacity="0.09" stroke="#bc8cff" stroke-opacity="0.75"/>
+<rect x="56" y="325" width="8" height="8" rx="2" fill="#bc8cff"/>
+<text x="70" y="333" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#e6edf3" text-anchor="start" fill-opacity="1">GHCR</text>
+<text x="56" y="353" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#8b949e" text-anchor="start" fill-opacity="1">ghcr.io/</text>
+<text x="56" y="368" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#8b949e" text-anchor="start" fill-opacity="1">lui2303/</text>
+<text x="56" y="383" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#8b949e" text-anchor="start" fill-opacity="1">gradientbattle</text>
+<path d="M165,148 L195,148.94" fill="none" stroke="#768390" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#arrow-768390)"/>
+<path d="M340,228 L340,290" fill="none" stroke="#768390" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#arrow-768390)"/>
+<rect x="304.68" y="250.5" width="86.64" height="15.5" fill="#0d1117" rx="2"/>
+<text x="348" y="262" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#e6edf3" text-anchor="middle" fill-opacity="1">needs: build</text>
+<path d="M195,356 L170,356" fill="none" stroke="#bc8cff" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#arrow-bc8cff)"/>
+<rect x="165.56" y="338.5" width="32.879999999999995" height="15.5" fill="#0d1117" rx="2"/>
+<text x="182" y="350" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#e6edf3" text-anchor="middle" fill-opacity="1">push</text>
+<rect x="530" y="80" width="440" height="400" rx="14" fill="none" stroke="#8b949e" stroke-opacity="0.55" stroke-dasharray="6 5"/>
+<rect x="545" y="90" width="209.28000000000003" height="16" fill="#0d1117" rx="2"/>
+<text x="548" y="102" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="11" font-weight="400" fill="#8b949e" text-anchor="start" fill-opacity="1">Server · docker-compose.prod.yaml</text>
+<rect x="560" y="110" width="380" height="72" rx="10" fill="#161b22" stroke="#30363d"/>
+<rect x="560" y="110" width="380" height="72" rx="10" fill="#d29922" fill-opacity="0.09" stroke="#d29922" stroke-opacity="0.75"/>
+<rect x="576" y="125" width="8" height="8" rx="2" fill="#d29922"/>
+<text x="590" y="133" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#e6edf3" text-anchor="start" fill-opacity="1">./deploy.sh [sha-&lt;short&gt; | latest]</text>
+<text x="576" y="153" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#8b949e" text-anchor="start" fill-opacity="1">docker compose pull → up -d</text>
+<text x="576" y="168" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#8b949e" text-anchor="start" fill-opacity="1">poll battle /health ≤ 60 s, print its revision</text>
+<rect x="560" y="212" width="380" height="38" rx="10" fill="#161b22" stroke="#30363d"/>
+<rect x="560" y="212" width="380" height="38" rx="10" fill="#bc8cff" fill-opacity="0.09" stroke="#bc8cff" stroke-opacity="0.75"/>
+<rect x="576" y="227" width="8" height="8" rx="2" fill="#bc8cff"/>
+<text x="590" y="235" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#e6edf3" text-anchor="start" fill-opacity="1">postgres · redis — healthy: pg_isready · redis-cli ping</text>
+<rect x="560" y="266" width="380" height="38" rx="10" fill="#161b22" stroke="#30363d"/>
+<rect x="560" y="266" width="380" height="38" rx="10" fill="#d29922" fill-opacity="0.09" stroke="#d29922" stroke-opacity="0.75"/>
+<rect x="576" y="281" width="8" height="8" rx="2" fill="#d29922"/>
+<text x="590" y="289" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#e6edf3" text-anchor="start" fill-opacity="1">migrate — prisma migrate deploy, exit 0</text>
+<rect x="560" y="320" width="380" height="38" rx="10" fill="#161b22" stroke="#30363d"/>
+<rect x="560" y="320" width="380" height="38" rx="10" fill="#58a6ff" fill-opacity="0.09" stroke="#58a6ff" stroke-opacity="0.75"/>
+<rect x="576" y="335" width="8" height="8" rx="2" fill="#58a6ff"/>
+<text x="590" y="343" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#e6edf3" text-anchor="start" fill-opacity="1">web — healthy: GET /login</text>
+<rect x="560" y="374" width="380" height="38" rx="10" fill="#161b22" stroke="#30363d"/>
+<rect x="560" y="374" width="380" height="38" rx="10" fill="#58a6ff" fill-opacity="0.09" stroke="#58a6ff" stroke-opacity="0.75"/>
+<rect x="576" y="389" width="8" height="8" rx="2" fill="#58a6ff"/>
+<text x="590" y="397" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#e6edf3" text-anchor="start" fill-opacity="1">battle (+ sweep) — healthy: GET /health</text>
+<rect x="560" y="428" width="380" height="38" rx="10" fill="#161b22" stroke="#30363d"/>
+<rect x="560" y="428" width="380" height="38" rx="10" fill="#3fb950" fill-opacity="0.09" stroke="#3fb950" stroke-opacity="0.75"/>
+<rect x="576" y="443" width="8" height="8" rx="2" fill="#3fb950"/>
+<text x="590" y="451" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#e6edf3" text-anchor="start" fill-opacity="1">caddy — TLS + reverse proxy, last</text>
+<path d="M750,250 L750,266" fill="none" stroke="#768390" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#arrow-768390)"/>
+<path d="M750,304 L750,320" fill="none" stroke="#768390" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#arrow-768390)"/>
+<path d="M750,358 L750,374" fill="none" stroke="#768390" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#arrow-768390)"/>
+<path d="M750,412 L750,428" fill="none" stroke="#768390" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#arrow-768390)"/>
+<rect x="757" y="190.5" width="73.2" height="15.5" fill="#0d1117" rx="2"/>
+<text x="760" y="202" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#8b949e" text-anchor="start" fill-opacity="1">depends_on</text>
+<path d="M750,182 L750,212" fill="none" stroke="#d29922" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#arrow-d29922)"/>
+<path d="M105,402 L105,455 L515,455 L515,146 L560,146" fill="none" stroke="#bc8cff" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#arrow-bc8cff)"/>
+<rect x="202.68" y="437.5" width="254.64000000000001" height="15.5" fill="#0d1117" rx="2"/>
+<text x="330" y="449" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#e6edf3" text-anchor="middle" fill-opacity="1">docker compose pull  ghcr.io/…:${TAG}</text>
+<rect x="197.95999999999998" y="498.5" width="604.08" height="15.5" fill="#0d1117" rx="2"/>
+<text x="500" y="510" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#8b949e" text-anchor="middle" fill-opacity="1">Rollback: ./deploy.sh sha-&lt;previous&gt;.  New code never serves before migrate has exited 0.</text>
+</svg>

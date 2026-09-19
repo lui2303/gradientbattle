@@ -1,0 +1,208 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1770" width="1000" height="1770" role="img" aria-label="Ranked battle — end to end">
+<defs><marker id="arrow-6e7781" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6e7781"/></marker></defs>
+<rect width="1000" height="1770" fill="#ffffff"/>
+<text x="30" y="36" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" fill="#1f2328">Ranked battle — end to end</text>
+<text x="30" y="56" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="11.5" fill="#59636e">Two players, four phases. Redis holds the live state, Postgres the durable record; the WebSocket server relays, schedules and delegates.</text>
+<rect x="24" y="132" width="952" height="405" rx="8" fill="#000000" fill-opacity="0.03"/>
+<rect x="24" y="529" width="952" height="397" rx="8" fill="#000000" fill-opacity="0.03"/>
+<rect x="24" y="918" width="952" height="312" rx="8" fill="#000000" fill-opacity="0.03"/>
+<rect x="24" y="1222" width="952" height="528" rx="8" fill="#000000" fill-opacity="0.03"/>
+<line x1="68" y1="120" x2="68" y2="1754" stroke="#59636e" stroke-opacity="0.4" stroke-dasharray="3 5"/>
+<line x1="180" y1="120" x2="180" y2="1754" stroke="#59636e" stroke-opacity="0.4" stroke-dasharray="3 5"/>
+<line x1="330" y1="120" x2="330" y2="1754" stroke="#0969da" stroke-opacity="0.4" stroke-dasharray="3 5"/>
+<line x1="500" y1="120" x2="500" y2="1754" stroke="#8250df" stroke-opacity="0.4" stroke-dasharray="3 5"/>
+<line x1="660" y1="120" x2="660" y2="1754" stroke="#0969da" stroke-opacity="0.4" stroke-dasharray="3 5"/>
+<line x1="860" y1="120" x2="860" y2="1754" stroke="#8250df" stroke-opacity="0.4" stroke-dasharray="3 5"/>
+<rect x="20" y="80" width="96" height="40" rx="10" fill="#f6f8fa" stroke="#d0d7de"/>
+<rect x="20" y="80" width="96" height="40" rx="10" fill="#59636e" fill-opacity="0.07" stroke="#59636e" stroke-opacity="0.75"/>
+<text x="68" y="103" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="middle" fill-opacity="1">Player A</text>
+<rect x="132" y="80" width="96" height="40" rx="10" fill="#f6f8fa" stroke="#d0d7de"/>
+<rect x="132" y="80" width="96" height="40" rx="10" fill="#59636e" fill-opacity="0.07" stroke="#59636e" stroke-opacity="0.75"/>
+<text x="180" y="103" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="middle" fill-opacity="1">Player B</text>
+<rect x="265" y="80" width="130" height="40" rx="10" fill="#f6f8fa" stroke="#d0d7de"/>
+<rect x="265" y="80" width="130" height="40" rx="10" fill="#0969da" fill-opacity="0.07" stroke="#0969da" stroke-opacity="0.75"/>
+<text x="330" y="103" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="middle" fill-opacity="1">battle (WS)</text>
+<rect x="450" y="80" width="100" height="40" rx="10" fill="#f6f8fa" stroke="#d0d7de"/>
+<rect x="450" y="80" width="100" height="40" rx="10" fill="#8250df" fill-opacity="0.07" stroke="#8250df" stroke-opacity="0.75"/>
+<text x="500" y="103" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="middle" fill-opacity="1">Redis</text>
+<rect x="600" y="80" width="120" height="40" rx="10" fill="#f6f8fa" stroke="#d0d7de"/>
+<rect x="600" y="80" width="120" height="40" rx="10" fill="#0969da" fill-opacity="0.07" stroke="#0969da" stroke-opacity="0.75"/>
+<text x="660" y="103" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="middle" fill-opacity="1">web API</text>
+<rect x="805" y="80" width="110" height="40" rx="10" fill="#f6f8fa" stroke="#d0d7de"/>
+<rect x="805" y="80" width="110" height="40" rx="10" fill="#8250df" fill-opacity="0.07" stroke="#8250df" stroke-opacity="0.75"/>
+<text x="860" y="103" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="middle" fill-opacity="1">Postgres</text>
+<rect x="152.32" y="154.5" width="93.36" height="15.5" fill="#f7f7f7" rx="2"/>
+<text x="199" y="166" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">FIND_OPPONENT</text>
+<path d="M68,172 L330,172" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#arrow-6e7781)"/>
+<circle cx="68" cy="172" r="2.5" fill="#6e7781"/>
+<rect x="328" y="184.5" width="174" height="28.5" fill="#f7f7f7" rx="2"/>
+<text x="415" y="196" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">ZRANGEBYSCORE queue</text>
+<text x="415" y="209" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">[elo−800, elo+800] → none</text>
+<path d="M330,215 L500,215" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#arrow-6e7781)"/>
+<circle cx="330" cy="215" r="2.5" fill="#6e7781"/>
+<rect x="341.44" y="227.5" width="147.12" height="15.5" fill="#f7f7f7" rx="2"/>
+<text x="415" y="239" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">ZADD queue elo user:A</text>
+<path d="M330,245 L500,245" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#arrow-6e7781)"/>
+<circle cx="330" cy="245" r="2.5" fill="#6e7781"/>
+<rect x="169.12" y="257.5" width="59.76" height="15.5" fill="#f7f7f7" rx="2"/>
+<text x="199" y="269" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="middle" fill-opacity="1">ENQUEUED</text>
+<path d="M330,275 L68,275" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#arrow-6e7781)"/>
+<circle cx="330" cy="275" r="2.5" fill="#6e7781"/>
+<rect x="208.32" y="287.5" width="93.36" height="15.5" fill="#f7f7f7" rx="2"/>
+<text x="255" y="299" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">FIND_OPPONENT</text>
+<path d="M180,305 L330,305" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#arrow-6e7781)"/>
+<circle cx="180" cy="305" r="2.5" fill="#6e7781"/>
+<rect x="338.08" y="317.5" width="153.84" height="28.5" fill="#f7f7f7" rx="2"/>
+<text x="415" y="329" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">ZRANGEBYSCORE → user:A</text>
+<text x="415" y="342" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">ZREM queue user:A</text>
+<path d="M330,348 L500,348" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#arrow-6e7781)"/>
+<circle cx="330" cy="348" r="2.5" fill="#6e7781"/>
+<rect x="331.36" y="360.5" width="167.28" height="54.5" fill="#f7f7f7" rx="2"/>
+<text x="415" y="372" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">MULTI · HSET battle:{id}</text>
+<text x="415" y="385" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">state=PLAYERS_READY_0</text>
+<text x="415" y="398" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">SET user:A/B → {id}</text>
+<text x="415" y="411" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">EXPIRE 143 s · EXEC</text>
+<path d="M330,417 L500,417" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#arrow-6e7781)"/>
+<circle cx="330" cy="417" r="2.5" fill="#6e7781"/>
+<rect x="118.72" y="429.5" width="160.56" height="15.5" fill="#f7f7f7" rx="2"/>
+<text x="199" y="441" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="middle" fill-opacity="1">FOUND_OPPONENT {B, elo}</text>
+<path d="M330,447 L68,447" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#arrow-6e7781)"/>
+<circle cx="330" cy="447" r="2.5" fill="#6e7781"/>
+<rect x="174.72" y="459.5" width="160.56" height="15.5" fill="#f7f7f7" rx="2"/>
+<text x="255" y="471" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="middle" fill-opacity="1">FOUND_OPPONENT {A, elo}</text>
+<path d="M330,477 L180,477" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#arrow-6e7781)"/>
+<circle cx="330" cy="477" r="2.5" fill="#6e7781"/>
+<rect x="340" y="493" width="275.36" height="38" rx="6" fill="#f6f8fa" stroke="#9a6700" stroke-opacity="0.6"/>
+<rect x="340" y="493" width="275.36" height="38" rx="6" fill="#9a6700" fill-opacity="0.08"/>
+<text x="350" y="508" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="start" fill-opacity="1">setTimeout 20 s: if state is still</text>
+<text x="350" y="521" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="start" fill-opacity="1">PLAYERS_READY_* → ABORT both, clean up</text>
+<text x="36" y="147" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1f2328" text-anchor="start" fill-opacity="1">1 · Matchmaking — Elo-banded queue</text>
+<rect x="179.2" y="551.5" width="39.6" height="15.5" fill="#f7f7f7" rx="2"/>
+<text x="199" y="563" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">READY</text>
+<path d="M68,569 L330,569" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#arrow-6e7781)"/>
+<circle cx="68" cy="569" r="2.5" fill="#6e7781"/>
+<rect x="324.64" y="581.5" width="180.72" height="28.5" fill="#f7f7f7" rx="2"/>
+<text x="415" y="593" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">SET ready:A 1 NX EX 20</text>
+<text x="415" y="606" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">HSET state=PLAYERS_READY_1</text>
+<path d="M330,612 L500,612" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#arrow-6e7781)"/>
+<circle cx="330" cy="612" r="2.5" fill="#6e7781"/>
+<rect x="235.2" y="624.5" width="39.6" height="15.5" fill="#f7f7f7" rx="2"/>
+<text x="255" y="636" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">READY</text>
+<path d="M180,642 L330,642" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#arrow-6e7781)"/>
+<circle cx="180" cy="642" r="2.5" fill="#6e7781"/>
+<rect x="328" y="654.5" width="174" height="28.5" fill="#f7f7f7" rx="2"/>
+<text x="415" y="666" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">SET ready:B 1 NX</text>
+<text x="415" y="679" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">HGETALL → PLAYERS_READY_1</text>
+<path d="M330,685 L500,685" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#arrow-6e7781)"/>
+<circle cx="330" cy="685" r="2.5" fill="#6e7781"/>
+<rect x="340" y="701" width="329.12" height="38" rx="6" fill="#f6f8fa" stroke="#0969da" stroke-opacity="0.6"/>
+<rect x="340" y="701" width="329.12" height="38" rx="6" fill="#0969da" fill-opacity="0.08"/>
+<text x="350" y="716" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="start" fill-opacity="1">generateRankedGame(): random optimizer subset,</text>
+<text x="350" y="729" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="start" fill-opacity="1">params + starting points pinned at random</text>
+<rect x="328" y="745.5" width="174" height="28.5" fill="#f7f7f7" rx="2"/>
+<text x="415" y="757" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">HSET state=RUNNING · game</text>
+<text x="415" y="770" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">gameEndsAt = now + 120 s</text>
+<path d="M330,776 L500,776" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#arrow-6e7781)"/>
+<circle cx="330" cy="776" r="2.5" fill="#6e7781"/>
+<rect x="454.24" y="788.5" width="281.52" height="15.5" fill="#f7f7f7" rx="2"/>
+<text x="595" y="800" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">battle.create {id, RUNNING, game, endsAt}</text>
+<path d="M330,806 L860,806" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#arrow-6e7781)"/>
+<circle cx="330" cy="806" r="2.5" fill="#6e7781"/>
+<rect x="135.51999999999998" y="818.5" width="126.96000000000001" height="15.5" fill="#f7f7f7" rx="2"/>
+<text x="199" y="830" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="middle" fill-opacity="1">RUNNING {battleID}</text>
+<path d="M330,836 L68,836" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#arrow-6e7781)"/>
+<circle cx="330" cy="836" r="2.5" fill="#6e7781"/>
+<rect x="191.51999999999998" y="848.5" width="126.96000000000001" height="15.5" fill="#f7f7f7" rx="2"/>
+<text x="255" y="860" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="middle" fill-opacity="1">RUNNING {battleID}</text>
+<path d="M330,866 L180,866" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#arrow-6e7781)"/>
+<circle cx="330" cy="866" r="2.5" fill="#6e7781"/>
+<rect x="78" y="882" width="302.24" height="38" rx="6" fill="#f6f8fa" stroke="#59636e" stroke-opacity="0.6"/>
+<rect x="78" y="882" width="302.24" height="38" rx="6" fill="#59636e" fill-opacity="0.08"/>
+<text x="88" y="897" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="start" fill-opacity="1">router.push(/battle/{id}) → SYNC → hydrate</text>
+<text x="88" y="910" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="start" fill-opacity="1">state, game, remainingMs, submissions</text>
+<text x="36" y="544" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1f2328" text-anchor="start" fill-opacity="1">2 · Ready-up — both players must confirm within 20 s</text>
+<rect x="233.32" y="940.5" width="261.36" height="15.5" fill="#f7f7f7" rx="2"/>
+<text x="364" y="952" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">POST /api/battle/{id}/run  {optimizer}</text>
+<path d="M68,958 L660,958" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#arrow-6e7781)"/>
+<circle cx="68" cy="958" r="2.5" fill="#6e7781"/>
+<rect x="670" y="974" width="268.64" height="38" rx="6" fill="#f6f8fa" stroke="#0969da" stroke-opacity="0.6"/>
+<rect x="670" y="974" width="268.64" height="38" rx="6" fill="#0969da" fill-opacity="0.08"/>
+<text x="680" y="989" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="start" fill-opacity="1">session owns this battle? · optimizer</text>
+<text x="680" y="1002" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="start" fill-opacity="1">matches the pinned game? · in range?</text>
+<rect x="489.64" y="1018.5" width="180.72" height="28.5" fill="#f7f7f7" rx="2"/>
+<text x="580" y="1030" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">INCR battle:{id}:</text>
+<text x="580" y="1043" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">submissions:A → 429 if &gt; k</text>
+<path d="M660,1049 L500,1049" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#arrow-6e7781)"/>
+<circle cx="660" cy="1049" r="2.5" fill="#6e7781"/>
+<rect x="670" y="1065" width="214.88" height="38" rx="6" fill="#f6f8fa" stroke="#0969da" stroke-opacity="0.6"/>
+<rect x="670" y="1065" width="214.88" height="38" rx="6" fill="#0969da" fill-opacity="0.08"/>
+<text x="680" y="1080" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="start" fill-opacity="1">pinned fields ← server values</text>
+<text x="680" y="1093" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="start" fill-opacity="1">SimulationEngine × 100 steps</text>
+<rect x="642.76" y="1109.5" width="234.48000000000002" height="28.5" fill="#f7f7f7" rx="2"/>
+<text x="760" y="1121" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">battleRun.create</text>
+<text x="760" y="1134" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">{optimizers, lastIterate, bestRun}</text>
+<path d="M660,1140 L860,1140" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#arrow-6e7781)"/>
+<circle cx="660" cy="1140" r="2.5" fill="#6e7781"/>
+<rect x="236.68" y="1152.5" width="254.64000000000001" height="15.5" fill="#f7f7f7" rx="2"/>
+<text x="364" y="1164" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="middle" fill-opacity="1">201 {traces[100][1], submissionCount}</text>
+<path d="M660,1170 L68,1170" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#arrow-6e7781)"/>
+<circle cx="660" cy="1170" r="2.5" fill="#6e7781"/>
+<rect x="78" y="1186" width="248.48000000000002" height="38" rx="6" fill="#f6f8fa" stroke="#59636e" stroke-opacity="0.6"/>
+<rect x="78" y="1186" width="248.48000000000002" height="38" rx="6" fill="#59636e" fill-opacity="0.08"/>
+<text x="88" y="1201" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="start" fill-opacity="1">Plotly replays one step per frame;</text>
+<text x="88" y="1214" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="start" fill-opacity="1">Player B does the same in parallel</text>
+<text x="36" y="933" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1f2328" text-anchor="start" fill-opacity="1">3 · Running — 120 s, at most k submissions per player</text>
+<rect x="85.12" y="1244.5" width="227.76" height="28.5" fill="#f7f7f7" rx="2"/>
+<text x="199" y="1256" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">EVALUATE  (countdown hit 0;</text>
+<text x="199" y="1269" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">retried with exponential backoff)</text>
+<path d="M68,1275 L330,1275" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#arrow-6e7781)"/>
+<circle cx="68" cy="1275" r="2.5" fill="#6e7781"/>
+<rect x="340" y="1291" width="275.36" height="25" rx="6" fill="#f6f8fa" stroke="#9a6700" stroke-opacity="0.6"/>
+<rect x="340" y="1291" width="275.36" height="25" rx="6" fill="#9a6700" fill-opacity="0.08"/>
+<text x="350" y="1306" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="start" fill-opacity="1">gameEndsAt already passed? else ignore</text>
+<rect x="367.68" y="1322.5" width="254.64000000000001" height="28.5" fill="#f7f7f7" rx="2"/>
+<text x="495" y="1334" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">GET /api/battle/{id}/evaluate</text>
+<text x="495" y="1347" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">Authorization: Bearer &lt;service token&gt;</text>
+<path d="M330,1353 L660,1353" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#arrow-6e7781)"/>
+<circle cx="330" cy="1353" r="2.5" fill="#6e7781"/>
+<rect x="670" y="1369" width="248.48000000000002" height="38" rx="6" fill="#f6f8fa" stroke="#0969da" stroke-opacity="0.6"/>
+<rect x="670" y="1369" width="248.48000000000002" height="38" rx="6" fill="#0969da" fill-opacity="0.08"/>
+<text x="680" y="1384" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="start" fill-opacity="1">already evaluated? → stored result</text>
+<text x="680" y="1397" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="start" fill-opacity="1">else: best run per player → winner</text>
+<rect x="659.56" y="1413.5" width="200.88" height="67.5" fill="#f7f7f7" rx="2"/>
+<text x="760" y="1425" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">$transaction:</text>
+<text x="760" y="1438" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">updateMany status → evaluated</text>
+<text x="760" y="1451" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">(only one caller claims it)</text>
+<text x="760" y="1464" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">Elo update for both players</text>
+<text x="760" y="1477" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">store deltas + Elo before</text>
+<path d="M660,1483 L860,1483" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#arrow-6e7781)"/>
+<circle cx="660" cy="1483" r="2.5" fill="#6e7781"/>
+<rect x="374.4" y="1495.5" width="241.20000000000002" height="15.5" fill="#f7f7f7" rx="2"/>
+<text x="495" y="1507" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="middle" fill-opacity="1">{winnerId, winningRunId, eloDeltas}</text>
+<path d="M660,1513 L330,1513" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#arrow-6e7781)"/>
+<circle cx="660" cy="1513" r="2.5" fill="#6e7781"/>
+<rect x="307.84000000000003" y="1525.5" width="214.32" height="28.5" fill="#f7f7f7" rx="2"/>
+<text x="415" y="1537" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">HSET state=BATTLE_ENDED</text>
+<text x="415" y="1550" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">EXPIRE battle + user keys 120 s</text>
+<path d="M330,1556 L500,1556" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" marker-end="url(#arrow-6e7781)"/>
+<circle cx="330" cy="1556" r="2.5" fill="#6e7781"/>
+<rect x="152.32" y="1568.5" width="93.36" height="15.5" fill="#f7f7f7" rx="2"/>
+<text x="199" y="1580" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="middle" fill-opacity="1">BATTLE_RESULT</text>
+<path d="M330,1586 L68,1586" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#arrow-6e7781)"/>
+<circle cx="330" cy="1586" r="2.5" fill="#6e7781"/>
+<rect x="208.32" y="1598.5" width="93.36" height="15.5" fill="#f7f7f7" rx="2"/>
+<text x="255" y="1610" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="middle" fill-opacity="1">BATTLE_RESULT</text>
+<path d="M330,1616 L180,1616" fill="none" stroke="#6e7781" stroke-width="1.4" stroke-linejoin="round" stroke-dasharray="5 4" marker-end="url(#arrow-6e7781)"/>
+<circle cx="330" cy="1616" r="2.5" fill="#6e7781"/>
+<rect x="78" y="1632" width="241.76" height="38" rx="6" fill="#f6f8fa" stroke="#59636e" stroke-opacity="0.6"/>
+<rect x="78" y="1632" width="241.76" height="38" rx="6" fill="#59636e" fill-opacity="0.08"/>
+<text x="88" y="1647" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="start" fill-opacity="1">router.refresh() → server renders</text>
+<text x="88" y="1660" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="start" fill-opacity="1">BattleSummary from Postgres</text>
+<rect x="670" y="1680" width="322.40000000000003" height="64" rx="6" fill="#f6f8fa" stroke="#9a6700" stroke-opacity="0.6"/>
+<rect x="670" y="1680" width="322.40000000000003" height="64" rx="6" fill="#9a6700" fill-opacity="0.08"/>
+<text x="680" y="1695" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="start" fill-opacity="1">sweep, every 30 s: GET /evaluate for every</text>
+<text x="680" y="1708" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="start" fill-opacity="1">battle with status ≠ evaluated and</text>
+<text x="680" y="1721" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="start" fill-opacity="1">endsAt &lt; now − 2 s. A repeat call returns</text>
+<text x="680" y="1734" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="start" fill-opacity="1">the stored result — settlement is idempotent.</text>
+<text x="36" y="1237" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#1f2328" text-anchor="start" fill-opacity="1">4 · Evaluation — client-triggered, idempotent, swept as a backstop</text>
+</svg>

@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 560" width="1000" height="560" role="img" aria-label="Simulation pipeline">
+<defs><marker id="arrow-6e7781" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6e7781"/></marker><marker id="arrow-8250df" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8250df"/></marker><marker id="arrow-1b7c83" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1b7c83"/></marker></defs>
+<rect width="1000" height="560" fill="#ffffff"/>
+<text x="30" y="36" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" fill="#1f2328">Simulation pipeline</text>
+<text x="30" y="56" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="11.5" fill="#59636e">The server computes every trajectory once; the browser only replays it. A result never comes from the client.</text>
+<rect x="30" y="86" width="280" height="124" rx="10" fill="#f6f8fa" stroke="#d0d7de"/>
+<rect x="30" y="86" width="280" height="124" rx="10" fill="#59636e" fill-opacity="0.07" stroke="#59636e" stroke-opacity="0.75"/>
+<rect x="46" y="101" width="8" height="8" rx="2" fill="#59636e"/>
+<text x="60" y="109" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="start" fill-opacity="1">Optimizer setup</text>
+<text x="46" y="129" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">up to 5 AlgorithmSelectCards</text>
+<text x="46" y="144" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">algorithm · lr · β · starting point</text>
+<text x="46" y="159" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">objective: Quadratic | Matyas</text>
+<text x="46" y="174" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">Start → mode.run()</text>
+<rect x="360" y="86" width="300" height="124" rx="10" fill="#f6f8fa" stroke="#d0d7de"/>
+<rect x="360" y="86" width="300" height="124" rx="10" fill="#0969da" fill-opacity="0.07" stroke="#0969da" stroke-opacity="0.75"/>
+<rect x="376" y="101" width="8" height="8" rx="2" fill="#0969da"/>
+<text x="390" y="109" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="start" fill-opacity="1">POST /api/run_optimizers</text>
+<text x="376" y="129" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">Redis rate limit: 80 req / 5 min / IP</text>
+<text x="376" y="144" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">paramRangeError() on every optimizer</text>
+<text x="376" y="159" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">steps ≤ 100 · optimizers ≤ 5</text>
+<text x="376" y="174" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">optimizerFactory() · functionFactory()</text>
+<rect x="710" y="86" width="260" height="124" rx="10" fill="#f6f8fa" stroke="#d0d7de"/>
+<rect x="710" y="86" width="260" height="124" rx="10" fill="#1b7c83" fill-opacity="0.07" stroke="#1b7c83" stroke-opacity="0.75"/>
+<rect x="726" y="101" width="8" height="8" rx="2" fill="#1b7c83"/>
+<text x="740" y="109" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="start" fill-opacity="1">SimulationEngine</text>
+<text x="726" y="129" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">Iterable&lt;Point[]&gt;: one point per</text>
+<text x="726" y="144" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">optimizer per step, in lockstep</text>
+<text x="726" y="159" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">bestRun = first ‖x‖₂ &lt; 10⁻³</text>
+<rect x="814" y="184" width="144" height="18" rx="9" fill="#1b7c83" fill-opacity="0.14" stroke="#1b7c83" stroke-opacity="0.55"/>
+<text x="822" y="196.5" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10" font-weight="400" fill="#1b7c83" text-anchor="start" fill-opacity="1">@gradientbattle/core</text>
+<rect x="30" y="290" width="280" height="104" rx="10" fill="#f6f8fa" stroke="#d0d7de"/>
+<rect x="30" y="290" width="280" height="104" rx="10" fill="#59636e" fill-opacity="0.07" stroke="#59636e" stroke-opacity="0.75"/>
+<rect x="46" y="305" width="8" height="8" rx="2" fill="#59636e"/>
+<text x="60" y="313" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="start" fill-opacity="1">Plotly replay</text>
+<text x="46" y="333" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">extendTraces: one step per frame</text>
+<text x="46" y="348" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">contour · ‖x‖₂ · f(x) · leaderboard</text>
+<text x="46" y="363" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">50–2000 ms per step (slider)</text>
+<rect x="360" y="290" width="300" height="104" rx="10" fill="#f6f8fa" stroke="#d0d7de"/>
+<rect x="360" y="290" width="300" height="104" rx="10" fill="#1b7c83" fill-opacity="0.07" stroke="#1b7c83" stroke-opacity="0.75" stroke-dasharray="5 4"/>
+<rect x="376" y="305" width="8" height="8" rx="2" fill="#1b7c83"/>
+<text x="390" y="313" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="start" fill-opacity="1">traces: Point[steps][optimizers]</text>
+<text x="376" y="333" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">computed once on the server,</text>
+<text x="376" y="348" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">replayed in the browser</text>
+<rect x="710" y="290" width="260" height="104" rx="10" fill="#f6f8fa" stroke="#d0d7de"/>
+<rect x="710" y="290" width="260" height="104" rx="10" fill="#8250df" fill-opacity="0.07" stroke="#8250df" stroke-opacity="0.75"/>
+<rect x="726" y="305" width="8" height="8" rx="2" fill="#8250df"/>
+<text x="740" y="313" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="start" fill-opacity="1">Postgres · Run row</text>
+<text x="726" y="333" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">optimizers · steps · funcName</text>
+<text x="726" y="348" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">lastIterate · bestRun</text>
+<rect x="30" y="440" width="940" height="84" rx="10" fill="#f6f8fa" stroke="#d0d7de"/>
+<rect x="30" y="440" width="940" height="84" rx="10" fill="#0969da" fill-opacity="0.07" stroke="#0969da" stroke-opacity="0.75"/>
+<rect x="46" y="455" width="8" height="8" rx="2" fill="#0969da"/>
+<text x="60" y="463" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1f2328" text-anchor="start" fill-opacity="1">Battle mode · POST /api/battle/:id/run — same engine and validation, plus</text>
+<text x="46" y="483" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">the session must own the battle · the optimizer must match the server-pinned game · fixed starting points and</text>
+<text x="46" y="498" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">disabled parameters are overwritten with the server's values · Redis INCR caps submissions at k · the row is a BattleRun</text>
+<path d="M310,148 L360,148" fill="none" stroke="#6e7781" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#arrow-6e7781)"/>
+<rect x="318.56" y="130.5" width="32.879999999999995" height="15.5" fill="#ffffff" rx="2"/>
+<text x="335" y="142" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">JSON</text>
+<path d="M660,148 L710,148" fill="none" stroke="#6e7781" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#arrow-6e7781)"/>
+<rect x="665.2" y="130.5" width="39.6" height="15.5" fill="#ffffff" rx="2"/>
+<text x="685" y="142" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">build</text>
+<path d="M840,210 L840,290" fill="none" stroke="#8250df" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#arrow-8250df)"/>
+<rect x="845" y="242.5" width="120.24000000000001" height="15.5" fill="#ffffff" rx="2"/>
+<text x="848" y="254" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="start" fill-opacity="1">prisma.run.create</text>
+<path d="M760,210 L760,250 L510,250 L510,290" fill="none" stroke="#1b7c83" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#arrow-1b7c83)"/>
+<rect x="511.03999999999996" y="232.5" width="247.92000000000002" height="15.5" fill="#ffffff" rx="2"/>
+<text x="635" y="244" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">Array.from(engine): steps × n points</text>
+<path d="M360,342 L310,342" fill="none" stroke="#6e7781" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#arrow-6e7781)"/>
+<rect x="311.84" y="324.5" width="46.32" height="15.5" fill="#ffffff" rx="2"/>
+<text x="335" y="336" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="10.5" font-weight="400" fill="#1f2328" text-anchor="middle" fill-opacity="1">replay</text>
+<rect x="30" y="540" width="9" height="9" rx="2" fill="#59636e"/>
+<text x="45" y="548" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">browser</text>
+<rect x="108.16" y="540" width="9" height="9" rx="2" fill="#0969da"/>
+<text x="123.16" y="548" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">Next.js route handler</text>
+<rect x="268.64" y="540" width="9" height="9" rx="2" fill="#1b7c83"/>
+<text x="283.64" y="548" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">@gradientbattle/core</text>
+<rect x="423.24" y="540" width="9" height="9" rx="2" fill="#8250df"/>
+<text x="438.24" y="548" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif" font-size="10.5" font-weight="400" fill="#59636e" text-anchor="start" fill-opacity="1">PostgreSQL</text>
+</svg>

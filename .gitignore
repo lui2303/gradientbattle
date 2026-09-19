@@ -20,3 +20,6 @@ id_*
 *.pem
 *.key
 docs/*
+# The README embeds these; everything else under docs/ stays out.
+!docs/diagrams/
+!docs/screenshots/
