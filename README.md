@@ -2,7 +2,7 @@
   <a href="https://gradientbattle.com"><img src="apps/web/app/icon.svg" width="72" alt="gradientbattle logo"></a>
 </p>
 
-<h1 align="center"><a href="https://gradientbattle.com">gradientbattle</a></h1>
+<h1 align="center"><a href="https://gradientbattle.com">gradientbattle.com</a></h1>
 
 <p align="center">
   Tune gradient-descent optimizers and race them to the minimum — alone, or against another player in a ranked, Elo-rated battle.
