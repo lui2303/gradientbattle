@@ -84,6 +84,12 @@ Built solo between March and September 2026.
 - **Data.** Only unique indexes exist. The sweeper query on `(status, endsAt)`, match history by player and the ladder by Elo are sequential scans, which is fine at today's size. Free-play `Run` rows accumulate without retention.
 - **Parked features.** The daily-challenge mode is parked pending a rewrite. The local run-history sidebar is unwired.
 
+**Planned features**
+
+- **Custom objective functions.** Today an objective is a hand-written `objective` and `gradient` pair plus a LaTeX string for display. Players should be able to type their own function in LaTeX or a similar notation, which the server parses, differentiates and evaluates, so the function library is no longer limited to what is registered in the core package.
+- **Optima away from the origin.** Every optimizer declares convergence when $\lVert x \rVert_2$ falls below $10^{-3}$, and the distance plot measures against the origin, so every landscape must have its minimum at $(0, 0)$. Giving each objective a `minimizer` and measuring convergence and distance relative to it opens up functions such as Rosenbrock.
+- **Live pressure in battles.** A player currently learns what the opponent did only on the summary page. A push over the socket whenever the opponent's latest submission beats the player's current best would make the two minutes more engaging.
+
 ## Ranked battles
 
 <picture>
