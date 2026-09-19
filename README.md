@@ -1,22 +1,23 @@
 <p align="center">
-  <img src="apps/web/app/icon.svg" width="72" alt="gradientbattle logo">
+  <a href="https://gradientbattle.com"><img src="apps/web/app/icon.svg" width="72" alt="gradientbattle logo"></a>
 </p>
 
-<h1 align="center">gradientbattle</h1>
+<h1 align="center"><a href="https://gradientbattle.com">gradientbattle</a></h1>
 
 <p align="center">
   Tune gradient-descent optimizers and race them to the minimum — alone, or against another player in a ranked, Elo-rated battle.
 </p>
 
 <p align="center">
-  <a href="https://gradientbattle.com"><strong>gradientbattle.com</strong></a>
-  ·
-  <a href="https://github.com/lui2303/gradientbattle/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/lui2303/gradientbattle/actions/workflows/ci.yml/badge.svg"></a>
-  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&amp;logoColor=white">
-  <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&amp;logoColor=white">
-  <img alt="PostgreSQL 17" src="https://img.shields.io/badge/PostgreSQL-17-4169e1?logo=postgresql&amp;logoColor=white">
-  <img alt="Redis 7" src="https://img.shields.io/badge/Redis-7-dc382d?logo=redis&amp;logoColor=white">
-  <img alt="Docker" src="https://img.shields.io/badge/Docker-multi--stage-2496ed?logo=docker&amp;logoColor=white">
+  <a href="https://github.com/lui2303/gradientbattle/actions/workflows/ci.yml"><img alt="CI status" src="https://img.shields.io/github/actions/workflow/status/lui2303/gradientbattle/ci.yml?branch=main&amp;label=CI&amp;logo=githubactions&amp;logoColor=white"></a>
+  <a href="apps/web/tsconfig.json"><img alt="TypeScript, strict mode" src="https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&amp;logoColor=white"></a>
+  <a href="apps/web/package.json"><picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/Next.js-16-ffffff?logo=nextdotjs&amp;logoColor=white">
+    <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&amp;logoColor=white">
+  </picture></a>
+  <a href="docker-compose.prod.yaml"><img alt="PostgreSQL 17" src="https://img.shields.io/badge/PostgreSQL-17-4169e1?logo=postgresql&amp;logoColor=white"></a>
+  <a href="docker-compose.prod.yaml"><img alt="Redis 7" src="https://img.shields.io/badge/Redis-7-dc382d?logo=redis&amp;logoColor=white"></a>
+  <a href="Dockerfile"><img alt="Docker, multi-stage build" src="https://img.shields.io/badge/Docker-multi--stage-2496ed?logo=docker&amp;logoColor=white"></a>
 </p>
 
 <p align="center">
@@ -119,7 +120,7 @@ When the countdown reaches zero the client sends `EVALUATE`, up to five times in
 2. **Ranking.** Each player's best submission is the one with the fewest steps to $\lVert x \rVert_2 < 10^{-3}$. A run that never converged counts as 100 steps and is tie-broken by its final distance. Comparing the two best runs yields the winner or a draw. If only one player submitted, that player wins. These are plain reads outside the transaction; new submissions are refused once the deadline has passed.
 3. **Settlement, in one Prisma transaction.** `updateMany({ where: { id, status: { not: "evaluated" } }, … })` claims the battle. A count of 0 means another request got there first, and the stored result is returned in the same response shape. The claiming request then updates both users' `elo`, `peakElo` and `gamesPlayed` and stores the per-player deltas and pre-battle ratings on the battle row. A battle where nobody submitted is deleted, changes no rating and has no summary page.
 
-Elo uses a three-tier K-factor (`elo.ts`): $K = 40$ for players with fewer than 30 games, $K = 10$ once a player's peak rating has reached 1300, and $K = 20$ otherwise. With $E_A = 1 / (1 + 10^{(R_B - R_A)/400})$ each player's change is $\operatorname{round}(K (S - E))$. Two new 400-rated players therefore exchange ±20. Each player uses their own K, so an update is not zero-sum across tiers.
+Elo uses a three-tier K-factor (`elo.ts`): $K = 40$ for players with fewer than 30 games, $K = 10$ once a player's peak rating has reached 1300, and $K = 20$ otherwise. With $E_A = 1 / (1 + 10^{(R_B - R_A)/400})$ each player's change is $\mathrm{round}(K (S - E))$. Two new 400-rated players therefore exchange ±20. Each player uses their own K, so an update is not zero-sum across tiers.
 
 The socket server then marks the hash `BATTLE_ENDED`, resets the TTL of the hash and both `user:{id}` pointers to a 120 s grace period so a late `SYNC` still finds the result, and pushes `BATTLE_RESULT` to both players. The page refreshes into a server-rendered **summary**: outcome, Elo before → after, every submission of both players with its parameters, steps and best distance, and a comparison plot. The summary returns 404 to anyone who was not a participant. The match history on `/battle` lists the last ten battles with their Elo delta, and the public ladder at `/leaderboards/battle` shows the top twenty players.
 
