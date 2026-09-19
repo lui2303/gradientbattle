@@ -354,4 +354,9 @@ pnpm --filter web sweep                        # one sweeper pass, when needed
 
 ## Declaration of AI use
 
-About 60 % of the frontend code and about 10 % of the backend code were generated with Claude (Anthropic); I reviewed and integrated that code. Everything else was written by hand. The README diagrams were drafted with Claude and reviewed by me.
+Claude Opus 5.0 (Anthropic) assisted with parts of this project. I reviewed and integrated everything it produced; everything else was written by hand.
+
+- **Frontend, about 60 % written by Claude:** the shadcn/ui components and the Plotly architecture.
+- **Backend, about 10 % written by Claude:** setting up NextAuth, the Docker Compose files and the Caddy configuration, and the cookie-based authentication of the WebSocket server.
+
+The README diagrams were drafted with Claude and reviewed by me.
