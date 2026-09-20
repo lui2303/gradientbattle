@@ -30,7 +30,7 @@ In **free play** anyone can run up to five optimizers (Gradient Descent, Momentu
 
 Every trajectory is computed on the server. A battle is settled by one idempotent database transaction. The whole application, that is web app, WebSocket server, sweeper and migrations, ships as one Docker image that CI builds, SHA-tags and uploads to GHCR on every push to `main`.
 
-Built solo between March and September 2026.
+Built solo, after work, between March and September 2026: about 5,000 lines of TypeScript, not counting the shadcn/ui scaffolding, plus the compose, Caddy, Docker and CI configuration.
 
 ## Contents
 
