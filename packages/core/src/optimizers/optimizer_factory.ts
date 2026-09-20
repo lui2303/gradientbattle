@@ -6,6 +6,8 @@ import { AdaGrad } from './adagrad'
 import { ADAGRAD_NAME, ADAM_NAME, GD_MOMENTUM_NAME, RMSPROP_NAME } from './constants'
 import { Adam } from './adam'
 
+
+
 export function optimizerFactory(optimizerName: string, params: Record<string, {enabled: boolean, value: number}>, startingPoint: Point, id: string, objective: objectiveFunction): Optimizer {
     switch (optimizerName) {
         case GD_MOMENTUM_NAME:

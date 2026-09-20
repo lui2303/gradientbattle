@@ -110,7 +110,6 @@ export default function BattleScreen({ username, userID, battleID }: { username:
                 if (typeof submissionCount === "number") setSubmissions(submissionCount)
                 return { traces: result.ok ? result.data.traces : null };
             },
-            requiresAuth: true,
             allowedFunctions: [game!.objective],
             allowedOptimizer: game!.optimizers.map((k) => ({ ...k, color: SERIES_COLORS[0] })),
             maxOptimizers: 1

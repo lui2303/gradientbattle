@@ -1,7 +1,6 @@
 import { Point } from "@gradientbattle/core";
 import { functionList } from "@gradientbattle/core/src/functions/function_registry";
 import { optimizationAlgorithms } from "@gradientbattle/core/src/optimizers/optimizer_registry";
-import { Session } from "next-auth";
 import { SERIES_COLORS } from "./plotTheme";
 import { MAX_OPTIMIZERS } from "@/app/constants";
 import { postJson } from "./api";
@@ -15,14 +14,10 @@ export interface SimulationMode {
     run(optimizer: Record<string, FrontendOptimizer>, funcName: string, steps: number): Promise<{ traces: Point[][] } | { traces: null }> // callback for sending request to right server endpoint to start the run
 
     onRunComplete?(): void // for example logic for saving the run to a notebook
-    onStep?(step: Point[], stepNumber: number): void
 
     allowedOptimizer: FrontendOptimizer[]
     allowedFunctions: string[] //objectiveFunction[]
     maxOptimizers: number
-    
-    requiresAuth: boolean
-    session?: Session | null // for authenticated use cases the parent needs to do the auth, because auth cant be conditional.
 }
 
 export const FreeForAllSimulationMode: SimulationMode = {
@@ -34,7 +29,6 @@ export const FreeForAllSimulationMode: SimulationMode = {
 
     maxOptimizers: MAX_OPTIMIZERS,
     allowedFunctions: functionList,
-    requiresAuth: false,
     allowedOptimizer: Object.entries(optimizationAlgorithms).map(([k,v]) => { // convert the optimizer definitions inside the optimizer registry to the right frontend type
         return {
             name: k,
