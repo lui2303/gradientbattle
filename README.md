@@ -21,7 +21,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/hero.png" alt="Free play: Gradient Descent, Momentum and Adam racing from the same starting point on the quadratic bowl, with the trajectory, distance-to-optimum and objective-value plots" width="1000">
+  <img src="docs/screenshots/hero.png" alt="Free play: Gradient Descent, Adam and Momentum racing on the quadratic bowl from different starting points, with the trajectory, distance-to-optimum and objective-value plots, the live leaderboard and the three optimizer cards" width="1000">
 </p>
 
 In **ranked battle** mode two signed-in players are matched within an Elo window over a WebSocket, receive the same randomly generated optimizer configuration, parts of which are pinned by the server, and have two minutes and $k$ submissions each to reach the minimum in the fewest steps, with the last step of the run counting.
