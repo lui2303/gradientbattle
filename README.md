@@ -30,7 +30,7 @@ In **free play** anyone can run up to five optimizers (Gradient Descent, Momentu
 
 Every trajectory is computed on the server. A battle is settled by one idempotent database transaction. The whole application, that is web app, WebSocket server, sweeper and migrations, ships as one Docker image that CI builds, SHA-tags and uploads to GHCR on every push to `main`.
 
-Built solo, after work, between March and September 2026: about 5,000 lines of TypeScript, not counting the shadcn/ui scaffolding, plus the compose, Caddy, Docker and CI configuration.
+Built solo, after work, between March and September 2026: about 3,000 lines of TypeScript, plus the compose, Caddy, Docker and CI configuration. The count excludes AI-generated code, see the [declaration of AI use](#declaration-of-ai-use).
 
 ## Contents
 
@@ -357,6 +357,6 @@ pnpm --filter web sweep                        # one sweeper pass, when needed
 Claude Opus 5.0 (Anthropic) assisted with parts of this project. I reviewed and integrated everything it produced; everything else was written by hand.
 
 - **Frontend, about 60 % written by Claude:** the shadcn/ui components and the Plotly architecture.
-- **Backend, about 10 % written by Claude:** setting up NextAuth, the Docker Compose files,shell scripts, the Caddy configuration, and the cookie-based authentication of the WebSocket server.
+- **Backend, about 10 % written by Claude:** setting up NextAuth, the Docker Compose files, shell scripts, the Caddy configuration, and the cookie-based authentication of the WebSocket server.
 
 The README diagrams were drafted with Claude and reviewed by me.
