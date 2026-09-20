@@ -7,7 +7,7 @@ import { logger } from "./lib/logger";
 import { Point } from "@gradientbattle/core";
 import { ADAGRAD_NAME, ADAM_NAME, GD_MOMENTUM_NAME, GD_NAME, RMSPROP_NAME } from "@gradientbattle/core/src/optimizers/constants";
 import { optimizationAlgorithms } from "@gradientbattle/core/src/optimizers/optimizer_registry";
-import { quadraticFunction } from "@gradientbattle/core/src/functions/quadratic_function";
+import { functionList } from "@gradientbattle/core/src/functions/function_registry";
 import { MAX_SUBMISSIONS, READY_UP_TIME, API_BASE_URL, INTERNAL_SERVICE_TOKEN } from "./app/constants";
 import { ClientMessageTypes, ClientResponse, GameStatus, rankedGame, redisBattleRaw, ServerMessageTypes, ServerResponse } from "./app/types";
 
@@ -209,7 +209,7 @@ function generateRankedGame(): Omit<rankedGame, "battleID"> {
     return {
         startingPointsInequalities: STARTING_POINT_INEQUALITIES,
         optimizers: rankedOptimizers,
-        objective: quadraticFunction.name, // TODO: randomize this
+        objective: functionList[0], // TODO: randomize this
         maxSubmissions: MAX_SUBMISSIONS
     }
 }
@@ -479,7 +479,7 @@ wss.on("connection", (raw) => {
                         logger.error({ battleID, status: res.status, body: await res.text() }, "evaluate request failed")
                         return
                     }
-                    const result = await res.json() // { winnerId, winningRunId, status, [id]: eloDiff, [id2]: eloDiff }
+                    const result = await res.json() // { winnerId, winningRunId, status, eloDeltas }
                     logger.info({ battleID, result }, "battle evaluated")
 
                     await redis.HSET(`battle:${battleID}`, { state: "BATTLE_ENDED", winnerId: result.winnerId ?? "" })
