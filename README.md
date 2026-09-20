@@ -36,7 +36,6 @@ Built solo between March and September 2026.
 
 - [Architecture](#architecture)
 - [Engineering decisions](#engineering-decisions)
-- [Known limitations and roadmap](#known-limitations-and-roadmap)
 - [Ranked battles](#ranked-battles)
 - [Simulation pipeline](#simulation-pipeline)
 - [Authentication and security](#authentication-and-security)
@@ -44,6 +43,7 @@ Built solo between March and September 2026.
 - [Infrastructure and deployment](#infrastructure-and-deployment)
 - [Observability](#observability)
 - [Local development](#local-development)
+- [Known limitations and roadmap](#known-limitations-and-roadmap)
 - [Declaration of AI use](#declaration-of-ai-use)
 
 ## Architecture
@@ -73,23 +73,6 @@ Built solo between March and September 2026.
 - **Durations, not timestamps.** The server's `SYNC` reply carries the remaining milliseconds instead of the absolute deadline, so the client never compares its own wall clock to a server timestamp. The countdown turns that into a local deadline and recomputes from `Date.now()` every 250 ms. A fast client clock cannot settle early, because both the socket server and the evaluate route re-check the deadline.
 - **Fixed-window rate limiting.** A sliding window would be fairer at window boundaries. The goal was to bound sustained abuse of the simulation endpoints with one Redis round trip, not to police bursts.
 - **FIDE-style Elo with a three-tier K.** Simple and explainable for a small player base; the K schedule lets new accounts converge quickly. Glicko-2 is the planned replacement once rating uncertainty matters.
-
-## Known limitations and roadmap
-
-- **Atomicity in Redis.** Matchmaking and ready-up are several commands, not one script. Two searchers arriving together can both be matched to the same waiting player, and the two players' `READY` frames, if they interleave, can both read the initial ready state, after which the ready timer aborts the battle. Moving both into Lua scripts is the next correctness item.
-- **Submission deadline.** The run endpoint checks the deadline when a request starts and inserts the row after the simulation, so a submission accepted in the last milliseconds can land after settlement.
-- **Sweeper-settled battles are not pushed.** The sweeper settles the PostgreSQL row only. No `BATTLE_RESULT` is sent and the Redis hash stays `RUNNING` until its TTL. The battle page still converges, because it reads the status from PostgreSQL on every load.
-- **No automatic reconnect.** A dropped WebSocket is recovered by reloading the correct page, which re-syncs from Redis.
-- **Single battle replica.** Sockets live in process memory. Horizontal scaling needs Redis pub/sub for cross-instance delivery.
-- **Evaluation hard-codes the step budget.** A non-converged run is always scored as 100 steps, so battles with a different step limit are not supported yet.
-- **Data.** Only unique indexes exist. The sweeper query on `(status, endsAt)`, match history by player and the ladder by Elo are sequential scans, which is fine at today's size. Free-play `Run` rows accumulate without retention.
-- **Parked features.** The daily-challenge mode is parked pending a rewrite. The local run-history sidebar is unwired.
-
-**Planned features**
-
-- **Custom objective functions.** Today an objective is a hand-written `objective` and `gradient` pair plus a LaTeX string for display. Players should be able to type their own function in LaTeX or a similar notation, which the server parses, differentiates and evaluates, so the function library is no longer limited to what is registered in the core package.
-- **Optima away from the origin.** Every optimizer declares convergence when $\lVert x \rVert_2$ falls below $10^{-3}$, and the distance plot measures against the origin, so every landscape must have its minimum at $(0, 0)$. Giving each objective a `minimizer` and measuring convergence and distance relative to it opens up functions such as Rosenbrock.
-- **Live pressure in battles.** A player currently learns what the opponent did only on the summary page. A push over the socket whenever the opponent's latest submission beats the player's current best would make the two minutes more engaging.
 
 ## Ranked battles
 
@@ -351,6 +334,23 @@ pnpm dev                                       # Next.js        :3000
 pnpm --filter web battle                       # battle server  :3001 (tsx watch)
 pnpm --filter web sweep                        # one sweeper pass, when needed
 ```
+
+## Known limitations and roadmap
+
+- **Atomicity in Redis.** Matchmaking and ready-up are several commands, not one script. Two searchers arriving together can both be matched to the same waiting player, and the two players' `READY` frames, if they interleave, can both read the initial ready state, after which the ready timer aborts the battle. Moving both into Lua scripts is the next correctness item.
+- **Submission deadline.** The run endpoint checks the deadline when a request starts and inserts the row after the simulation, so a submission accepted in the last milliseconds can land after settlement.
+- **Sweeper-settled battles are not pushed.** The sweeper settles the PostgreSQL row only. No `BATTLE_RESULT` is sent and the Redis hash stays `RUNNING` until its TTL. The battle page still converges, because it reads the status from PostgreSQL on every load.
+- **No automatic reconnect.** A dropped WebSocket is recovered by reloading the correct page, which re-syncs from Redis.
+- **Single battle replica.** Sockets live in process memory. Horizontal scaling needs Redis pub/sub for cross-instance delivery.
+- **Evaluation hard-codes the step budget.** A non-converged run is always scored as 100 steps, so battles with a different step limit are not supported yet.
+- **Data.** Only unique indexes exist. The sweeper query on `(status, endsAt)`, match history by player and the ladder by Elo are sequential scans, which is fine at today's size. Free-play `Run` rows accumulate without retention.
+- **Parked features.** The daily-challenge mode is parked pending a rewrite. The local run-history sidebar is unwired.
+
+**Planned features**
+
+- **Custom objective functions.** Today an objective is a hand-written `objective` and `gradient` pair plus a LaTeX string for display. Players should be able to type their own function in LaTeX or a similar notation, which the server parses, differentiates and evaluates, so the function library is no longer limited to what is registered in the core package.
+- **Optima away from the origin.** Every optimizer declares convergence when $\lVert x \rVert_2$ falls below $10^{-3}$, and the distance plot measures against the origin, so every landscape must have its minimum at $(0, 0)$. Giving each objective a `minimizer` and measuring convergence and distance relative to it opens up functions such as Rosenbrock.
+- **Live pressure in battles.** A player currently learns what the opponent did only on the summary page. A push over the socket whenever the opponent's latest submission beats the player's current best would make the two minutes more engaging.
 
 ## Declaration of AI use
 
