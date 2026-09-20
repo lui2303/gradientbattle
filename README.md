@@ -357,6 +357,6 @@ pnpm --filter web sweep                        # one sweeper pass, when needed
 Claude Opus 5.0 (Anthropic) assisted with parts of this project. I reviewed and integrated everything it produced; everything else was written by hand.
 
 - **Frontend, about 60 % written by Claude:** the shadcn/ui components and the Plotly architecture.
-- **Backend, about 10 % written by Claude:** setting up NextAuth, the Docker Compose files and the Caddy configuration, and the cookie-based authentication of the WebSocket server.
+- **Backend, about 10 % written by Claude:** setting up NextAuth, the Docker Compose files,shell scripts, the Caddy configuration, and the cookie-based authentication of the WebSocket server.
 
 The README diagrams were drafted with Claude and reviewed by me.
