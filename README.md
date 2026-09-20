@@ -24,9 +24,10 @@
   <img src="docs/screenshots/hero.png" alt="Free play: Gradient Descent, Adam and Momentum racing on the quadratic bowl from different starting points, with the trajectory, distance-to-optimum and objective-value plots, the live leaderboard and the three optimizer cards" width="1000">
 </p>
 
-In **ranked battle** mode two signed-in players are matched within an Elo window over a WebSocket, receive the same randomly generated optimizer configuration, parts of which are pinned by the server, and have two minutes and $k$ submissions each to reach the minimum in the fewest steps, with the last step of the run counting.
 
-In **free play** anyone can run up to five optimizers (Gradient Descent, Momentum, AdaGrad, RMSProp, Adam) side by side on a 2-D objective while three synchronized plots animate the trajectory on a contour plot, the distance to the optimum and the objective value.
+In **free play** anyone can run up to five optimizers (Gradient Descent, Momentum, AdaGrad, RMSProp, Adam) side by side on a 2-D objective with custom parameters and starting points, while three synchronized plots animate the trajectory on a contour plot, the distance to the optimum and the objective value.
+
+In **ranked battle** mode two signed-in players are matched within an Elo window over a WebSocket, receive the same randomly generated optimizer configuration, parts of which are pinned by the server, and have two minutes and $k$ submissions each to reach the minimum in the fewest steps, with the last step of the run counting.
 
 Every trajectory is computed on the server. A battle is settled by one idempotent database transaction. The whole application, that is web app, WebSocket server, sweeper and migrations, ships as one Docker image that CI builds, SHA-tags and uploads to GHCR on every push to `main`.
 
