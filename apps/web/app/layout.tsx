@@ -52,6 +52,14 @@ export default function RootLayout({
           </main>
         </TooltipProvider>
         <Toaster position="bottom-right" />
+        {/* Cloudflare Web Analytics. The domain is DNS-only (not proxied), so the
+            beacon has to be shipped with the page instead of injected at the edge. */}
+        <Script
+          id="cf-beacon"
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon='{"token": "471f9a8ac9bd4881953f6ce60a8f959c"}'
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
